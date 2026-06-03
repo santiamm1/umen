@@ -118,33 +118,49 @@ function updateStats() {
 function addImageRow(url = '') {
     const list = document.getElementById('image-url-list');
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;gap:8px;align-items:center';
+    row.className = 'image-row';
     row.innerHTML = `
-        <input type="text" class="image-url-input" value="${url}"
-               placeholder="https://..."
-               style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.9rem;outline:none">
-        <button type="button"
-                style="flex-shrink:0;width:34px;height:34px;border:none;background:#fee2e2;color:#dc2626;border-radius:6px;cursor:pointer;font-size:1.1rem;line-height:1"
-                onclick="this.parentElement.remove()">×</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label class="image-row-label"
+                   style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#555;margin:0"></label>
+            <button type="button" class="remove-img-btn"
+                    style="font-size:0.75rem;font-weight:600;color:#dc2626;background:none;border:none;cursor:pointer;padding:0"
+                    onclick="removeImageRow(this)">Quitar</button>
+        </div>
+        <input type="text" class="image-url-input" value="${url}" placeholder="https://..."
+               style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.9rem;outline:none;box-sizing:border-box">
     `;
     list.appendChild(row);
+    renumberImages();
+}
+
+window.removeImageRow = function(btn) {
+    btn.closest('.image-row').remove();
+    renumberImages();
+};
+
+function renumberImages() {
+    const rows = document.querySelectorAll('#image-url-list .image-row');
+    rows.forEach((row, i) => {
+        const lbl = row.querySelector('.image-row-label');
+        const removeBtn = row.querySelector('.remove-img-btn');
+        if (lbl) lbl.textContent = i === 0 ? 'Imagen principal' : `Imagen ${i + 1}`;
+        if (removeBtn) removeBtn.style.visibility = rows.length > 1 ? 'visible' : 'hidden';
+    });
 }
 
 function setImageUrls(urls) {
     const list = document.getElementById('image-url-list');
     if (!list) return;
     list.innerHTML = '';
-    if (urls.length === 0) {
-        addImageRow('');
-    } else {
-        urls.forEach(url => addImageRow(url));
-    }
+    const items = urls.length > 0 ? urls : [''];
+    items.forEach(url => addImageRow(url));
 }
 
 function getImageUrls() {
     return Array.from(document.querySelectorAll('.image-url-input'))
-        .map(input => input.value.trim())
-        .filter(url => url.length > 0);
+        .map(i => i.value.trim())
+        .filter(u => u.length > 0);
 }
 
 document.getElementById('add-image-btn')?.addEventListener('click', () => addImageRow(''));
