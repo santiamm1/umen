@@ -45,7 +45,7 @@ let currentGalleryIdx = 0;
         if (e.key === 'ArrowRight') lightboxNav(1);
         if (e.key === 'Escape')     closeLightbox();
     });
-});
+})();
 
 // ── Demo ──────────────────────────────────────────────────────────────────────
 
