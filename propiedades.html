@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propiedades | UMEN Buenos Negocios Inmobiliarios</title>
+    <link rel="icon" href="assets/Logo/Favicon.png">
+    <link rel="stylesheet" href="css/styles.css?v=3.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase CDN -->
+    <script type="module">
+        import { firebaseConfig } from './js/config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+
+        const app = initializeApp(firebaseConfig);
+        window.auth = getAuth(app);
+        window.db = getFirestore(app);
+        window.storage = getStorage(app);
+    </script>
+</head>
+<body>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-grid">
+
+            <div class="logo-container">
+                <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN Logo" class="logo" id="header-logo">
+            </div>
+
+            <div class="header-nav-area">
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav id="nav-menu">
+                    <a href="index.html">Inicio</a>
+                    <a href="index.html#destacado">Categorías</a>
+                    <a href="propiedades.html" class="active">Propiedades</a>
+                    <a href="index.html#newsletter">Newsletter</a>
+                    <a href="admin-login.html">Acceso Admin</a>
+                </nav>
+            </div>
+
+            <div class="header-filter-bar">
+                <div class="search-content">
+                    <div class="radio-group-2">
+                        <input type="radio" id="comprar" name="operation" value="venta" checked>
+                        <label for="comprar">Venta</label>
+                        <input type="radio" id="alquilar" name="operation" value="alquiler">
+                        <label for="alquilar">Alquiler</label>
+                    </div>
+                    <div class="select-group">
+                        <select id="property-type" hidden></select>
+                        <div class="custom-select" id="custom-property-type">
+                            <button type="button" class="custom-select-trigger">
+                                <span class="custom-select-value">Todo tipo de propiedades</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <ul class="custom-select-dropdown" role="listbox"></ul>
+                        </div>
+                    </div>
+                    <div class="input-search">
+                        <input type="text" id="quicksearch" placeholder="Ingresá ubicación, barrio o palabra clave..." autocomplete="off">
+                    </div>
+                    <button class="btn orange search_propiedades" id="search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Overlay sidebar mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Page hero -->
+    <section class="prop-page-hero">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="index.html">Inicio</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Propiedades</span>
+            </nav>
+            <h1>Propiedades</h1>
+        </div>
+    </section>
+
+    <!-- Resultados con sidebar -->
+    <main class="main-layout prop-main" id="property-results">
+        <div class="container">
+            <div class="results-layout">
+
+                <!-- Sidebar de filtros -->
+                <aside class="filters-sidebar" id="filters-sidebar">
+                    <div class="sidebar-header">
+                        <h3>Filtros</h3>
+                        <button class="clear-all-btn" id="clear-all-filters">Limpiar todo</button>
+                    </div>
+
+                    <div class="active-filters" id="active-filters"></div>
+
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Precio (USD)</h4>
+                        <div class="price-range-inputs">
+                            <input type="number" id="price-min" placeholder="Desde" min="0">
+                            <span>—</span>
+                            <input type="number" id="price-max" placeholder="Hasta" min="0">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Ambientes</h4>
+                        <div class="filter-number-btns" id="filter-rooms">
+                            <button class="filter-number-btn" data-value="1">1</button>
+                            <button class="filter-number-btn" data-value="2">2</button>
+                            <button class="filter-number-btn" data-value="3">3</button>
+                            <button class="filter-number-btn" data-value="4+">4+</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Dormitorios</h4>
+                        <div class="filter-number-btns" id="filter-bedrooms">
+                            <button class="filter-number-btn" data-value="1">1</button>
+                            <button class="filter-number-btn" data-value="2">2</button>
+                            <button class="filter-number-btn" data-value="3">3</button>
+                            <button class="filter-number-btn" data-value="4+">4+</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Superficie (m²)</h4>
+                        <div class="price-range-inputs">
+                            <input type="number" id="surface-min" placeholder="Desde" min="0">
+                            <span>—</span>
+                            <input type="number" id="surface-max" placeholder="Hasta" min="0">
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Contenido principal -->
+                <div class="results-main">
+                    <div class="results-header">
+                        <div class="results-info">
+                            <h2 id="results-title">Propiedades en Venta</h2>
+                            <span id="results-count">0 propiedades encontradas</span>
+                        </div>
+                        <div class="results-controls">
+                            <button class="filter-toggle-btn" id="filter-toggle-btn">
+                                <i class="fas fa-sliders-h"></i> Filtros
+                            </button>
+                            <div class="view-toggle">
+                                <button class="view-btn active" id="view-grid" title="Grilla">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="view-btn" id="view-list" title="Lista">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                            <select id="sort-order">
+                                <option value="newest">Más recientes</option>
+                                <option value="price-asc">Precio: Menor a Mayor</option>
+                                <option value="price-desc">Precio: Mayor a Menor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="property-grid" id="property-list">
+                        <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando propiedades de UMEN...</div>
+                    </div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Newsletter -->
+    <section id="newsletter">
+        <div class="container newsletter-inner">
+            <div class="newsletter-copy">
+                <span class="newsletter-tag">Newsletter</span>
+                <h2>Las novedades del mercado inmobiliario, antes que nadie.</h2>
+                <p>Tendencias, nuevas propiedades y oportunidades de inversión directo en tu bandeja.</p>
+            </div>
+            <div class="newsletter-action">
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Tu correo electrónico" id="email_news">
+                    <button class="btn" id="news_go">Suscribirme</button>
+                </div>
+                <p class="newsletter-disclaimer">Sin spam. Podés darte de baja cuando quieras.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="footer-main">
+            <div class="container footer-grid">
+                <div class="footer-col footer-brand">
+                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN" class="footer-logo">
+                    <p>Buenos Negocios Inmobiliarios. Líderes en el mercado inmobiliario argentino con presencia en las principales zonas del país.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Contacto</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:info@umen.com.ar"><i class="fas fa-envelope"></i> info@umen.com.ar</a></li>
+                        <li><a href="https://wa.me/5491131444207" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> +54 911 3144.4207</a></li>
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Av. Cabildo 4769 9° Piso, Nuñez, CABA.</a></li>
+                        <li><a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                        <li><a href="https://hotelesenventa.com" target="_blank" rel="noopener"><i class="fas fa-hotel"></i> hotelesenventa.com</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col footer-hoteles">
+                    <a href="https://hotelesenventa.com" target="_blank" rel="noopener">
+                        <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta" class="footer-hoteles-logo">
+                    </a>
+                    <p>hotelesenventa.com es un producto de UMEN Buenos Negocios Inmobiliarios.</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 UMEN. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/propiedades.js?v=3.0"></script>
+</body>
+</html>

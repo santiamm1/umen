@@ -3,51 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle de Propiedad | UMEN Real Estate</title>
+    <title>Detalle de Propiedad | UMEN Buenos Negocios Inmobiliarios</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/styles.css?v=1.2">
+    <link rel="stylesheet" href="css/styles.css?v=3.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <!-- Firebase CDN -->
     <script type="module">
         import { firebaseConfig } from './js/config.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+        import { getAuth }       from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore }  from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getStorage }    from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
 
         const app = initializeApp(firebaseConfig);
-        window.auth = getAuth(app);
-        window.db = getFirestore(app);
+        window.auth    = getAuth(app);
+        window.db      = getFirestore(app);
         window.storage = getStorage(app);
     </script>
 </head>
 <body>
-    <header id="header">
-        <div class="container header-content">
+
+    <!-- Header (siempre sólido en páginas internas) -->
+    <header id="header" class="scrolled detail-header">
+        <div class="container header-grid">
+
             <div class="logo-container">
-                <img src="assets/Logo/Logo.png" alt="UMEN Logo" class="logo">
+                <a href="index.html">
+                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN Logo" class="logo">
+                </a>
             </div>
-            <nav>
-                <a href="index.html">Propiedades</a>
-                <a href="admin-login.html">Acceso Admin</a>
-            </nav>
+
+            <div class="header-nav-area">
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav id="nav-menu">
+                    <a href="index.html">Inicio</a>
+                    <a href="index.html#destacado">Categorías</a>
+                    <a href="propiedades.html">Propiedades</a>
+                    <a href="index.html#newsletter">Newsletter</a>
+                    <a href="admin-login.html">Acceso Admin</a>
+                </nav>
+            </div>
+
         </div>
     </header>
 
+    <!-- Contenido principal -->
     <main>
         <div class="container">
             <div id="property-detail">
-                <!-- Property detail will be populated by JS -->
+                <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando propiedad...</div>
             </div>
         </div>
     </main>
 
+    <!-- Footer completo -->
     <footer id="footer">
-        <div class="container">
-            <p>&copy; 2024 UMEN. Todos los derechos reservados.</p>
+        <div class="footer-main">
+            <div class="container footer-grid">
+                <div class="footer-col footer-brand">
+                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN" class="footer-logo">
+                    <p>Buenos Negocios Inmobiliarios. Líderes en el mercado inmobiliario argentino con presencia en las principales zonas del país.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Contacto</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:info@umen.com.ar"><i class="fas fa-envelope"></i> info@umen.com.ar</a></li>
+                        <li><a href="https://wa.me/5491131444207" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> +54 911 3144.4207</a></li>
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Av. Cabildo 4769 9° Piso, Nuñez, CABA.</a></li>
+                        <li><a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                        <li><a href="https://hotelesenventa.com" target="_blank" rel="noopener"><i class="fas fa-hotel"></i> hotelesenventa.com</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col footer-hoteles">
+                    <a href="https://hotelesenventa.com" target="_blank" rel="noopener">
+                        <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta" class="footer-hoteles-logo">
+                    </a>
+                    <p>hotelesenventa.com es un producto de UMEN Buenos Negocios Inmobiliarios.</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 UMEN. Todos los derechos reservados.</p>
+            </div>
         </div>
     </footer>
 
-    <script type="module" src="js/propertyDetail.js?v=1.2"></script>
+    <script type="module" src="js/propertyDetail.js?v=3.0"></script>
+    <script type="module">
+        const btn = document.getElementById('mobile-menu-btn');
+        const nav = document.getElementById('nav-menu');
+        btn?.addEventListener('click', () => {
+            nav.classList.toggle('active');
+            const icon = btn.querySelector('i');
+            if (nav.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+                Object.assign(nav.style, {
+                    display: 'flex', flexDirection: 'column',
+                    position: 'absolute', top: '100%',
+                    left: '0', width: '100%',
+                    backgroundColor: '#111', padding: '20px', zIndex: '999'
+                });
+            } else {
+                icon.className = 'fas fa-bars';
+                nav.style.cssText = '';
+            }
+        });
+    </script>
 </body>
 </html>
