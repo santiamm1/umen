@@ -113,6 +113,43 @@ function updateStats() {
 }
 
 // Global functions for actions (exposed to window for onclick)
+// ── Gestión de múltiples imágenes ────────────────────────────────────────────
+
+function addImageRow(url = '') {
+    const list = document.getElementById('image-url-list');
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;align-items:center';
+    row.innerHTML = `
+        <input type="text" class="image-url-input" value="${url}"
+               placeholder="https://..."
+               style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.9rem;outline:none">
+        <button type="button"
+                style="flex-shrink:0;width:34px;height:34px;border:none;background:#fee2e2;color:#dc2626;border-radius:6px;cursor:pointer;font-size:1.1rem;line-height:1"
+                onclick="this.parentElement.remove()">×</button>
+    `;
+    list.appendChild(row);
+}
+
+function setImageUrls(urls) {
+    const list = document.getElementById('image-url-list');
+    if (!list) return;
+    list.innerHTML = '';
+    if (urls.length === 0) {
+        addImageRow('');
+    } else {
+        urls.forEach(url => addImageRow(url));
+    }
+}
+
+function getImageUrls() {
+    return Array.from(document.querySelectorAll('.image-url-input'))
+        .map(input => input.value.trim())
+        .filter(url => url.length > 0);
+}
+
+document.getElementById('add-image-btn')?.addEventListener('click', () => addImageRow(''));
+
+// ── Funciones globales ────────────────────────────────────────────────────────
 window.editProperty = async (id) => {
     editingId = id;
     const property = properties.find(p => p.id === id);
@@ -129,7 +166,7 @@ window.editProperty = async (id) => {
     document.getElementById('surface').value = property.surface;
     document.getElementById('bedrooms').value = property.bedrooms;
     document.getElementById('description').value = property.description || '';
-    document.getElementById('image-url').value = (property.images && property.images[0]) ? property.images[0] : '';
+    setImageUrls(property.images || []);
 
     propertyModal.style.display = 'flex';
 };
@@ -150,6 +187,7 @@ function openNewPropertyModal() {
     editingId = null;
     modalTitle.textContent = 'Nueva Propiedad';
     propertyForm.reset();
+    setImageUrls([]);
     propertyModal.style.display = 'flex';
 }
 
@@ -171,7 +209,7 @@ async function handleFormSubmit(e) {
         surface: Number(document.getElementById('surface').value),
         bedrooms: Number(document.getElementById('bedrooms').value),
         description: document.getElementById('description').value,
-        images: [document.getElementById('image-url').value]
+        images: getImageUrls()
     };
 
     try {
