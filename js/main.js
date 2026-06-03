@@ -29,44 +29,33 @@ let currentFilters = {
 };
 
 // Inicializar
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Iniciando UMEN al estilo Toribio Achával...');
+(async () => {
+    // Esperar hasta 3s a que Firebase inicialice
+    let attempts = 0;
+    while (!window.db && attempts < 30) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
 
-    // Configurar scroll del header
     setupHeaderScroll();
-
-    // Configurar menú móvil
     setupMobileMenu();
-    
-    // Cargar categorías y provincias
+
     const isFirebaseConfigured = checkFirebaseConfig();
     if (isFirebaseConfigured) {
         await loadData();
     } else {
-        console.warn('Firebase no está configurado. Usando modo demo.');
         useDemoData();
     }
-    
-    // Popular select de tipos de propiedad
+
     populatePropertyTypes();
-
-    // Inicializar custom select visual
     setupCustomSelect();
-
-    // Configurar escuchas del buscador
     setupSearchBox();
-    
-    // Configurar enlaces de categorías destacadas (Residencial, Comercial, Emprendimientos)
     setupHighlightLinks();
-    
-    // Configurar ordenamiento
-    sortOrderSelect.addEventListener('change', () => {
-        sortAndRenderProperties();
-    });
 
-    // Cargar propiedades iniciales
+    sortOrderSelect.addEventListener('change', () => sortAndRenderProperties());
+
     await executeSearch();
-});
+})();
 
 // Verificar si Firebase está inicializado
 function checkFirebaseConfig() {

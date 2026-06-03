@@ -44,8 +44,14 @@ const sidebarOverlay      = document.getElementById('sidebar-overlay');
 const viewGridBtn         = document.getElementById('view-grid');
 const viewListBtn         = document.getElementById('view-list');
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // Header siempre sólido en esta página (no hay hero de video)
+(async () => {
+    // Esperar hasta 3s a que Firebase inicialice
+    let attempts = 0;
+    while (!window.db && attempts < 30) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
+
     header.classList.add('scrolled');
     window.addEventListener('scroll', () => header.classList.add('scrolled'));
 
@@ -74,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     clearAllBtn.addEventListener('click', clearAllFilters);
 
     await fetchAndRender();
-});
+})();
 
 // ── Datos por defecto ─────────────────────────────────────────────────────────
 

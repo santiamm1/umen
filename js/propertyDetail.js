@@ -12,8 +12,17 @@ let galleryImages   = [];
 let currentGalleryIdx = 0;
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+// Los módulos ES son diferidos: el DOM ya está listo cuando este código corre.
+// No usar DOMContentLoaded — puede perderse si Firebase CDN tarda más que el módulo local.
 
-document.addEventListener('DOMContentLoaded', async () => {
+(async () => {
+    // Esperar hasta 3s a que Firebase inicialice (el inline module puede llegar después)
+    let attempts = 0;
+    while (!window.db && attempts < 30) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
+
     const firebaseReady = window.db && window.db._databaseId?.projectId !== 'TU_PROJECT_ID_AQUI';
 
     if (propertyId && firebaseReady) {
