@@ -2,17 +2,17 @@
 
 import { getProperties, getCategories, getProvinces } from './propertyService.js';
 
-// Elementos DOM
-const header = document.getElementById('header');
-const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-const navMenu = document.getElementById('nav-menu');
-const propertyTypeSelect = document.getElementById('property-type');
+// Elementos DOM — se asignan luego de que el header partial se inyecte
+let header;
+let mobileMenuBtn;
+let navMenu;
+let propertyTypeSelect;
+let searchBtn;
+let quickSearchInput;
 const propertyListContainer = document.getElementById('property-list');
-const searchBtn = document.getElementById('search-btn');
-const quickSearchInput = document.getElementById('quicksearch');
-const resultsTitle = document.getElementById('results-title');
-const resultsCount = document.getElementById('results-count');
-const sortOrderSelect = document.getElementById('sort-order');
+const resultsTitle         = document.getElementById('results-title');
+const resultsCount         = document.getElementById('results-count');
+const sortOrderSelect      = document.getElementById('sort-order');
 const activeFiltersContainer = document.getElementById('active-filters');
 
 // Estado
@@ -36,6 +36,21 @@ let currentFilters = {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
     }
+
+    // Esperar a que el header partial se inyecte en el DOM
+    attempts = 0;
+    while (!document.getElementById('header') && attempts < 50) {
+        await new Promise(r => setTimeout(r, 50));
+        attempts++;
+    }
+
+    // Asignar refs que dependen del header partial
+    header            = document.getElementById('header');
+    mobileMenuBtn     = document.getElementById('mobile-menu-btn');
+    navMenu           = document.getElementById('nav-menu');
+    propertyTypeSelect = document.getElementById('property-type');
+    searchBtn         = document.getElementById('search-btn');
+    quickSearchInput  = document.getElementById('quicksearch');
 
     setupHeaderScroll();
     setupMobileMenu();

@@ -3014,14 +3014,14 @@ a.item {
     position: relative;
     width: 100%;
     height: 48vh;
-    min-height: 400px;
+    min-height: 440px;
     overflow: hidden;
     background-color: #000;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding-top: 210px;
+    padding-top: 260px;
     border-bottom: 3px solid var(--primary-color);
 }
 
@@ -3361,9 +3361,9 @@ a.item {
 
 @media (max-width: 768px) {
     .prop-page-hero {
-        padding-top: 200px;
+        padding-top: 220px;
         height: auto;
-        min-height: 360px;
+        min-height: 380px;
     }
 
     .property-grid.list-view .property-card {
@@ -3793,4 +3793,782 @@ a.item {
     .lightbox-next { right: 8px; }
 
     .detail-map { height: 240px; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CONTACTO PAGE
+══════════════════════════════════════════════════════════ */
+
+#contacto-main {
+    background: var(--white);
+    padding: 80px 0 100px;
+}
+
+.contacto-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 64px;
+    align-items: start;
+}
+
+/* ── Info column ── */
+.contacto-intro {
+    margin-bottom: 40px;
+}
+
+.contacto-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+}
+
+.contacto-intro h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111;
+    line-height: 1.2;
+    margin-bottom: 14px;
+}
+
+.contacto-intro p {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.7;
+}
+
+.contacto-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.contacto-dato {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.contacto-dato-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    background: #fff8f0;
+    border: 1.5px solid #fde8c4;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 16px;
+    margin-top: 2px;
+}
+
+.contacto-dato-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.contacto-dato-text strong {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.contacto-dato-text span,
+.contacto-dato-text a {
+    font-size: 15px;
+    color: #222;
+    line-height: 1.55;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.contacto-dato-text a:hover {
+    color: var(--primary-color);
+}
+
+.contacto-social {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.contacto-social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1.5px solid #e0dbd5;
+    background: var(--white);
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.contacto-social-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: #fff8f0;
+}
+
+.contacto-social-btn.whatsapp:hover {
+    border-color: #25d366;
+    color: #25d366;
+    background: #f0fdf4;
+}
+
+/* ── Form column ── */
+.contacto-form-wrap {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 48px;
+}
+
+.contacto-form h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 6px;
+}
+
+.form-sub {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 32px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.form-field label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #555;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    padding: 12px 16px;
+    border: 1.5px solid #ddd8d2;
+    border-radius: 8px;
+    background: var(--white);
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: #222;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(246, 140, 24, 0.12);
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+    color: #bbb;
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+.contacto-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.contacto-submit-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(246, 140, 24, 0.35);
+}
+
+.contacto-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cf-feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cf-feedback.success {
+    background: #ecfdf5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+}
+
+.cf-feedback.error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+/* ── Mapa ── */
+#contacto-mapa {
+    background: var(--light-gray);
+    border-top: 1px solid var(--border-color);
+}
+
+.mapa-header {
+    padding: 64px 40px 32px;
+    text-align: center;
+}
+
+.mapa-header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 8px;
+}
+
+.mapa-header p {
+    font-size: 15px;
+    color: #777;
+}
+
+.mapa-embed {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.mapa-embed iframe {
+    display: block;
+    filter: grayscale(20%) contrast(1.05);
+}
+
+/* ── Contacto responsive ── */
+@media (max-width: 1024px) {
+    .contacto-layout {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+
+    .contacto-form-wrap {
+        padding: 36px;
+    }
+}
+
+@media (max-width: 640px) {
+    #contacto-main {
+        padding: 60px 0 80px;
+    }
+
+    .contacto-form-wrap {
+        padding: 28px 20px;
+        border-radius: 12px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .mapa-embed {
+        height: 280px;
+    }
+
+    .mapa-header {
+        padding: 48px 20px 24px;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TASACIONES PAGE
+══════════════════════════════════════════════════════════ */
+
+/* ── Stats strip ── */
+#tas-stats {
+    background: var(--primary-color);
+    padding: 90px 0;
+    border-top: none;
+}
+
+.tas-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+}
+
+.tas-stat {
+    text-align: center;
+    padding: 40px 30px;
+    border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.tas-stat:hover {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    transform: translateY(-8px);
+    border-color: #ffffff;
+}
+
+.tas-stat-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(246,140,24,0.1);
+    border-radius: 50%;
+    color: var(--primary-color);
+    font-size: 3rem;
+    transition: var(--transition);
+}
+
+.tas-stat:hover .tas-stat-icon {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.tas-stat-num {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--secondary-color);
+    line-height: 1.2;
+    margin-bottom: 6px;
+}
+
+.tas-stat-label {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    line-height: 1.4;
+}
+
+/* ── Main layout ── */
+#tas-main {
+    background: var(--white);
+    padding: 88px 0 100px;
+}
+
+.tas-main-layout {
+    display: grid;
+    grid-template-columns: 1fr 520px;
+    gap: 72px;
+    align-items: start;
+}
+
+/* ── Info column ── */
+.tas-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+}
+
+.tas-intro {
+    margin-bottom: 44px;
+}
+
+.tas-intro h2 {
+    font-size: 34px;
+    font-weight: 800;
+    color: #111;
+    line-height: 1.2;
+    margin-bottom: 16px;
+}
+
+.tas-intro p {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.75;
+    max-width: 480px;
+}
+
+/* ── Pasos ── */
+.tas-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-bottom: 44px;
+    padding-left: 4px;
+}
+
+.tas-step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.tas-step-num {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--primary-color);
+    background: #fff8f0;
+    border: 1.5px solid #fde8c4;
+    border-radius: 8px;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    letter-spacing: 0;
+}
+
+.tas-step-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 8px;
+}
+
+.tas-step-text strong {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+}
+
+.tas-step-text span {
+    font-size: 14px;
+    color: #777;
+    line-height: 1.6;
+}
+
+/* ── Contacto directo ── */
+.tas-contacto-directo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.tas-contacto-label {
+    font-size: 13px;
+    color: #999;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tas-wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 24px;
+    background: #25d366;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    width: fit-content;
+    transition: var(--transition);
+}
+
+.tas-wa-btn:hover {
+    background: #1da851;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
+}
+
+.tas-tel-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.tas-tel-link:hover {
+    color: var(--primary-color);
+}
+
+/* ── Form ── */
+.tas-form-wrap {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 44px 40px;
+    position: sticky;
+    top: 120px;
+}
+
+.tas-form-header {
+    margin-bottom: 28px;
+}
+
+.tas-form-header h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 6px;
+}
+
+.tas-form-header p {
+    font-size: 14px;
+    color: #888;
+}
+
+/* Toggle venta/alquiler */
+.tas-op-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #e8e4df;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 24px;
+    gap: 4px;
+}
+
+.tas-op-btn {
+    padding: 10px 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tas-op-btn.active {
+    background: var(--white);
+    color: #111;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tas-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.tas-submit-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(246, 140, 24, 0.35);
+}
+
+.tas-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── Diferenciadores (columna izquierda de #tas-main) ── */
+.tas-features {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 44px;
+}
+
+.tas-feature {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.tas-feature-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    background: #fff8f0;
+    border: 1.5px solid #fde8c4;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 16px;
+    margin-top: 2px;
+}
+
+.tas-feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tas-feature-text strong {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+}
+
+.tas-feature-text span {
+    font-size: 14px;
+    color: #777;
+    line-height: 1.6;
+}
+
+/* ── CTA final ── */
+#tas-cta {
+    background: #111;
+    padding: 72px 0;
+    border-top: 3px solid var(--primary-color);
+}
+
+.tas-cta-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.tas-cta-text h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 8px;
+    line-height: 1.25;
+}
+
+.tas-cta-text p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+}
+
+.tas-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 36px;
+    background: #25d366;
+    color: var(--white);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.tas-cta-btn:hover {
+    background: #1da851;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+}
+
+/* ── Tasaciones responsive ── */
+@media (max-width: 1200px) {
+    .tas-main-layout {
+        grid-template-columns: 1fr;
+        gap: 52px;
+    }
+
+    .tas-form-wrap {
+        position: static;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+    .tas-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    #tas-stats { padding: 60px 0; }
+
+    #tas-main { padding: 60px 0 80px; }
+
+    .tas-intro h2 { font-size: 26px; }
+
+    .tas-form-wrap {
+        padding: 28px 20px;
+        border-radius: 12px;
+    }
+
+    .tas-cta-inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 28px;
+    }
+
+    .tas-cta-text h2 { font-size: 22px; }
 }

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasaciones | UMEN Inmobiliaria</title>
+    <link rel="icon" href="assets/Logo/Favicon.png">
+    <link rel="stylesheet" href="css/styles.css?v=3.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <!-- Hero -->
+    <section class="prop-page-hero">
+        <div class="prop-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1800&q=80');"></div>
+        <div class="hero-overlay-content">
+            <div class="hero-inner">
+                <nav class="breadcrumb prop-breadcrumb">
+                    <a href="index.html">Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Tasaciones</span>
+                </nav>
+                <span class="hero-eyebrow">Valuación profesional · UMEN</span>
+                <h1>¿Cuánto vale<br>tu propiedad?</h1>
+                <p class="hero-subtitle">Tasamos tu inmueble con rigor de mercado y años de experiencia en Argentina.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección principal: intro + form -->
+    <section id="tas-main">
+        <div class="container tas-main-layout">
+
+            <!-- Columna izquierda -->
+            <div class="tas-info">
+
+                <div class="tas-intro">
+                    <span class="tas-eyebrow">Tasación gratuita</span>
+                    <h2>¿Querés vender o alquilar<br>tu propiedad?</h2>
+                    <p>Contactanos y te ayudamos a conocer el valor real de tu inmueble. Nuestro equipo analiza las características de tu propiedad y las condiciones actuales del mercado para darte una valuación precisa y sin compromiso.</p>
+                </div>
+
+                <!-- Diferenciadores -->
+                <div class="tas-features">
+                    <div class="tas-feature">
+                        <div class="tas-feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="tas-feature-text">
+                            <strong>Análisis de mercado real</strong>
+                            <span>Cruzamos datos de operaciones recientes y tendencias para darte un precio justo.</span>
+                        </div>
+                    </div>
+                    <div class="tas-feature">
+                        <div class="tas-feature-icon"><i class="fas fa-user-tie"></i></div>
+                        <div class="tas-feature-text">
+                            <strong>Profesionales matriculados</strong>
+                            <span>Corredores habilitados con amplia trayectoria en el mercado porteño y GBA.</span>
+                        </div>
+                    </div>
+                    <div class="tas-feature">
+                        <div class="tas-feature-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="tas-feature-text">
+                            <strong>Informe detallado</strong>
+                            <span>Documento con valor, comparables del mercado y recomendaciones de publicación.</span>
+                        </div>
+                    </div>
+                    <div class="tas-feature">
+                        <div class="tas-feature-icon"><i class="fas fa-handshake"></i></div>
+                        <div class="tas-feature-text">
+                            <strong>Sin compromiso de venta</strong>
+                            <span>La tasación es gratuita y no implica ninguna obligación de publicar con UMEN.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contacto directo -->
+                <div class="tas-contacto-directo">
+                    <p class="tas-contacto-label">O contactanos directamente:</p>
+                    <a href="https://wa.me/5491131444207" target="_blank" rel="noopener" class="tas-wa-btn">
+                        <i class="fab fa-whatsapp"></i> +54 911 3144.4207
+                    </a>
+                    <a href="tel:+5491131444207" class="tas-tel-link">
+                        <i class="fas fa-phone"></i> +54 911 3144.4207
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Columna derecha: formulario -->
+            <div class="tas-form-wrap">
+                <form class="tas-form" id="tas-form" novalidate>
+                    <div class="tas-form-header">
+                        <h3>Solicitá tu tasación</h3>
+                        <p>Gratis y sin compromiso. Te respondemos en 24 hs.</p>
+                    </div>
+
+                    <!-- Tipo de operación -->
+                    <div class="tas-op-toggle">
+                        <button type="button" class="tas-op-btn active" data-op="venta">Quiero vender</button>
+                        <button type="button" class="tas-op-btn" data-op="alquiler">Quiero alquilar</button>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="tas-nombre">Nombre *</label>
+                            <input type="text" id="tas-nombre" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="tas-apellido">Apellido *</label>
+                            <input type="text" id="tas-apellido" placeholder="Tu apellido" required>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="tas-email">Email *</label>
+                        <input type="email" id="tas-email" placeholder="tu@email.com" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="tas-tel">Teléfono / WhatsApp *</label>
+                        <input type="tel" id="tas-tel" placeholder="+54 11 ????-????" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="tas-tipo">Tipo de propiedad *</label>
+                        <select id="tas-tipo" required>
+                            <option value="">Seleccioná</option>
+                            <option value="departamento">Departamento</option>
+                            <option value="casa">Casa</option>
+                            <option value="oficina">Oficina / Local</option>
+                            <option value="lote">Lote / Terreno</option>
+                            <option value="hotel">Hotel</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="tas-ubicacion">Ubicación *</label>
+                        <input type="text" id="tas-ubicacion" placeholder="Barrio, ciudad o dirección aproximada" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="tas-superficie">Superficie (m²)</label>
+                            <input type="number" id="tas-superficie" placeholder="Ej: 85" min="0">
+                        </div>
+                        <div class="form-field">
+                            <label for="tas-dormitorios">Dormitorios</label>
+                            <select id="tas-dormitorios">
+                                <option value="">—</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4+">4+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="tas-info">Información adicional</label>
+                        <textarea id="tas-info" rows="3" placeholder="Antigüedad, amenities, estado general..."></textarea>
+                    </div>
+
+                    <button type="submit" class="tas-submit-btn" id="tas-submit">
+                        <span>Solicitar tasación gratuita</span> <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <div id="tas-feedback" class="cf-feedback" style="display:none"></div>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Stats strip -->
+    <section id="tas-stats">
+        <div class="container tas-stats-grid">
+            <div class="tas-stat">
+                <div class="tas-stat-icon"><i class="fas fa-award"></i></div>
+                <p class="tas-stat-label">20 años de experiencia en el mercado.</p>
+            </div>
+            <div class="tas-stat">
+                <div class="tas-stat-icon"><i class="fas fa-building"></i></div>
+                <p class="tas-stat-label">500+ propiedades gestionadas.</p>
+            </div>
+            <div class="tas-stat">
+                <div class="tas-stat-icon"><i class="fas fa-users"></i></div>
+                <p class="tas-stat-label">1.000+ clientes satisfechos.</p>
+            </div>
+            <div class="tas-stat">
+                <div class="tas-stat-icon"><i class="fas fa-medal"></i></div>
+                <p class="tas-stat-label">100% profesionales matriculados.</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module">
+        import { loadHeader, loadFooter } from './js/components.js';
+        loadHeader();
+        loadFooter();
+    </script>
+
+    <script>
+        // Toggle venta/alquiler
+        document.querySelectorAll('.tas-op-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tas-op-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Form submit
+        document.getElementById('tas-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn      = document.getElementById('tas-submit');
+            const feedback = document.getElementById('tas-feedback');
+            const nombre   = document.getElementById('tas-nombre').value.trim();
+            const email    = document.getElementById('tas-email').value.trim();
+            const tel      = document.getElementById('tas-tel').value.trim();
+            const ubicacion= document.getElementById('tas-ubicacion').value.trim();
+
+            if (!nombre || !email || !tel || !ubicacion) {
+                feedback.className = 'cf-feedback error';
+                feedback.textContent = 'Por favor completá los campos obligatorios (*)';
+                feedback.style.display = 'flex';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            setTimeout(() => {
+                feedback.className = 'cf-feedback success';
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Solicitud enviada! Un asesor de UMEN te contactará en breve.';
+                feedback.style.display = 'flex';
+                btn.innerHTML = '<span>Solicitud enviada</span> <i class="fas fa-check"></i>';
+                this.reset();
+                document.querySelector('.tas-op-btn').classList.add('active');
+            }, 1200);
+        });
+    </script>
+
+</body>
+</html>
