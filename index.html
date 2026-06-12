@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
     <link rel="icon" href="assets/Logo/Favicon.png">
     <link rel="stylesheet" href="css/styles.css?v=3.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Firebase CDN -->
     <script type="module">
         import { firebaseConfig } from './js/config.js';
@@ -22,17 +23,34 @@
         window.storage = getStorage(app);
     </script>
 </head>
+
 <body>
     <!-- Header flotante premium -->
     <header id="header">
+
+        <!-- Top utility bar -->
+        <div class="header-topbar">
+            <div class="container topbar-inner">
+                <div class="topbar-contact">
+                    <a href="mailto:info@umen.com.ar"><i class="fas fa-envelope"></i> info@umen.com.ar</a>
+                    <a href="https://wa.me/5491131444207" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> +54 911 3144.4207</a>
+                    <span><i class="fas fa-map-marker-alt"></i> Av. Cabildo 4769 9° Piso, Nuñez, CABA</span>
+                </div>
+                <div class="topbar-social">
+                    <a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://wa.me/5491131444207" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="admin-login.html" title="Acceso Admin"><i class="fas fa-lock"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main nav -->
         <div class="container header-grid">
 
-            <!-- Fila 1 · Col 1: Logo -->
             <div class="logo-container">
-                <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN Logo" class="logo" id="header-logo">
+                <img src="/assets/Logo/Logo.png" alt="UMEN Logo" class="logo" id="header-logo">
             </div>
 
-            <!-- Fila 1 · Col 2: Nav -->
             <div class="header-nav-area">
                 <button class="mobile-menu-btn" id="mobile-menu-btn">
                     <i class="fas fa-bars"></i>
@@ -42,22 +60,22 @@
                     <a href="#destacado">Categorías</a>
                     <a href="propiedades.html">Propiedades</a>
                     <a href="#newsletter">Newsletter</a>
-                    <a href="admin-login.html">Acceso Admin</a>
                 </nav>
             </div>
 
-            <!-- Fila 2 · Ancho completo: Filtros -->
-            <div class="header-filter-bar">
+        </div>
+
+        <!-- Buscador — fuera del container para ocupar el ancho completo -->
+        <div class="header-filter-bar">
+            <div class="container">
                 <div class="search-content">
                     <div class="radio-group-2">
                         <input type="radio" id="comprar" name="operation" value="venta" checked>
                         <label for="comprar">Venta</label>
                         <input type="radio" id="alquilar" name="operation" value="alquiler">
                         <label for="alquilar">Alquiler</label>
-
                     </div>
                     <div class="select-group">
-                        <!-- select nativo oculto: solo para mantener compatibilidad con JS existente -->
                         <select id="property-type" hidden></select>
                         <div class="custom-select" id="custom-property-type">
                             <button type="button" class="custom-select-trigger">
@@ -70,24 +88,66 @@
                     <div class="input-search">
                         <input type="text" id="quicksearch" placeholder="Ingresá ubicación, barrio o palabra clave..." autocomplete="off">
                     </div>
-                    <button class="btn orange search_propiedades" id="search-btn">
+                    <button class="search_propiedades" id="search-btn">
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
             </div>
-
         </div>
+
     </header>
 
     <!-- Hero de Video a pantalla completa -->
     <section class="container-video-hero">
-        <video id="desktop-video" autoplay muted loop playsinline src="https://stream.mux.com/ICznhH65hjEbxjlB8l1g3yAb02vol6OPK00aAAXD9L9Gg/high.mp4"></video>
-        <video id="mobile-video" autoplay muted loop playsinline src="https://stream.mux.com/ICznhH65hjEbxjlB8l1g3yAb02vol6OPK00aAAXD9L9Gg/high.mp4"></video>
-        
+        <video id="desktop-video" autoplay muted loop playsinline
+            src="assets/Home/Hero.mp4"></video>
+        <video id="mobile-video" autoplay muted loop playsinline
+            src="assets/Home/Hero.mp4"></video>
+
         <div class="hero-overlay-content">
-            <h1>Encontrá tu <span class="hero-brand">próximo hogar con UMEN</span></h1>
+            <div class="hero-inner">
+                <span class="hero-eyebrow">Inmobiliaria Premium · Argentina</span>
+                <h1>Encontrá la<br>propiedad perfecta</h1>
+                <p class="hero-subtitle">Más de 20 años conectando personas<br>con las mejores propiedades del país.</p>
+
+                <div class="hero-actions">
+                    <a href="propiedades.html" class="hero-btn-primary">
+                        Ver propiedades <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a href="mailto:info@umen.com.ar" class="hero-btn-secondary">
+                        Contactanos
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-stats">
+                    <div class="hero-stat">
+                        <i class="fas fa-building"></i>
+                        <div class="hero-stat-text">
+                            <strong>500+</strong>
+                            <span>Propiedades</span>
+                        </div>
+                    </div>
+                    <div class="hero-stat-sep"></div>
+                    <div class="hero-stat">
+                        <i class="fas fa-award"></i>
+                        <div class="hero-stat-text">
+                            <strong>20 años</strong>
+                            <span>De experiencia</span>
+                        </div>
+                    </div>
+                    <div class="hero-stat-sep"></div>
+                    <div class="hero-stat">
+                        <i class="fas fa-handshake"></i>
+                        <div class="hero-stat-text">
+                            <strong>1.000+</strong>
+                            <span>Clientes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        
+
         <div class="arrow-hero">
             <a href="#destacado">
                 <i class="fas fa-chevron-down"></i>
@@ -149,7 +209,8 @@
                         </div>
                         <div class="grid col1">
                             <div>
-                                <a href="#" class="quick-link-category" data-category="oficinas">Oficinas Comerciales</a>
+                                <a href="#" class="quick-link-category" data-category="oficinas">Oficinas
+                                    Comerciales</a>
                                 <a href="#" class="quick-link-category" data-category="locales">Locales y Terrenos</a>
                                 <a href="#" class="quick-link-category" data-category="lotes">Lotes y Campos</a>
                             </div>
@@ -165,7 +226,8 @@
         <div class="container">
             <div class="servicios-header">
                 <h2>Nuestro <strong>servicio integral</strong> garantiza tus resultados de punto a punto</h2>
-                <p>Nuestro servicio profesional contempla cada paso, desde la búsqueda y el asesoramiento a la hora de invertir, como también la posterior administración del inmueble.</p>
+                <p>Nuestro servicio profesional contempla cada paso, desde la búsqueda y el asesoramiento a la hora de
+                    invertir, como también la posterior administración del inmueble.</p>
             </div>
             <div class="servicios-grid">
                 <div class="servicio-item">
@@ -208,7 +270,8 @@
                 <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando propiedades de UMEN...</div>
             </div>
             <div class="content-btn" style="margin-top:48px">
-                <a href="propiedades.html" class="btn">Ver todas las propiedades <i class="fas fa-arrow-right" style="margin-left:8px"></i></a>
+                <a href="propiedades.html" class="btn">Ver todas las propiedades <i class="fas fa-arrow-right"
+                        style="margin-left:8px"></i></a>
             </div>
         </div>
     </section>
@@ -221,12 +284,14 @@
                     <div class="hoteles-body">
                         <span class="hoteles-eyebrow">Especialidad UMEN</span>
                         <h2>Somos especialistas<br>en hoteles</h2>
-                        <p class="hoteles-desc">Líderes en el negocio inmobiliario del mercado hotelero. Nuestra experiencia y trayectoria hace que nuestros clientes nos elijan en Argentina y América.</p>
+                        <p class="hoteles-desc">Líderes en el negocio inmobiliario del mercado hotelero. Nuestra
+                            experiencia y trayectoria hace que nuestros clientes nos elijan en Argentina y América.</p>
                         <div class="hoteles-claim">
                             <p>¿Está listo para invertir en su futuro?</p>
                             <p>Invierta en Hoteles junto a nosotros.</p>
                         </div>
-                        <a href="https://hotelesenventa.com" target="_blank" rel="noopener noreferrer" class="hoteles-logo-link">
+                        <a href="https://hotelesenventa.com" target="_blank" rel="noopener noreferrer"
+                            class="hoteles-logo-link">
                             <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta">
                         </a>
                     </div>
@@ -243,7 +308,8 @@
                 <!-- Nota 1 -->
                 <div class="item">
                     <a href="#" class="media">
-                        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Inversiones Recoleta">
+                        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                            alt="Inversiones Recoleta">
                     </a>
                     <span class="cat">Barrios y Urbanismo</span>
                     <h4><a href="#">Recoleta: Oportunidades inmobiliarias y de inversión en el mercado actual</a></h4>
@@ -253,7 +319,8 @@
                 <!-- Nota 2 -->
                 <div class="item">
                     <a href="#" class="media">
-                        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Canning Inmobiliario">
+                        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                            alt="Canning Inmobiliario">
                     </a>
                     <span class="cat">Tendencias</span>
                     <h4><a href="#">Canning: ¿Por qué se consolida como el nuevo polo residencial del sur?</a></h4>
@@ -263,7 +330,8 @@
                 <!-- Nota 3 -->
                 <div class="item">
                     <a href="#" class="media">
-                        <img src="https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Informes de Mercado">
+                        <img src="https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                            alt="Informes de Mercado">
                     </a>
                     <span class="cat">Informes de Mercado</span>
                     <h4><a href="#">Reporte mensual de precios y rentabilidad en Capital Federal</a></h4>
@@ -273,14 +341,15 @@
                 <!-- Nota 4 -->
                 <div class="item">
                     <a href="#" class="media">
-                        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Decoración Interiores">
+                        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                            alt="Decoración Interiores">
                     </a>
                     <span class="cat">Casas & Departamentos</span>
                     <h4><a href="#">Departamentos de lujo: Claves de diseño y tendencias de decoración</a></h4>
                     <a href="#" class="btn">Leer más</a>
                 </div>
             </div>
-            
+
             <div class="content-btn">
                 <a href="#" class="btn">Ir al Blog</a>
             </div>
@@ -312,8 +381,10 @@
 
                 <!-- Col 1: UMEN -->
                 <div class="footer-col footer-brand">
-                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN" class="footer-logo">
-                    <p>Buenos Negocios Inmobiliarios. Líderes en el mercado inmobiliario argentino con presencia en las principales zonas del país.</p>
+                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN"
+                        class="footer-logo">
+                    <p>Buenos Negocios Inmobiliarios. Líderes en el mercado inmobiliario argentino con presencia en las
+                        principales zonas del país.</p>
                 </div>
 
                 <!-- Col 2: Contacto -->
@@ -351,7 +422,8 @@
                 <!-- Col 3: Hoteles en Venta -->
                 <div class="footer-col footer-hoteles">
                     <a href="https://hotelesenventa.com" target="_blank" rel="noopener">
-                        <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta" class="footer-hoteles-logo">
+                        <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta"
+                            class="footer-hoteles-logo">
                     </a>
                     <p>hotelesenventa.com es un producto de UMEN Buenos Negocios Inmobiliarios.</p>
                 </div>
@@ -369,4 +441,5 @@
     <!-- Lógica JS Principal -->
     <script type="module" src="js/main.js?v=3.0"></script>
 </body>
+
 </html>
