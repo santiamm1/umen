@@ -25,30 +25,7 @@
 <body>
 
     <!-- Header (siempre sólido en páginas internas) -->
-    <header id="header" class="scrolled detail-header">
-        <div class="container header-grid">
-
-            <div class="logo-container">
-                <a href="index.html">
-                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN Logo" class="logo">
-                </a>
-            </div>
-
-            <div class="header-nav-area">
-                <button class="mobile-menu-btn" id="mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <nav id="nav-menu">
-                    <a href="index.html">Inicio</a>
-                    <a href="index.html#destacado">Categorías</a>
-                    <a href="propiedades.html">Propiedades</a>
-                    <a href="index.html#newsletter">Newsletter</a>
-                    <a href="admin-login.html">Acceso Admin</a>
-                </nav>
-            </div>
-
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
 
     <!-- Contenido principal -->
     <main>
@@ -60,39 +37,14 @@
     </main>
 
     <!-- Footer completo -->
-    <footer id="footer">
-        <div class="footer-main">
-            <div class="container footer-grid">
-                <div class="footer-col footer-brand">
-                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN" class="footer-logo">
-                    <p>Buenos Negocios Inmobiliarios. Líderes en el mercado inmobiliario argentino con presencia en las principales zonas del país.</p>
-                </div>
-                <div class="footer-col">
-                    <h4 class="footer-title">Contacto</h4>
-                    <ul class="footer-links">
-                        <li><a href="mailto:info@umen.com.ar"><i class="fas fa-envelope"></i> info@umen.com.ar</a></li>
-                        <li><a href="https://wa.me/5491131444207" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> +54 911 3144.4207</a></li>
-                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Av. Cabildo 4769 9° Piso, Nuñez, CABA.</a></li>
-                        <li><a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
-                        <li><a href="https://hotelesenventa.com" target="_blank" rel="noopener"><i class="fas fa-hotel"></i> hotelesenventa.com</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col footer-hoteles">
-                    <a href="https://hotelesenventa.com" target="_blank" rel="noopener">
-                        <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta" class="footer-hoteles-logo">
-                    </a>
-                    <p>hotelesenventa.com es un producto de UMEN Buenos Negocios Inmobiliarios.</p>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>&copy; 2026 UMEN. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
+    <div id="footer-placeholder"></div>
 
     <script type="module" src="js/propertyDetail.js?v=3.0"></script>
+    <script type="module">
+        import { loadHeader, loadFooter } from './js/components.js';
+        loadHeader();
+        loadFooter();
+    </script>
     <script type="module">
         const btn = document.getElementById('mobile-menu-btn');
         const nav = document.getElementById('nav-menu');

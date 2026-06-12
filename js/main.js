@@ -55,6 +55,7 @@ let currentFilters = {
     sortOrderSelect.addEventListener('change', () => sortAndRenderProperties());
 
     await executeSearch();
+    await renderFeaturedRentals();
 })();
 
 // Verificar si Firebase está inicializado
@@ -491,6 +492,70 @@ function renderProperties() {
 window.viewProperty = function(id) {
     window.location.href = `property-detail.html?id=${id}`;
 };
+
+// Renderizar propiedades en alquiler en la sección secundaria
+async function renderFeaturedRentals() {
+    const container = document.getElementById('rental-list');
+    const countEl = document.getElementById('rental-count');
+    const sortEl = document.getElementById('rental-sort');
+    if (!container) return;
+
+    let allRentals = [];
+    try {
+        if (checkFirebaseConfig() && window.db._databaseId && window.db._databaseId.projectId !== "TU_PROJECT_ID_AQUI") {
+            allRentals = await getProperties({ operation: 'alquiler' });
+        }
+        if (allRentals.length === 0) {
+            allRentals = getDemoProperties().filter(p => p.operation === 'alquiler');
+        }
+    } catch {
+        allRentals = getDemoProperties().filter(p => p.operation === 'alquiler');
+    }
+
+    function renderRentalCards() {
+        const sortVal = sortEl ? sortEl.value : 'newest';
+        let sorted = [...allRentals];
+        if (sortVal === 'price-asc') sorted.sort((a, b) => a.price - b.price);
+        else if (sortVal === 'price-desc') sorted.sort((a, b) => b.price - a.price);
+
+        const featured = sorted.slice(0, 3);
+        if (countEl) countEl.textContent = `${allRentals.length} propiedades encontradas`;
+
+        if (featured.length === 0) {
+            container.innerHTML = `<div class="no-results"><i class="fas fa-search-minus"></i><p>No hay propiedades en alquiler disponibles.</p></div>`;
+            return;
+        }
+
+        container.innerHTML = featured.map(property => {
+            const coverImg = property.images && property.images[0]
+                ? property.images[0]
+                : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+            return `
+                <a class="property-card" href="property-detail.html?v=3&id=${property.id}">
+                    <div class="card-image">
+                        <img src="${coverImg}" alt="${property.title}">
+                        <div class="card-badge">${property.operation}</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-price">USD ${property.price.toLocaleString()} <span style="font-size:0.75rem;font-weight:500;color:#888">/mes</span></div>
+                        <h3 class="card-title">${property.title}</h3>
+                        <div class="card-location">
+                            <i class="fas fa-map-marker-alt"></i> ${property.neighborhood || 'Sin barrio'}, ${property.zone || 'Capital Federal'}
+                        </div>
+                        <div class="card-features">
+                            <div class="feature-item"><i class="fas fa-ruler-combined"></i> ${property.surface || 0}m²</div>
+                            <div class="feature-item"><i class="fas fa-bed"></i> ${property.bedrooms || 0} Amb.</div>
+                            <div class="feature-item"><i class="fas fa-bath"></i> ${property.bathrooms || 1} Baños</div>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+    }
+
+    renderRentalCards();
+    if (sortEl) sortEl.addEventListener('change', renderRentalCards);
+}
 
 // Generar propiedades demo estéticas si Firebase está vacío o desconfigurado
 function getDemoProperties() {

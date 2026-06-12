@@ -1,0 +1,72 @@
+<header id="header">
+
+    <!-- Top utility bar -->
+    <div class="header-topbar">
+        <div class="container topbar-inner">
+            <div class="topbar-contact">
+                <a href="mailto:info@umen.com.ar"><i class="fas fa-envelope"></i> info@umen.com.ar</a>
+                <a href="https://wa.me/5491131444207" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> +54 911 3144.4207</a>
+                <span><i class="fas fa-map-marker-alt"></i> Av. Cabildo 4769 9° Piso, Nuñez, CABA</span>
+            </div>
+            <div class="topbar-social">
+                <a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://wa.me/5491131444207" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                <a href="admin-login.html" title="Acceso Admin"><i class="fas fa-lock"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main nav -->
+    <div class="container header-grid">
+
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="/assets/Logo/Logo.png" alt="UMEN Logo" class="logo" id="header-logo">
+            </a>
+        </div>
+
+        <div class="header-nav-area">
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="nav-menu">
+                <a href="index.html" data-page="index">Inicio</a>
+                <a href="propiedades.html" data-page="propiedades">Propiedades</a>
+                <a href="tasaciones.html" data-page="tasaciones">Tasaciones</a>
+                <a href="contacto.html" data-page="contacto">Contacto</a>
+            </nav>
+        </div>
+
+    </div>
+
+    <!-- Buscador -->
+    <div class="header-filter-bar">
+        <div class="container">
+            <div class="search-content">
+                <div class="radio-group-2">
+                    <input type="radio" id="comprar" name="operation" value="venta" checked>
+                    <label for="comprar">Venta</label>
+                    <input type="radio" id="alquilar" name="operation" value="alquiler">
+                    <label for="alquilar">Alquiler</label>
+                </div>
+                <div class="select-group">
+                    <select id="property-type" hidden></select>
+                    <div class="custom-select" id="custom-property-type">
+                        <button type="button" class="custom-select-trigger">
+                            <span class="custom-select-value">Todo tipo de propiedades</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <ul class="custom-select-dropdown" role="listbox"></ul>
+                    </div>
+                </div>
+                <div class="input-search">
+                    <input type="text" id="quicksearch" placeholder="Ingresá ubicación, barrio o palabra clave..." autocomplete="off">
+                </div>
+                <button class="search_propiedades" id="search-btn">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</header>

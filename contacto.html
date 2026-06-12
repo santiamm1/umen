@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | UMEN Inmobiliaria</title>
+    <link rel="icon" href="assets/Logo/Favicon.png">
+    <link rel="stylesheet" href="css/styles.css?v=3.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <!-- Hero -->
+    <section class="prop-page-hero">
+        <div class="prop-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1800&q=80');"></div>
+        <div class="hero-overlay-content">
+            <div class="hero-inner">
+                <nav class="breadcrumb prop-breadcrumb">
+                    <a href="index.html">Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Contacto</span>
+                </nav>
+                <span class="hero-eyebrow">Estamos para ayudarte · UMEN</span>
+                <h1>Hablemos de<br>tu próxima inversión</h1>
+                <p class="hero-subtitle">Nuestro equipo de especialistas está disponible para asesorarte en cada etapa del proceso.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección principal de contacto -->
+    <section id="contacto-main">
+        <div class="container contacto-layout">
+
+            <!-- Columna izquierda: info -->
+            <div class="contacto-info">
+
+                <div class="contacto-intro">
+                    <span class="contacto-eyebrow">Contacto directo</span>
+                    <h2>¿En qué podemos ayudarte?</h2>
+                    <p>Ya sea que estés buscando una propiedad para comprar, alquilar o querés tasar tu inmueble, estamos listos para acompañarte.</p>
+                </div>
+
+                <div class="contacto-datos">
+                    <div class="contacto-dato">
+                        <div class="contacto-dato-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contacto-dato-text">
+                            <strong>Oficina</strong>
+                            <span>Av. Cabildo 4769, 9° Piso<br>Nuñez, Ciudad de Buenos Aires</span>
+                        </div>
+                    </div>
+
+                    <div class="contacto-dato">
+                        <div class="contacto-dato-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="contacto-dato-text">
+                            <strong>WhatsApp</strong>
+                            <a href="https://wa.me/5491131444207" target="_blank" rel="noopener">+54 911 3144.4207</a>
+                        </div>
+                    </div>
+
+                    <div class="contacto-dato">
+                        <div class="contacto-dato-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contacto-dato-text">
+                            <strong>Email</strong>
+                            <a href="mailto:info@umen.com.ar">info@umen.com.ar</a>
+                        </div>
+                    </div>
+
+                    <div class="contacto-dato">
+                        <div class="contacto-dato-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contacto-dato-text">
+                            <strong>Horario de atención</strong>
+                            <span>Lunes a Viernes: 9:00 – 18:00<br>Sábados: 9:00 – 13:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contacto-social">
+                    <a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener" class="contacto-social-btn">
+                        <i class="fab fa-linkedin"></i> LinkedIn
+                    </a>
+                    <a href="https://wa.me/5491131444207" target="_blank" rel="noopener" class="contacto-social-btn whatsapp">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Columna derecha: formulario -->
+            <div class="contacto-form-wrap">
+                <form class="contacto-form" id="contacto-form" novalidate>
+                    <h3>Envianos un mensaje</h3>
+                    <p class="form-sub">Te respondemos en menos de 24 horas hábiles.</p>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="cf-nombre">Nombre *</label>
+                            <input type="text" id="cf-nombre" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="cf-apellido">Apellido *</label>
+                            <input type="text" id="cf-apellido" placeholder="Tu apellido" required>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="cf-email">Email *</label>
+                        <input type="email" id="cf-email" placeholder="tu@email.com" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="cf-telefono">Teléfono</label>
+                        <input type="tel" id="cf-telefono" placeholder="+54 11 ????-????">
+                    </div>
+
+                    <div class="form-field">
+                        <label for="cf-motivo">Motivo de consulta</label>
+                        <select id="cf-motivo">
+                            <option value="">Seleccioná una opción</option>
+                            <option value="compra">Quiero comprar una propiedad</option>
+                            <option value="alquiler">Quiero alquilar una propiedad</option>
+                            <option value="vender">Quiero vender mi propiedad</option>
+                            <option value="tasacion">Solicitar tasación</option>
+                            <option value="inversion">Consulta de inversión</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="cf-mensaje">Mensaje *</label>
+                        <textarea id="cf-mensaje" rows="5" placeholder="Contanos en qué podemos ayudarte..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="contacto-submit-btn" id="cf-submit">
+                        <span>Enviar mensaje</span> <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <div id="cf-feedback" class="cf-feedback" style="display:none"></div>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Mapa -->
+    <section id="contacto-mapa">
+        <div class="mapa-header container">
+            <h2>Encontranos</h2>
+            <p>Av. Cabildo 4769, 9° Piso — Nuñez, CABA</p>
+        </div>
+        <div class="mapa-embed">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3285.8!2d-58.4609!3d-34.5523!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb59e53a2a6c7%3A0x1!2sAv.%20Cabildo%204769%2C%20Buenos%20Aires!5e0!3m2!1ses!2sar!4v1"
+                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </section>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module">
+        import { loadHeader, loadFooter } from './js/components.js';
+        loadHeader();
+        loadFooter();
+    </script>
+
+    <script>
+        document.getElementById('contacto-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn      = document.getElementById('cf-submit');
+            const feedback = document.getElementById('cf-feedback');
+            const nombre   = document.getElementById('cf-nombre').value.trim();
+            const email    = document.getElementById('cf-email').value.trim();
+            const mensaje  = document.getElementById('cf-mensaje').value.trim();
+
+            if (!nombre || !email || !mensaje) {
+                feedback.className = 'cf-feedback error';
+                feedback.textContent = 'Por favor completá los campos obligatorios (*)';
+                feedback.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            // Simula envío — reemplazar con fetch/EmailJS/Firebase
+            setTimeout(() => {
+                feedback.className = 'cf-feedback success';
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Mensaje enviado! Te contactaremos a la brevedad.';
+                feedback.style.display = 'block';
+                btn.innerHTML = '<span>Mensaje enviado</span> <i class="fas fa-check"></i>';
+                this.reset();
+            }, 1200);
+        });
+    </script>
+
+</body>
+</html>

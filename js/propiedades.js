@@ -11,49 +11,69 @@ let currentPage = 1;
 let currentFilters = {
     operation: 'venta',
     category: null,
+    zones: [],
+    neighborhood: '',
     priceMin: null,
     priceMax: null,
-    rooms: null,
-    bedrooms: null,
     surfaceMin: null,
     surfaceMax: null,
+    rooms: null,
+    bedrooms: null,
+    bathrooms: null,
+    garages: null,
+    estado: null,
+    age: null,
     keyword: ''
 };
 
-// DOM refs
-const header              = document.getElementById('header');
-const mobileMenuBtn       = document.getElementById('mobile-menu-btn');
-const navMenu             = document.getElementById('nav-menu');
-const propertyTypeSelect  = document.getElementById('property-type');
-const propertyList        = document.getElementById('property-list');
-const searchBtn           = document.getElementById('search-btn');
-const quicksearch         = document.getElementById('quicksearch');
-const resultsTitle        = document.getElementById('results-title');
-const resultsCount        = document.getElementById('results-count');
-const sortOrder           = document.getElementById('sort-order');
-const activeFiltersEl     = document.getElementById('active-filters');
-const clearAllBtn         = document.getElementById('clear-all-filters');
-const priceMinInput       = document.getElementById('price-min');
-const priceMaxInput       = document.getElementById('price-max');
-const surfaceMinInput     = document.getElementById('surface-min');
-const surfaceMaxInput     = document.getElementById('surface-max');
-const paginationEl        = document.getElementById('pagination');
-const filterToggleBtn     = document.getElementById('filter-toggle-btn');
-const filtersSidebar      = document.getElementById('filters-sidebar');
-const sidebarOverlay      = document.getElementById('sidebar-overlay');
-const viewGridBtn         = document.getElementById('view-grid');
-const viewListBtn         = document.getElementById('view-list');
+// DOM refs estáticos (existen desde el HTML inicial)
+const propertyList    = document.getElementById('property-list');
+const resultsTitle    = document.getElementById('results-title');
+const resultsCount    = document.getElementById('results-count');
+const sortOrder       = document.getElementById('sort-order');
+const activeFiltersEl = document.getElementById('active-filters');
+const clearAllBtn     = document.getElementById('clear-all-filters');
+const priceMinInput   = document.getElementById('price-min');
+const priceMaxInput   = document.getElementById('price-max');
+const surfaceMinInput = document.getElementById('surface-min');
+const surfaceMaxInput = document.getElementById('surface-max');
+const paginationEl    = document.getElementById('pagination');
+const filterToggleBtn = document.getElementById('filter-toggle-btn');
+const filtersSidebar  = document.getElementById('filters-sidebar');
+const sidebarOverlay  = document.getElementById('sidebar-overlay');
+const viewGridBtn     = document.getElementById('view-grid');
+const viewListBtn     = document.getElementById('view-list');
+
+// DOM refs del header (inyectado async — se asignan dentro del IIFE)
+let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
 
 (async () => {
-    // Esperar hasta 3s a que Firebase inicialice
+    // Esperar hasta 2.5s a que el header partial sea inyectado
     let attempts = 0;
+    while (!document.getElementById('header') && attempts < 50) {
+        await new Promise(r => setTimeout(r, 50));
+        attempts++;
+    }
+
+    // Capturar refs del header ahora que existe
+    header             = document.getElementById('header');
+    mobileMenuBtn      = document.getElementById('mobile-menu-btn');
+    navMenu            = document.getElementById('nav-menu');
+    propertyTypeSelect = document.getElementById('property-type');
+    searchBtn          = document.getElementById('search-btn');
+    quicksearch        = document.getElementById('quicksearch');
+
+    // Esperar hasta 3s a que Firebase inicialice
+    attempts = 0;
     while (!window.db && attempts < 30) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
     }
 
-    header.classList.add('scrolled');
-    window.addEventListener('scroll', () => header.classList.add('scrolled'));
+    if (header) {
+        header.classList.add('scrolled');
+        window.addEventListener('scroll', () => header.classList.add('scrolled'));
+    }
 
     setupMobileMenu();
     setupFilterToggle();
@@ -74,6 +94,10 @@ const viewListBtn         = document.getElementById('view-list');
     setupSearchBox();
     setupNumberFilterBtns();
     setupRangeFilters();
+    setupPillFilters();
+    setupZoneFilter();
+    setupNeighborhoodFilter();
+    setupAgeFilter();
     setupViewToggle();
 
     sortOrder.addEventListener('change', () => { currentPage = 1; applyFiltersAndRender(); });
@@ -212,11 +236,79 @@ function setupSearchBox() {
     });
 }
 
-// ── Setup: botones de número (ambientes / dormitorios) ────────────────────────
+// ── Setup: botones de número (ambientes / dormitorios / baños / cocheras) ─────
 
 function setupNumberFilterBtns() {
-    setupBtnGroup('filter-rooms',    'rooms');
-    setupBtnGroup('filter-bedrooms', 'bedrooms');
+    setupBtnGroup('filter-rooms',     'rooms');
+    setupBtnGroup('filter-bedrooms',  'bedrooms');
+    setupBtnGroup('filter-bathrooms', 'bathrooms');
+    setupBtnGroup('filter-garages',   'garages');
+}
+
+// ── Setup: pills (tipo / estado) ──────────────────────────────────────────────
+
+function setupPillFilters() {
+    setupPillGroup('filter-type',   'category');
+    setupPillGroup('filter-estado', 'estado');
+}
+
+function setupPillGroup(containerId, filterKey) {
+    document.querySelectorAll(`#${containerId} .filter-pill-btn`).forEach(btn => {
+        btn.addEventListener('click', () => {
+            const wasActive = btn.classList.contains('active');
+            document.querySelectorAll(`#${containerId} .filter-pill-btn`).forEach(b => b.classList.remove('active'));
+            if (!wasActive) {
+                btn.classList.add('active');
+                currentFilters[filterKey] = btn.dataset.value;
+            } else {
+                currentFilters[filterKey] = null;
+            }
+            currentPage = 1;
+            applyFiltersAndRender();
+        });
+    });
+}
+
+// ── Setup: zonas (checkboxes múltiples) ───────────────────────────────────────
+
+function setupZoneFilter() {
+    document.querySelectorAll('#filter-zone input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            currentFilters.zones = Array.from(
+                document.querySelectorAll('#filter-zone input[type="checkbox"]:checked')
+            ).map(c => c.value);
+            currentPage = 1;
+            applyFiltersAndRender();
+        });
+    });
+}
+
+// ── Setup: barrio (texto) ─────────────────────────────────────────────────────
+
+function setupNeighborhoodFilter() {
+    const input = document.getElementById('filter-neighborhood');
+    if (!input) return;
+    let timer;
+    input.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            currentFilters.neighborhood = input.value.trim().toLowerCase();
+            currentPage = 1;
+            applyFiltersAndRender();
+        }, 350);
+    });
+}
+
+// ── Setup: antigüedad (select) ────────────────────────────────────────────────
+
+function setupAgeFilter() {
+    const sel = document.getElementById('filter-age');
+    if (!sel) return;
+    sel.addEventListener('change', () => {
+        currentFilters.age = sel.value || null;
+        currentPage = 1;
+        applyFiltersAndRender();
+    });
 }
 
 function setupBtnGroup(containerId, filterKey) {
@@ -272,8 +364,25 @@ function setupViewToggle() {
 
 // ── Fetch datos y renderizar ──────────────────────────────────────────────────
 
+function skeletonCard() {
+    return `
+        <div class="property-card skeleton-card">
+            <div class="skeleton-img shimmer"></div>
+            <div class="card-content">
+                <div class="skeleton-line shimmer" style="width:45%;height:18px;margin-bottom:12px"></div>
+                <div class="skeleton-line shimmer" style="width:80%;height:14px;margin-bottom:8px"></div>
+                <div class="skeleton-line shimmer" style="width:55%;height:12px;margin-bottom:20px"></div>
+                <div style="display:flex;gap:16px">
+                    <div class="skeleton-line shimmer" style="width:60px;height:12px"></div>
+                    <div class="skeleton-line shimmer" style="width:60px;height:12px"></div>
+                    <div class="skeleton-line shimmer" style="width:60px;height:12px"></div>
+                </div>
+            </div>
+        </div>`;
+}
+
 async function fetchAndRender() {
-    propertyList.innerHTML = `<div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando propiedades de UMEN...</div>`;
+    propertyList.innerHTML = Array(6).fill(null).map(skeletonCard).join('');
     updateResultsTitle();
 
     let results = [];
@@ -313,6 +422,16 @@ function applyFiltersAndRender() {
         );
     }
 
+    // Zona (multi)
+    if (currentFilters.zones.length > 0) {
+        filtered = filtered.filter(p => p.zone && currentFilters.zones.includes(p.zone));
+    }
+
+    // Barrio
+    if (currentFilters.neighborhood) {
+        filtered = filtered.filter(p => p.neighborhood && p.neighborhood.toLowerCase().includes(currentFilters.neighborhood));
+    }
+
     if (currentFilters.priceMin !== null) filtered = filtered.filter(p => p.price >= currentFilters.priceMin);
     if (currentFilters.priceMax !== null) filtered = filtered.filter(p => p.price <= currentFilters.priceMax);
     if (currentFilters.surfaceMin !== null) filtered = filtered.filter(p => (p.surface || 0) >= currentFilters.surfaceMin);
@@ -330,6 +449,35 @@ function applyFiltersAndRender() {
         filtered = b === '4+'
             ? filtered.filter(p => (p.bedrooms || 0) >= 4)
             : filtered.filter(p => (p.bedrooms || 0) === parseInt(b));
+    }
+
+    if (currentFilters.bathrooms) {
+        const b = currentFilters.bathrooms;
+        filtered = b === '4+'
+            ? filtered.filter(p => (p.bathrooms || 0) >= 4)
+            : filtered.filter(p => (p.bathrooms || 0) === parseInt(b));
+    }
+
+    if (currentFilters.garages) {
+        const g = currentFilters.garages;
+        filtered = g === '3+'
+            ? filtered.filter(p => (p.garages || 0) >= 3)
+            : filtered.filter(p => (p.garages || 0) === parseInt(g));
+    }
+
+    if (currentFilters.estado) {
+        filtered = filtered.filter(p => p.condition === currentFilters.estado);
+    }
+
+    if (currentFilters.age) {
+        const [min, max] = currentFilters.age === '30+'
+            ? [30, Infinity]
+            : currentFilters.age.split('-').map(Number);
+        filtered = filtered.filter(p => {
+            const age = p.age ?? null;
+            if (age === null) return true;
+            return age >= min && age <= (max ?? Infinity);
+        });
     }
 
     const sortVal = sortOrder.value;
@@ -492,6 +640,36 @@ function renderActiveFilterTags() {
         tags.push(`<span class="filter-tag" onclick="removeFilter('keyword')">"${currentFilters.keyword}" <i class="fas fa-times"></i></span>`);
     }
 
+    if (currentFilters.category) {
+        const labels = { deptos:'Departamentos', casas:'Casas', oficinas:'Oficinas', lotes:'Lotes', hoteles:'Hoteles', terrenos:'Terrenos' };
+        tags.push(`<span class="filter-tag" onclick="removeFilter('category')">${labels[currentFilters.category] || currentFilters.category} <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.zones.length > 0) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('zones')">${currentFilters.zones.join(', ')} <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.neighborhood) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('neighborhood')">Barrio: ${currentFilters.neighborhood} <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.bathrooms) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('bathrooms')">${currentFilters.bathrooms} Baños <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.garages) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('garages')">${currentFilters.garages} Cochera(s) <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.estado) {
+        const labels = { estrenar:'A estrenar', usado:'Usado', pozo:'En pozo', reciclado:'Reciclado' };
+        tags.push(`<span class="filter-tag" onclick="removeFilter('estado')">${labels[currentFilters.estado]} <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.age) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('age')">Antigüedad: ${currentFilters.age} años <i class="fas fa-times"></i></span>`);
+    }
+
     activeFiltersEl.innerHTML = tags.join('');
 }
 
@@ -514,7 +692,30 @@ window.removeFilter = function(key) {
         surfaceMaxInput.value = '';
     } else if (key === 'keyword') {
         currentFilters.keyword = '';
-        quicksearch.value = '';
+        if (quicksearch) quicksearch.value = '';
+    } else if (key === 'category') {
+        currentFilters.category = null;
+        document.querySelectorAll('#filter-type .filter-pill-btn').forEach(b => b.classList.remove('active'));
+    } else if (key === 'zones') {
+        currentFilters.zones = [];
+        document.querySelectorAll('#filter-zone input[type="checkbox"]').forEach(cb => cb.checked = false);
+    } else if (key === 'neighborhood') {
+        currentFilters.neighborhood = '';
+        const el = document.getElementById('filter-neighborhood');
+        if (el) el.value = '';
+    } else if (key === 'bathrooms') {
+        currentFilters.bathrooms = null;
+        document.querySelectorAll('#filter-bathrooms .filter-number-btn').forEach(b => b.classList.remove('active'));
+    } else if (key === 'garages') {
+        currentFilters.garages = null;
+        document.querySelectorAll('#filter-garages .filter-number-btn').forEach(b => b.classList.remove('active'));
+    } else if (key === 'estado') {
+        currentFilters.estado = null;
+        document.querySelectorAll('#filter-estado .filter-pill-btn').forEach(b => b.classList.remove('active'));
+    } else if (key === 'age') {
+        currentFilters.age = null;
+        const el = document.getElementById('filter-age');
+        if (el) el.value = '';
     }
     currentPage = 1;
     applyFiltersAndRender();
@@ -524,29 +725,39 @@ function clearAllFilters() {
     currentFilters = {
         operation: currentFilters.operation,
         category: null,
+        zones: [],
+        neighborhood: '',
         priceMin: null,
         priceMax: null,
-        rooms: null,
-        bedrooms: null,
         surfaceMin: null,
         surfaceMax: null,
+        rooms: null,
+        bedrooms: null,
+        bathrooms: null,
+        garages: null,
+        estado: null,
+        age: null,
         keyword: ''
     };
 
     [priceMinInput, priceMaxInput, surfaceMinInput, surfaceMaxInput].forEach(i => i.value = '');
-    quicksearch.value = '';
-    propertyTypeSelect.value = '';
+    if (quicksearch) quicksearch.value = '';
+    if (propertyTypeSelect) propertyTypeSelect.value = '';
 
     const display  = document.querySelector('.custom-select-value');
     const dropdown = document.querySelector('#custom-property-type .custom-select-dropdown');
     if (display)  display.textContent = 'Todo tipo de propiedades';
-    if (dropdown) {
-        dropdown.querySelectorAll('.custom-select-option').forEach(o => {
-            o.classList.toggle('selected', o.dataset.value === '');
-        });
-    }
+    if (dropdown) dropdown.querySelectorAll('.custom-select-option').forEach(o => o.classList.toggle('selected', o.dataset.value === ''));
 
-    document.querySelectorAll('.filter-number-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-number-btn, .filter-pill-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#filter-zone input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+    const neighborhoodInput = document.getElementById('filter-neighborhood');
+    if (neighborhoodInput) neighborhoodInput.value = '';
+
+    const ageSelect = document.getElementById('filter-age');
+    if (ageSelect) ageSelect.value = '';
+
     currentPage = 1;
     applyFiltersAndRender();
 }

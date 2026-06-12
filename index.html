@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toribio Achával e UMEN | Propiedades de Lujo</title>
+    <title>UMEN Inmobiliaria | Propiedades de Lujo</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
     <link rel="stylesheet" href="css/styles.css?v=3.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,76 +26,7 @@
 
 <body>
     <!-- Header flotante premium -->
-    <header id="header">
-
-        <!-- Top utility bar -->
-        <div class="header-topbar">
-            <div class="container topbar-inner">
-                <div class="topbar-contact">
-                    <a href="mailto:info@umen.com.ar"><i class="fas fa-envelope"></i> info@umen.com.ar</a>
-                    <a href="https://wa.me/5491131444207" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> +54 911 3144.4207</a>
-                    <span><i class="fas fa-map-marker-alt"></i> Av. Cabildo 4769 9° Piso, Nuñez, CABA</span>
-                </div>
-                <div class="topbar-social">
-                    <a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                    <a href="https://wa.me/5491131444207" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="admin-login.html" title="Acceso Admin"><i class="fas fa-lock"></i></a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main nav -->
-        <div class="container header-grid">
-
-            <div class="logo-container">
-                <img src="/assets/Logo/Logo.png" alt="UMEN Logo" class="logo" id="header-logo">
-            </div>
-
-            <div class="header-nav-area">
-                <button class="mobile-menu-btn" id="mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <nav id="nav-menu">
-                    <a href="index.html" class="active">Inicio</a>
-                    <a href="#destacado">Categorías</a>
-                    <a href="propiedades.html">Propiedades</a>
-                    <a href="#newsletter">Newsletter</a>
-                </nav>
-            </div>
-
-        </div>
-
-        <!-- Buscador — fuera del container para ocupar el ancho completo -->
-        <div class="header-filter-bar">
-            <div class="container">
-                <div class="search-content">
-                    <div class="radio-group-2">
-                        <input type="radio" id="comprar" name="operation" value="venta" checked>
-                        <label for="comprar">Venta</label>
-                        <input type="radio" id="alquilar" name="operation" value="alquiler">
-                        <label for="alquilar">Alquiler</label>
-                    </div>
-                    <div class="select-group">
-                        <select id="property-type" hidden></select>
-                        <div class="custom-select" id="custom-property-type">
-                            <button type="button" class="custom-select-trigger">
-                                <span class="custom-select-value">Todo tipo de propiedades</span>
-                                <i class="fas fa-chevron-down"></i>
-                            </button>
-                            <ul class="custom-select-dropdown" role="listbox"></ul>
-                        </div>
-                    </div>
-                    <div class="input-search">
-                        <input type="text" id="quicksearch" placeholder="Ingresá ubicación, barrio o palabra clave..." autocomplete="off">
-                    </div>
-                    <button class="search_propiedades" id="search-btn">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </header>
+    <div id="header-placeholder"></div>
 
     <!-- Hero de Video a pantalla completa -->
     <section class="container-video-hero">
@@ -155,68 +86,125 @@
         </div>
     </section>
 
-    <!-- Sección de Categorías Destacadas (3 Columnas con Hover) -->
+    <!-- Sección de Categorías Destacadas (3×2 con Hover) -->
     <section id="destacado">
         <div class="container">
             <div class="grid col3">
-                <!-- Residencial -->
-                <div class="item" id="cat-residential">
+                <!-- Departamentos -->
+                <a href="propiedades.html#departamentos" class="item cat-departamentos">
                     <div class="mask">
-                        <div class="top">
-                            <h3>Residencial</h3>
-                        </div>
+                        <div class="top"><h3>Departamentos</h3></div>
                         <div class="grid col2">
                             <div>
-                                <a href="#" class="quick-link-filter" data-neighborhood="Recoleta">Recoleta</a>
-                                <a href="#" class="quick-link-filter" data-neighborhood="Palermo">Palermo</a>
-                                <a href="#" class="quick-link-filter" data-neighborhood="Belgrano">Belgrano</a>
-                                <a href="#" class="quick-link-filter" data-neighborhood="Caballito">Caballito</a>
+                                <span>Monoambiente</span>
+                                <span>2 Ambientes</span>
+                                <span>3 Ambientes</span>
+                                <span>4+ Ambientes</span>
                             </div>
                             <div>
-                                <a href="#" class="quick-link-filter" data-neighborhood="Núñez">Núñez</a>
-                                <a href="#" class="quick-link-filter" data-neighborhood="Pilar">Pilar</a>
-                                <a href="#" class="quick-link-filter" data-neighborhood="Tigre">Tigre</a>
-                                <a href="#" class="quick-link-filter" data-neighborhood="San Isidro">San Isidro</a>
+                                <span>Recoleta</span>
+                                <span>Palermo</span>
+                                <span>Belgrano</span>
+                                <span>Caballito</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
 
-                <!-- Emprendimientos -->
-                <div class="item" id="cat-developments">
+                <!-- Oficinas -->
+                <a href="propiedades.html#oficinas" class="item cat-oficinas">
                     <div class="mask">
-                        <div class="top">
-                            <h3>Emprendimientos</h3>
-                        </div>
+                        <div class="top"><h3>Oficinas</h3></div>
                         <div class="grid col2">
                             <div>
-                                <a href="#" class="quick-link-filter" data-zone="Capital Federal">CABA</a>
-                                <a href="#" class="quick-link-filter" data-zone="GBA Norte">Zona Norte</a>
+                                <span>CABA</span>
+                                <span>Zona Norte</span>
+                                <span>Microcentro</span>
                             </div>
                             <div>
-                                <a href="#" class="quick-link-filter" data-zone="GBA Sur">Zona Sur</a>
-                                <a href="#" class="quick-link-filter" data-province="bsas">Costa Atlántica</a>
+                                <span>Puerto Madero</span>
+                                <span>Palermo</span>
+                                <span>Catalinas</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
 
-                <!-- Comercial -->
-                <div class="item" id="cat-commercial">
+                <!-- Terrenos -->
+                <a href="propiedades.html#terrenos" class="item cat-terrenos">
                     <div class="mask">
-                        <div class="top">
-                            <h3>Comercial</h3>
-                        </div>
-                        <div class="grid col1">
+                        <div class="top"><h3>Terrenos</h3></div>
+                        <div class="grid col2">
                             <div>
-                                <a href="#" class="quick-link-category" data-category="oficinas">Oficinas
-                                    Comerciales</a>
-                                <a href="#" class="quick-link-category" data-category="locales">Locales y Terrenos</a>
-                                <a href="#" class="quick-link-category" data-category="lotes">Lotes y Campos</a>
+                                <span>Zona Norte</span>
+                                <span>Zona Sur</span>
+                                <span>Costa Atlántica</span>
+                            </div>
+                            <div>
+                                <span>Pilar</span>
+                                <span>Tigre</span>
+                                <span>Interior</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
+
+                <!-- Casas -->
+                <a href="propiedades.html#casas" class="item cat-casas">
+                    <div class="mask">
+                        <div class="top"><h3>Casas</h3></div>
+                        <div class="grid col2">
+                            <div>
+                                <span>Recoleta</span>
+                                <span>Belgrano</span>
+                                <span>Palermo</span>
+                            </div>
+                            <div>
+                                <span>Pilar</span>
+                                <span>San Isidro</span>
+                                <span>Tigre</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Hoteles -->
+                <a href="https://hotelesenventa.com" target="_blank" rel="noopener noreferrer" class="item cat-hoteles">
+                    <div class="mask">
+                        <div class="top"><h3>Hoteles</h3></div>
+                        <div class="grid col2">
+                            <div>
+                                <span>Buenos Aires</span>
+                                <span>Mendoza</span>
+                                <span>Patagonia</span>
+                            </div>
+                            <div>
+                                <span>Costa Atlántica</span>
+                                <span>Córdoba</span>
+                                <span>NOA</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Más Propiedades -->
+                <a href="propiedades.html" class="item cat-mas">
+                    <div class="mask">
+                        <div class="top"><h3>Más Propiedades</h3></div>
+                        <div class="grid col2">
+                            <div>
+                                <span>Locales Comerciales</span>
+                                <span>Galpones</span>
+                                <span>Emprendimientos</span>
+                            </div>
+                            <div>
+                                <span>Lotes</span>
+                                <span>Campos</span>
+                                <span>Cocheras</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
     </section>
@@ -290,12 +278,43 @@
                             <p>¿Está listo para invertir en su futuro?</p>
                             <p>Invierta en Hoteles junto a nosotros.</p>
                         </div>
-                        <a href="https://hotelesenventa.com" target="_blank" rel="noopener noreferrer"
-                            class="hoteles-logo-link">
-                            <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta">
-                        </a>
+                        <div class="hoteles-actions">
+                            <a href="https://hotelesenventa.com" target="_blank" rel="noopener noreferrer"
+                                class="hoteles-cta-btn">
+                                Ver hoteles en venta <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <a href="https://hotelesenventa.com" target="_blank" rel="noopener noreferrer"
+                                class="hoteles-logo-link">
+                                <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta">
+                            </a>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Propiedades en Alquiler Destacadas -->
+    <section id="alquiler-destacadas">
+        <div class="container">
+            <div class="alquiler-header">
+                <div class="results-info">
+                    <h2 class="alquiler-title">Propiedades en Alquiler</h2>
+                    <span class="alquiler-count" id="rental-count"></span>
+                </div>
+                <div class="view-options">
+                    <select id="rental-sort">
+                        <option value="newest">Más recientes</option>
+                        <option value="price-asc">Precio: Menor a Mayor</option>
+                        <option value="price-desc">Precio: Mayor a Menor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="property-grid" id="rental-list">
+                <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando propiedades...</div>
+            </div>
+            <div class="content-btn" style="margin-top:48px">
+                <a href="propiedades.html" class="btn">Ver todas las propiedades en alquiler <i class="fas fa-arrow-right" style="margin-left:8px"></i></a>
             </div>
         </div>
     </section>
@@ -375,71 +394,15 @@
     </section>
 
     <!-- Footer -->
-    <footer id="footer">
-        <div class="footer-main">
-            <div class="container footer-grid">
-
-                <!-- Col 1: UMEN -->
-                <div class="footer-col footer-brand">
-                    <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN"
-                        class="footer-logo">
-                    <p>Buenos Negocios Inmobiliarios. Líderes en el mercado inmobiliario argentino con presencia en las
-                        principales zonas del país.</p>
-                </div>
-
-                <!-- Col 2: Contacto -->
-                <div class="footer-col">
-                    <h4 class="footer-title">Contacto</h4>
-                    <ul class="footer-links">
-                        <li>
-                            <a href="mailto:info@umen.com.ar">
-                                <i class="fas fa-envelope"></i> info@umen.com.ar
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://wa.me/5491131444207" target="_blank" rel="noopener">
-                                <i class="fab fa-whatsapp"></i> +54 911 3144.4207
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="fas fa-map-marker-alt"></i> Av. Cabildo 4769 9° Piso, Nuñez, CABA.
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://www.linkedin.com/company/umen" target="_blank" rel="noopener">
-                                <i class="fab fa-linkedin"></i> LinkedIn
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://hotelesenventa.com" target="_blank" rel="noopener">
-                                <i class="fas fa-hotel"></i> hotelesenventa.com
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Col 3: Hoteles en Venta -->
-                <div class="footer-col footer-hoteles">
-                    <a href="https://hotelesenventa.com" target="_blank" rel="noopener">
-                        <img src="https://umen.com.ar/wp-content/uploads/2021/02/logoH.png" alt="Hoteles en Venta"
-                            class="footer-hoteles-logo">
-                    </a>
-                    <p>hotelesenventa.com es un producto de UMEN Buenos Negocios Inmobiliarios.</p>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <div class="container">
-                <p>&copy; 2026 UMEN. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
+    <div id="footer-placeholder"></div>
 
     <!-- Lógica JS Principal -->
     <script type="module" src="js/main.js?v=3.0"></script>
+    <script type="module">
+        import { loadHeader, loadFooter } from './js/components.js';
+        loadHeader();
+        loadFooter();
+    </script>
 </body>
 
 </html>
