@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Propiedades | UMEN Buenos Negocios Inmobiliarios</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/styles.css?v=3.0">
+    <link rel="stylesheet" href="css/styles.css?v=3.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Firebase CDN -->
@@ -65,32 +65,19 @@
                     <!-- Tipo de Propiedad -->
                     <div class="filter-group">
                         <h4 class="filter-group-title">Tipo de Propiedad</h4>
-                        <div class="filter-pill-group" id="filter-type">
-                            <button class="filter-pill-btn" data-value="deptos">Departamentos</button>
-                            <button class="filter-pill-btn" data-value="casas">Casas</button>
-                            <button class="filter-pill-btn" data-value="oficinas">Oficinas</button>
-                            <button class="filter-pill-btn" data-value="lotes">Lotes</button>
-                            <button class="filter-pill-btn" data-value="hoteles">Hoteles</button>
-                            <button class="filter-pill-btn" data-value="terrenos">Terrenos</button>
-                        </div>
+                        <div class="filter-pill-group" id="filter-type"></div>
                     </div>
 
-                    <!-- Zona -->
+                    <!-- Ciudad -->
                     <div class="filter-group">
-                        <h4 class="filter-group-title">Zona</h4>
-                        <div class="filter-check-group" id="filter-zone">
-                            <label class="filter-check-label"><input type="checkbox" value="Capital Federal"> Capital Federal</label>
-                            <label class="filter-check-label"><input type="checkbox" value="GBA Norte"> GBA Norte</label>
-                            <label class="filter-check-label"><input type="checkbox" value="GBA Sur"> GBA Sur</label>
-                            <label class="filter-check-label"><input type="checkbox" value="Costa Atlántica"> Costa Atlántica</label>
-                            <label class="filter-check-label"><input type="checkbox" value="Interior"> Interior</label>
-                        </div>
+                        <h4 class="filter-group-title">Ciudad</h4>
+                        <div class="filter-check-group" id="filter-city"></div>
                     </div>
 
                     <!-- Barrio -->
                     <div class="filter-group">
                         <h4 class="filter-group-title">Barrio</h4>
-                        <input type="text" id="filter-neighborhood" class="filter-text-input" placeholder="Ej: Palermo, Recoleta...">
+                        <div class="filter-check-group" id="filter-neighborhood"></div>
                     </div>
 
                     <!-- Precio -->
@@ -205,7 +192,7 @@
 
     <div id="footer-placeholder"></div>
 
-    <script type="module" src="js/propiedades.js?v=3.0"></script>
+    <script type="module" src="js/propiedades.js?v=4.0"></script>
     <script type="module">
         import { loadHeader, loadFooter } from './js/components.js';
         loadHeader();

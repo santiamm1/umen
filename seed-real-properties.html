@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargador de Propiedades Reales - UMEN</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; max-width: 720px; margin: 0 auto; }
+        .btn { background: #F68C18; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        #status { margin-top: 20px; white-space: pre-line; color: #444; }
+        ul { font-size: 0.9rem; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Cargar 10 propiedades reales de UMEN</h1>
+    <p>Este script crea 10 propiedades reales (extraídas de umen.com.ar/propiedades-buscador) en Firestore, con sus imágenes originales por URL.</p>
+    <p><strong>Importante:</strong> abrí esta página en el mismo navegador donde ya iniciaste sesión en <code>/admin-login.html</code> (la sesión de Firebase Auth se comparte). Si no, vas a ver "permission-denied".</p>
+    <button id="seed-btn" class="btn">Cargar 10 propiedades ahora</button>
+    <div id="status"></div>
+
+    <script type="module">
+        import { firebaseConfig } from './js/config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const status = document.getElementById('status');
+        const btn = document.getElementById('seed-btn');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                status.textContent = `Sesión activa como ${user.email}. Listo para cargar.`;
+            } else {
+                status.textContent = '⚠️ No hay sesión de admin activa en este navegador. Iniciá sesión en admin-login.html primero y volvé a esta página (sin cerrarla).';
+                btn.disabled = true;
+            }
+        });
+
+const properties = [
+  {
+    title: 'Hotel en Venta - 29 Habitaciones en Almagro',
+    price: 950000,
+    currency: 'USD',
+    type: 'Hotel',
+    operation: 'venta',
+    status: 'publicado',
+    neighborhood: 'Almagro',
+    zone: 'Capital Federal',
+    surface: 753,
+    bedrooms: 29,
+    bathrooms: 29,
+    description: 'Hotel en funcionamiento con 29 habitaciones, cada una con baño privado, en una superficie cubierta de 753 m² sobre un lote de 452 m². Ubicado en el corazón de Almagro, con alta ocupación.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2026/05/AR-CA1-34-1.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/05/AR-CA1-34-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/05/AR-CA1-34-10.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/05/AR-CA1-34-17.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/05/AR-CA1-34-18.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/05/AR-CA1-34-3.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/05/AR-CA1-34-4.jpg'
+    ]
+  },
+  {
+    title: 'Oficina en Alquiler - Av. Cabildo 4769, Piso 9, Nuñez',
+    price: 1490000,
+    currency: 'ARS',
+    type: 'Oficina',
+    operation: 'alquiler',
+    status: 'publicado',
+    neighborhood: 'Nuñez',
+    zone: 'Capital Federal',
+    surface: 60,
+    bedrooms: 2,
+    bathrooms: 1,
+    description: 'Oficina de 60 m² en el piso 9 de Av. Cabildo 4769, Nuñez. Dos ambientes, planta luminosa y un baño, lista para mudarse.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a.jpeg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-4.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-5.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-3.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-6.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-7.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-8.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/04/ofi-nun-1a-9.jpg'
+    ]
+  },
+  {
+    title: 'Casona en Venta - Av. 44 entre 5 y 6, La Plata',
+    price: 330000,
+    currency: 'USD',
+    type: 'Terreno',
+    operation: 'venta',
+    status: 'publicado',
+    neighborhood: 'Centro',
+    zone: 'La Plata',
+    surface: 440,
+    bedrooms: 13,
+    bathrooms: 6,
+    description: 'Casona de 440 m² con 13 habitaciones y baños distribuidos en varios sectores, ideal para reconvertir en geriátrico u hospedaje. Ubicada sobre Av. 44 entre 5 y 6, La Plata.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2026/04/Terreno-AR-BA35-1.jpg',
+      'https://umen.com.ar/wp-content/uploads/2022/11/AR-BA35-1-8.jpg'
+    ]
+  },
+  {
+    title: 'Monoambiente en Alquiler - Arcos 2366, Belgrano',
+    price: 690000,
+    currency: 'ARS',
+    type: 'Departamento',
+    operation: 'alquiler',
+    status: 'publicado',
+    neighborhood: 'Belgrano',
+    zone: 'Capital Federal',
+    surface: 38,
+    bedrooms: 1,
+    bathrooms: 1,
+    description: 'Monoambiente de 38 m² (35 cubiertos + balcón), piso 2 al frente, impecable y luminoso, en Belgrano.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2026/03/dep-bel-1a-1.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/dep-bel-1a-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/dep-bel-1a-3.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/dep-bel-1a-4.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/dep-bel-1a-5.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/dep-bel-1a-6.jpg'
+    ]
+  },
+  {
+    title: 'Monoambiente con Cochera en Alquiler - Amenábar 2435, Belgrano',
+    price: 900000,
+    currency: 'ARS',
+    type: 'Departamento',
+    operation: 'alquiler',
+    status: 'publicado',
+    neighborhood: 'Belgrano',
+    zone: 'Capital Federal',
+    surface: 34,
+    bedrooms: 1,
+    bathrooms: 1,
+    description: 'Monoambiente de 34 m² con cochera fija, piso 3 orientación este, en un edificio con pileta, gimnasio, seguridad 24hs y sala de cine, en Belgrano.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2026/03/DEP-BEL-2-5.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/DEP-BEL-2-18.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/DEP-BEL-2-10.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/DEP-BEL-2-4.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/DEP-BEL-2-6.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/03/DEP-BEL-2-3.jpg'
+    ]
+  },
+  {
+    title: 'Apart Hotel en Venta a Metros del Hospital Italiano',
+    price: 1820000,
+    currency: 'USD',
+    type: 'Edificio en Block',
+    operation: 'venta',
+    status: 'publicado',
+    neighborhood: 'Almagro',
+    zone: 'Capital Federal',
+    surface: 420,
+    bedrooms: 14,
+    bathrooms: 14,
+    description: 'Edificio de 5 pisos (2015) con 14 unidades tipo estudio y 2 ambientes, terreno propio de 133 m², ascensor y 3 cocheras cubiertas. Funciona actualmente como departamentos amueblados en alquiler.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-1.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-3.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-4.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-5.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-6.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-7.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/ar-ca1-32-8.jpg'
+    ]
+  },
+  {
+    title: 'Hotel Familiar / Pensión en Venta a Metros de la UADE',
+    price: 270000,
+    currency: 'USD',
+    type: 'Hotel',
+    operation: 'venta',
+    status: 'publicado',
+    neighborhood: 'Centro',
+    zone: 'Capital Federal',
+    surface: 508,
+    bedrooms: 20,
+    bathrooms: 8,
+    description: 'Inmueble de 508 m² con 32 ambientes (20 habilitados como hotel) y 8 baños, entre Salta y Humberto I, zona Constitución/Monserrat.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2026/02/AR-CA1-33-PISO-1-1.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/AR-CA1-33-PISO-1-5.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/AR-CA1-33-PISO-1-7.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/AR-CA1-33-PISO-1-9.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/AR-CA1-33-PISO-2-1.jpg',
+      'https://umen.com.ar/wp-content/uploads/2026/02/AR-CA1-33-PISO-2-2.jpg'
+    ]
+  },
+  {
+    title: 'Departamento en Venta - Av. Cabildo y Virrey Loreto, Belgrano',
+    price: 129000,
+    currency: 'USD',
+    type: 'Departamento',
+    operation: 'venta',
+    status: 'publicado',
+    neighborhood: 'Belgrano',
+    zone: 'Capital Federal',
+    surface: 62,
+    bedrooms: 2,
+    bathrooms: 1,
+    description: 'Departamento de 3 ambientes (62 m²) con 2 dormitorios y 1 baño, en la esquina de Av. Cabildo y Virrey Loreto, Belgrano.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2025/10/DEP-BEL-5-1.jpg',
+      'https://umen.com.ar/wp-content/uploads/2025/10/DEP-BEL-5-9.jpg',
+      'https://umen.com.ar/wp-content/uploads/2025/10/DEP-BEL-5-3.jpg',
+      'https://umen.com.ar/wp-content/uploads/2025/10/DEP-BEL-5-10.jpg',
+      'https://umen.com.ar/wp-content/uploads/2025/10/DEP-BEL-5-13.jpg',
+      'https://umen.com.ar/wp-content/uploads/2025/10/DEP-BEL-5-12.jpg'
+    ]
+  },
+  {
+    title: 'Oficina en Venta - Reconquista 144, Piso 6, Microcentro',
+    price: 450000,
+    currency: 'USD',
+    type: 'Oficina',
+    operation: 'venta',
+    status: 'publicado',
+    neighborhood: 'Microcentro',
+    zone: 'Capital Federal',
+    surface: 252,
+    bedrooms: 4,
+    bathrooms: 3,
+    description: 'Oficina de 252 m² en el piso 6 de Reconquista 144, con 4 despachos, planta libre y 3 baños. Incluye 3 cocheras cubiertas en subsuelo.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2024/10/OFI-CEN-2-1-461x1024.jpg',
+      'https://umen.com.ar/wp-content/uploads/2024/10/OFI-CEN-2-2-1024x461.jpg',
+      'https://umen.com.ar/wp-content/uploads/2024/10/OFI-CEN-2-3-1024x576.jpg',
+      'https://umen.com.ar/wp-content/uploads/2024/10/OFI-CEN-2-6-1024x576.jpg',
+      'https://umen.com.ar/wp-content/uploads/2024/10/OFI-CEN-2-7-1024x461.jpg',
+      'https://umen.com.ar/wp-content/uploads/2024/10/OFI-CEN-2-8-1024x461.jpg'
+    ]
+  },
+  {
+    title: 'PH en Venta - Galicia al 600, Villa Crespo',
+    price: 270000,
+    currency: 'USD',
+    type: 'PH',
+    operation: 'venta',
+    status: 'publicado',
+    neighborhood: 'Villa Crespo',
+    zone: 'Capital Federal',
+    surface: 310,
+    bedrooms: 17,
+    bathrooms: 6,
+    description: 'PH de 310 m² construidos sobre 196 m² de terreno, con 17 habitaciones y 6 baños. Actualmente funciona como hotel familiar; a reciclar.',
+    images: [
+      'https://umen.com.ar/wp-content/uploads/2022/11/01-AR-CA1-13-3-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2022/11/13-AR-CA1-13-17-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2022/11/07-AR-CA1-13-10-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2022/11/02-AR-CA1-13-2-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2022/11/05-AR-CA1-13-8-2.jpg',
+      'https://umen.com.ar/wp-content/uploads/2022/11/06-AR-CA1-13-9-2.jpg'
+    ]
+  }
+];
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            status.textContent = 'Cargando...\n';
+            let ok = 0;
+            for (const prop of properties) {
+                try {
+                    const docRef = await addDoc(collection(db, 'properties'), {
+                        ...prop,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    ok++;
+                    status.textContent += `✅ ${prop.title} (${docRef.id})\n`;
+                } catch (error) {
+                    status.textContent += `❌ ${prop.title}: ${error.message}\n`;
+                }
+            }
+            status.textContent += `\n${ok}/${properties.length} propiedades cargadas con éxito.`;
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>

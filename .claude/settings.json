@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(npx --no-install playwright --version)",
+      "Bash(ls /Applications | grep -i chrome; ls /Applications | grep -i safari)",
+      "Read(//Applications/**)",
+      "Bash(mkdir -p /tmp/pw_test)",
+      "Read(//tmp/**)",
+      "Bash(npx playwright *)",
+      "Bash(node shot.js)",
+      "Bash(node -e ' *)",
+      "Bash(pkill -f \"http.server 8765\")",
+      "WebFetch(domain:umen.com.ar)",
+      "Bash(git -C /Users/Santiago_1/Documents/GitHub/umen log --oneline -- css/admin.css)",
+      "Bash(git -C /Users/Santiago_1/Documents/GitHub/umen log --all --oneline -- css/admin.css)",
+      "Bash(node -e \"require\\('./js/propiedades.js'\\)\")",
+      "Bash(node --input-type=module -e \"import\\('./js/propiedades.js'\\)\")",
+      "Bash(node --check js/propiedades.js)",
+      "Bash(node --check js/adminDashboard.js)",
+      "Bash(node --check js/propertyService.js)",
+      "Bash(curl -s -o /dev/null -w \"admin.css: %{http_code}\\\\n\" http://localhost:8765/css/admin.css)",
+      "Bash(curl -s -o /dev/null -w \"adminDashboard.js: %{http_code}\\\\n\" http://localhost:8765/js/adminDashboard.js)",
+      "Bash(curl -s -o /dev/null -w \"admin-dashboard.html: %{http_code}\\\\n\" http://localhost:8765/admin-dashboard.html)",
+      "Bash(sed '/onAuthStateChanged/,/^    }\\);$/d' admin-dashboard.html)",
+      "Bash(python3 -)",
+      "Bash(cp css/admin.css /tmp/pw_test/)",
+      "Bash(cp -r assets /tmp/pw_test/)",
+      "Bash(pkill -f \"http.server 8766\")",
+      "Bash(rm -rf /tmp/pw_test /tmp/admin_preview.html)",
+      "Bash(pkill -f \"http.server 8765\" 2>/dev/null; rm -rf /tmp/pw3; echo done)",
+      "Bash(node seed.mjs)",
+      "Bash(python3 -c ' *)",
+      "Bash(node --check /tmp/seed_umen/extracted_inline.mjs)",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(sed -i.bak \"s#from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js'#from 'firebase/app'#; s#from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js'#from 'firebase/auth'#; s#from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js'#from 'firebase/firestore'#; s#from './js/config.js'#from './config_stub.mjs'#\" extracted_inline.mjs)",
+      "Bash(echo \"export const firebaseConfig = {};\")",
+      "Bash(node --check extracted_inline.mjs)",
+      "Bash(grep -n \"detail-breadcrumb\\\\|class=\\\\\"container\\\\|innerHTML = \\\\`\" js/propertyDetail.js)"
+    ],
+    "additionalDirectories": [
+      "/tmp/pw_test",
+      "/private/tmp/pw_test",
+      "/private/tmp/pw3",
+      "/tmp/seed_umen",
+      "/private/tmp/seed_umen"
+    ]
+  }
+}

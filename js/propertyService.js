@@ -166,7 +166,8 @@ export async function getCategories() {
 
 export async function createCategory(categoryData) {
     try {
-        const docRef = await addDoc(collection(window.db, 'categories'), categoryData);
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'categories'), categoryData);
         return docRef.id;
     } catch (error) {
         console.error('Error creating category:', error);
@@ -176,8 +177,8 @@ export async function createCategory(categoryData) {
 
 export async function updateCategory(id, categoryData) {
     try {
-        const docRef = doc(window.db, 'categories', id);
-        await updateDoc(docRef, categoryData);
+        const db = await getDb();
+        await updateDoc(doc(db, 'categories', id), categoryData);
     } catch (error) {
         console.error('Error updating category:', error);
         throw error;
@@ -186,7 +187,8 @@ export async function updateCategory(id, categoryData) {
 
 export async function deleteCategory(id) {
     try {
-        await deleteDoc(doc(window.db, 'categories', id));
+        const db = await getDb();
+        await deleteDoc(doc(db, 'categories', id));
     } catch (error) {
         console.error('Error deleting category:', error);
         throw error;
@@ -237,7 +239,69 @@ export async function deleteFeature(id) {
     }
 }
 
-// Locations
+// Cities (ciudades) — lista plana, editable desde el panel de admin
+export async function getCities() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'cities'));
+        const cities = [];
+        querySnapshot.forEach((doc) => cities.push({ id: doc.id, ...doc.data() }));
+        cities.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        return cities;
+    } catch (error) {
+        console.error('Error getting cities:', error);
+        return [];
+    }
+}
+
+export async function createCity(cityData) {
+    const db = await getDb();
+    const docRef = await addDoc(collection(db, 'cities'), cityData);
+    return docRef.id;
+}
+
+export async function updateCity(id, cityData) {
+    const db = await getDb();
+    await updateDoc(doc(db, 'cities', id), cityData);
+}
+
+export async function deleteCity(id) {
+    const db = await getDb();
+    await deleteDoc(doc(db, 'cities', id));
+}
+
+// Neighborhoods (barrios) — lista plana, editable desde el panel de admin
+export async function getAllNeighborhoods() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'neighborhoods'));
+        const neighborhoods = [];
+        querySnapshot.forEach((doc) => neighborhoods.push({ id: doc.id, ...doc.data() }));
+        neighborhoods.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        return neighborhoods;
+    } catch (error) {
+        console.error('Error getting all neighborhoods:', error);
+        return [];
+    }
+}
+
+export async function createNeighborhood(neighborhoodData) {
+    const db = await getDb();
+    const docRef = await addDoc(collection(db, 'neighborhoods'), neighborhoodData);
+    return docRef.id;
+}
+
+export async function updateNeighborhood(id, neighborhoodData) {
+    const db = await getDb();
+    await updateDoc(doc(db, 'neighborhoods', id), neighborhoodData);
+}
+
+export async function deleteNeighborhood(id) {
+    const db = await getDb();
+    await deleteDoc(doc(db, 'neighborhoods', id));
+}
+
+// Locations (legacy: jerarquía provincia → zona → barrio, sin UI actualmente)
 export async function getProvinces() {
     try {
         const db = await getDb();
@@ -280,6 +344,36 @@ export async function getNeighborhoods(zoneId) {
     } catch (error) {
         console.error('Error getting neighborhoods:', error);
         return [];
+    }
+}
+
+// Taxonomía por defecto — replica los filtros del sitio anterior (umen.com.ar/propiedades-buscador)
+// Se usa solo para poblar Firestore la primera vez (si la colección está vacía); luego todo se edita desde el admin.
+const DEFAULT_TAXONOMY = {
+    categories: ['Departamento', 'PH', 'Oficina', 'Edificio en Block', 'Hotel', 'Negocio Especial', 'Terreno'],
+    cities: ['Capital Federal', 'Bariloche', 'Dina Huapi', 'La Plata'],
+    neighborhoods: ['Almagro', 'Belgrano', 'Caballito', 'Centro', 'Microcentro', 'Nuñez', 'San Cristóbal', 'Villa Crespo']
+};
+
+export async function ensureDefaultTaxonomy() {
+    try {
+        const db = await getDb();
+
+        const seedIfEmpty = async (collectionName, names) => {
+            const snapshot = await getDocs(collection(db, collectionName));
+            if (!snapshot.empty) return;
+            for (const name of names) {
+                await addDoc(collection(db, collectionName), { name });
+            }
+        };
+
+        await Promise.all([
+            seedIfEmpty('categories', DEFAULT_TAXONOMY.categories),
+            seedIfEmpty('cities', DEFAULT_TAXONOMY.cities),
+            seedIfEmpty('neighborhoods', DEFAULT_TAXONOMY.neighborhoods)
+        ]);
+    } catch (error) {
+        console.error('Error seeding default taxonomy:', error);
     }
 }
 

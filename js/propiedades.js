@@ -1,18 +1,20 @@
 // propiedades.js - Página de listado completo de propiedades UMEN
 
-import { getProperties, getCategories } from './propertyService.js';
+import { getProperties, getCategories, getCities, getAllNeighborhoods } from './propertyService.js';
 
 const ITEMS_PER_PAGE = 12;
 
 let categories = [];
+let cities = [];
+let neighborhoodsList = [];
 let allResults = [];
 let currentPage = 1;
 
 let currentFilters = {
     operation: 'venta',
     category: null,
-    zones: [],
-    neighborhood: '',
+    cities: [],
+    neighborhoods: [],
     priceMin: null,
     priceMax: null,
     surfaceMin: null,
@@ -71,8 +73,15 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
     }
 
     if (header) {
-        header.classList.add('scrolled');
-        window.addEventListener('scroll', () => header.classList.add('scrolled'));
+        const handleHeaderScroll = () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        };
+        window.addEventListener('scroll', handleHeaderScroll);
+        handleHeaderScroll();
     }
 
     setupMobileMenu();
@@ -85,8 +94,22 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
         } catch {
             useDefaultCategories();
         }
+        try {
+            cities = await getCities();
+            if (cities.length === 0) useDefaultCities();
+        } catch {
+            useDefaultCities();
+        }
+        try {
+            neighborhoodsList = await getAllNeighborhoods();
+            if (neighborhoodsList.length === 0) useDefaultNeighborhoods();
+        } catch {
+            useDefaultNeighborhoods();
+        }
     } else {
         useDefaultCategories();
+        useDefaultCities();
+        useDefaultNeighborhoods();
     }
 
     populatePropertyTypes();
@@ -94,8 +117,11 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
     setupSearchBox();
     setupNumberFilterBtns();
     setupRangeFilters();
+    renderTypePills();
+    renderCityCheckboxes();
+    renderNeighborhoodCheckboxes();
     setupPillFilters();
-    setupZoneFilter();
+    setupCityFilter();
     setupNeighborhoodFilter();
     setupAgeFilter();
     setupViewToggle();
@@ -109,13 +135,44 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
 // ── Datos por defecto ─────────────────────────────────────────────────────────
 
 function useDefaultCategories() {
-    categories = [
-        { id: 'deptos',   name: 'Departamentos' },
-        { id: 'casas',    name: 'Casas' },
-        { id: 'oficinas', name: 'Oficinas' },
-        { id: 'lotes',    name: 'Lotes' },
-        { id: 'hoteles',  name: 'Hoteles' }
-    ];
+    categories = ['Departamento', 'PH', 'Oficina', 'Edificio en Block', 'Hotel', 'Negocio Especial', 'Terreno']
+        .map(name => ({ id: name, name }));
+}
+
+function useDefaultCities() {
+    cities = ['Capital Federal', 'Bariloche', 'Dina Huapi', 'La Plata']
+        .map(name => ({ id: name, name }));
+}
+
+function useDefaultNeighborhoods() {
+    neighborhoodsList = ['Almagro', 'Belgrano', 'Caballito', 'Centro', 'Microcentro', 'Nuñez', 'San Cristóbal', 'Villa Crespo']
+        .map(name => ({ id: name, name }));
+}
+
+// ── Render: pills de tipo / checkboxes de ciudad y barrio ────────────────────
+
+function renderTypePills() {
+    const container = document.getElementById('filter-type');
+    if (!container) return;
+    container.innerHTML = categories.map(c =>
+        `<button class="filter-pill-btn" data-value="${c.name}">${c.name}</button>`
+    ).join('');
+}
+
+function renderCityCheckboxes() {
+    const container = document.getElementById('filter-city');
+    if (!container) return;
+    container.innerHTML = cities.map(c =>
+        `<label class="filter-check-label"><input type="checkbox" value="${c.name}"> ${c.name}</label>`
+    ).join('');
+}
+
+function renderNeighborhoodCheckboxes() {
+    const container = document.getElementById('filter-neighborhood');
+    if (!container) return;
+    container.innerHTML = neighborhoodsList.map(n =>
+        `<label class="filter-check-label"><input type="checkbox" value="${n.name}"> ${n.name}</label>`
+    ).join('');
 }
 
 // ── Setup: tipos de propiedad ─────────────────────────────────────────────────
@@ -269,13 +326,13 @@ function setupPillGroup(containerId, filterKey) {
     });
 }
 
-// ── Setup: zonas (checkboxes múltiples) ───────────────────────────────────────
+// ── Setup: ciudad (checkboxes múltiples) ──────────────────────────────────────
 
-function setupZoneFilter() {
-    document.querySelectorAll('#filter-zone input[type="checkbox"]').forEach(cb => {
+function setupCityFilter() {
+    document.querySelectorAll('#filter-city input[type="checkbox"]').forEach(cb => {
         cb.addEventListener('change', () => {
-            currentFilters.zones = Array.from(
-                document.querySelectorAll('#filter-zone input[type="checkbox"]:checked')
+            currentFilters.cities = Array.from(
+                document.querySelectorAll('#filter-city input[type="checkbox"]:checked')
             ).map(c => c.value);
             currentPage = 1;
             applyFiltersAndRender();
@@ -283,19 +340,17 @@ function setupZoneFilter() {
     });
 }
 
-// ── Setup: barrio (texto) ─────────────────────────────────────────────────────
+// ── Setup: barrio (checkboxes múltiples) ──────────────────────────────────────
 
 function setupNeighborhoodFilter() {
-    const input = document.getElementById('filter-neighborhood');
-    if (!input) return;
-    let timer;
-    input.addEventListener('input', () => {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            currentFilters.neighborhood = input.value.trim().toLowerCase();
+    document.querySelectorAll('#filter-neighborhood input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            currentFilters.neighborhoods = Array.from(
+                document.querySelectorAll('#filter-neighborhood input[type="checkbox"]:checked')
+            ).map(c => c.value);
             currentPage = 1;
             applyFiltersAndRender();
-        }, 350);
+        });
     });
 }
 
@@ -422,14 +477,19 @@ function applyFiltersAndRender() {
         );
     }
 
-    // Zona (multi)
-    if (currentFilters.zones.length > 0) {
-        filtered = filtered.filter(p => p.zone && currentFilters.zones.includes(p.zone));
+    // Tipo de propiedad
+    if (currentFilters.category) {
+        filtered = filtered.filter(p => p.type === currentFilters.category);
     }
 
-    // Barrio
-    if (currentFilters.neighborhood) {
-        filtered = filtered.filter(p => p.neighborhood && p.neighborhood.toLowerCase().includes(currentFilters.neighborhood));
+    // Ciudad (multi)
+    if (currentFilters.cities.length > 0) {
+        filtered = filtered.filter(p => p.zone && currentFilters.cities.includes(p.zone));
+    }
+
+    // Barrio (multi)
+    if (currentFilters.neighborhoods.length > 0) {
+        filtered = filtered.filter(p => p.neighborhood && currentFilters.neighborhoods.includes(p.neighborhood));
     }
 
     if (currentFilters.priceMin !== null) filtered = filtered.filter(p => p.price >= currentFilters.priceMin);
@@ -641,16 +701,15 @@ function renderActiveFilterTags() {
     }
 
     if (currentFilters.category) {
-        const labels = { deptos:'Departamentos', casas:'Casas', oficinas:'Oficinas', lotes:'Lotes', hoteles:'Hoteles', terrenos:'Terrenos' };
-        tags.push(`<span class="filter-tag" onclick="removeFilter('category')">${labels[currentFilters.category] || currentFilters.category} <i class="fas fa-times"></i></span>`);
+        tags.push(`<span class="filter-tag" onclick="removeFilter('category')">${currentFilters.category} <i class="fas fa-times"></i></span>`);
     }
 
-    if (currentFilters.zones.length > 0) {
-        tags.push(`<span class="filter-tag" onclick="removeFilter('zones')">${currentFilters.zones.join(', ')} <i class="fas fa-times"></i></span>`);
+    if (currentFilters.cities.length > 0) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('cities')">${currentFilters.cities.join(', ')} <i class="fas fa-times"></i></span>`);
     }
 
-    if (currentFilters.neighborhood) {
-        tags.push(`<span class="filter-tag" onclick="removeFilter('neighborhood')">Barrio: ${currentFilters.neighborhood} <i class="fas fa-times"></i></span>`);
+    if (currentFilters.neighborhoods.length > 0) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('neighborhoods')">Barrio: ${currentFilters.neighborhoods.join(', ')} <i class="fas fa-times"></i></span>`);
     }
 
     if (currentFilters.bathrooms) {
@@ -696,13 +755,12 @@ window.removeFilter = function(key) {
     } else if (key === 'category') {
         currentFilters.category = null;
         document.querySelectorAll('#filter-type .filter-pill-btn').forEach(b => b.classList.remove('active'));
-    } else if (key === 'zones') {
-        currentFilters.zones = [];
-        document.querySelectorAll('#filter-zone input[type="checkbox"]').forEach(cb => cb.checked = false);
-    } else if (key === 'neighborhood') {
-        currentFilters.neighborhood = '';
-        const el = document.getElementById('filter-neighborhood');
-        if (el) el.value = '';
+    } else if (key === 'cities') {
+        currentFilters.cities = [];
+        document.querySelectorAll('#filter-city input[type="checkbox"]').forEach(cb => cb.checked = false);
+    } else if (key === 'neighborhoods') {
+        currentFilters.neighborhoods = [];
+        document.querySelectorAll('#filter-neighborhood input[type="checkbox"]').forEach(cb => cb.checked = false);
     } else if (key === 'bathrooms') {
         currentFilters.bathrooms = null;
         document.querySelectorAll('#filter-bathrooms .filter-number-btn').forEach(b => b.classList.remove('active'));
@@ -725,8 +783,8 @@ function clearAllFilters() {
     currentFilters = {
         operation: currentFilters.operation,
         category: null,
-        zones: [],
-        neighborhood: '',
+        cities: [],
+        neighborhoods: [],
         priceMin: null,
         priceMax: null,
         surfaceMin: null,
@@ -750,10 +808,7 @@ function clearAllFilters() {
     if (dropdown) dropdown.querySelectorAll('.custom-select-option').forEach(o => o.classList.toggle('selected', o.dataset.value === ''));
 
     document.querySelectorAll('.filter-number-btn, .filter-pill-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('#filter-zone input[type="checkbox"]').forEach(cb => cb.checked = false);
-
-    const neighborhoodInput = document.getElementById('filter-neighborhood');
-    if (neighborhoodInput) neighborhoodInput.value = '';
+    document.querySelectorAll('#filter-city input[type="checkbox"], #filter-neighborhood input[type="checkbox"]').forEach(cb => cb.checked = false);
 
     const ageSelect = document.getElementById('filter-age');
     if (ageSelect) ageSelect.value = '';

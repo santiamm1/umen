@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración | UMEN</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/admin.css?v=1.0">
+    <link rel="stylesheet" href="css/admin.css?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="module">
         import { firebaseConfig } from './js/config.js';
@@ -82,6 +82,42 @@
             </div>
         </div>
 
+        <!-- Taxonomía: tipos de propiedad / ciudades / barrios -->
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div>
+                    <h2>Filtros del buscador</h2>
+                    <p>Tipos de propiedad, ciudades y barrios disponibles en Propiedades. Agregá, renombrá o borrá las opciones que necesites.</p>
+                </div>
+            </div>
+            <div class="adm-taxo-grid">
+                <div class="adm-taxo-group">
+                    <h4>Tipos de propiedad</h4>
+                    <div class="adm-taxo-add">
+                        <input type="text" id="new-category-input" placeholder="Ej: Departamento">
+                        <button type="button" class="adm-btn adm-btn-icon" id="add-category-btn"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="adm-taxo-list" id="category-list"></div>
+                </div>
+                <div class="adm-taxo-group">
+                    <h4>Ciudades</h4>
+                    <div class="adm-taxo-add">
+                        <input type="text" id="new-city-input" placeholder="Ej: Bariloche">
+                        <button type="button" class="adm-btn adm-btn-icon" id="add-city-btn"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="adm-taxo-list" id="city-list"></div>
+                </div>
+                <div class="adm-taxo-group">
+                    <h4>Barrios</h4>
+                    <div class="adm-taxo-add">
+                        <input type="text" id="new-neighborhood-input" placeholder="Ej: Belgrano">
+                        <button type="button" class="adm-btn adm-btn-icon" id="add-neighborhood-btn"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="adm-taxo-list" id="neighborhood-list"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabla card -->
         <div class="adm-card">
 
@@ -106,11 +142,6 @@
                 </select>
                 <select id="filter-type">
                     <option value="">Tipo</option>
-                    <option value="deptos">Departamento</option>
-                    <option value="casas">Casa</option>
-                    <option value="oficinas">Oficina</option>
-                    <option value="lotes">Lote / Terreno</option>
-                    <option value="hoteles">Hotel</option>
                 </select>
                 <select id="filter-status">
                     <option value="">Estado</option>
@@ -211,14 +242,10 @@
                         </div>
                         <div class="adm-form-group">
                             <label for="type">Tipo de propiedad</label>
-                            <select id="type">
-                                <option value="deptos">Departamento</option>
-                                <option value="casas">Casa</option>
-                                <option value="oficinas">Oficina</option>
-                                <option value="lotes">Lote / Terreno</option>
-                                <option value="hoteles">Hotel</option>
-                                <option value="locales">Local comercial</option>
-                            </select>
+                            <div class="adm-select-row">
+                                <select id="type"></select>
+                                <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="category" title="Agregar tipo nuevo"><i class="fas fa-plus"></i></button>
+                            </div>
                         </div>
                         <div class="adm-form-group">
                             <label for="operation">Operación</label>
@@ -229,11 +256,17 @@
                         </div>
                         <div class="adm-form-group">
                             <label for="neighborhood">Barrio *</label>
-                            <input type="text" id="neighborhood" placeholder="Ej: Palermo" required>
+                            <div class="adm-select-row">
+                                <select id="neighborhood" required></select>
+                                <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="neighborhood" title="Agregar barrio nuevo"><i class="fas fa-plus"></i></button>
+                            </div>
                         </div>
                         <div class="adm-form-group">
-                            <label for="zone">Zona / Localidad *</label>
-                            <input type="text" id="zone" placeholder="Ej: Capital Federal" required>
+                            <label for="zone">Ciudad *</label>
+                            <div class="adm-select-row">
+                                <select id="zone" required></select>
+                                <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="city" title="Agregar ciudad nueva"><i class="fas fa-plus"></i></button>
+                            </div>
                         </div>
                         <div class="adm-form-group">
                             <label for="surface">Superficie (m²)</label>
@@ -277,6 +310,6 @@
         </div>
     </div>
 
-    <script type="module" src="js/adminDashboard.js?v=4.0"></script>
+    <script type="module" src="js/adminDashboard.js?v=5.0"></script>
 </body>
 </html>

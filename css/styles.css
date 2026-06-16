@@ -2008,8 +2008,17 @@ a.item {
 }
 
 /* ------------------- Property Detail Page ------------------- */
+/* Esta página no tiene hero propio, así que el padding-top tiene que
+   despejar el header fijo (topbar + nav + barra de filtro) para que
+   el título no quede tapado. */
 .detail-container {
-    padding: 90px 0 60px;
+    padding: 250px 0 60px;
+}
+
+@media (max-width: 768px) {
+    .detail-container {
+        padding: 130px 0 40px;
+    }
 }
 
 .back-link {
@@ -3013,15 +3022,15 @@ a.item {
 .prop-page-hero {
     position: relative;
     width: 100%;
-    height: 48vh;
-    min-height: 440px;
+    height: auto;
+    min-height: 520px;
     overflow: hidden;
     background-color: #000;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding-top: 260px;
+    padding: 270px 0 56px;
     border-bottom: 3px solid var(--primary-color);
 }
 
@@ -3361,9 +3370,9 @@ a.item {
 
 @media (max-width: 768px) {
     .prop-page-hero {
-        padding-top: 220px;
+        padding: 200px 0 40px;
         height: auto;
-        min-height: 380px;
+        min-height: 450px;
     }
 
     .property-grid.list-view .property-card {
