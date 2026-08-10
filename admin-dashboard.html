@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración | UMEN</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/admin.css?v=1.1">
+    <link rel="stylesheet" href="css/admin.css?v=8.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="module">
         import { firebaseConfig } from './js/config.js';
@@ -39,6 +39,39 @@
             </div>
         </div>
     </header>
+
+    <!-- ── Wrapper ───────────────────────────────────────────────── -->
+    <div class="adm-wrapper">
+
+    <!-- ── Sidebar ───────────────────────────────────────────────── -->
+    <aside class="adm-sidebar" id="adm-sidebar">
+        <nav class="adm-sidebar-nav">
+            <div class="adm-sidebar-section">
+                <span class="adm-sidebar-section-label">General</span>
+                <a href="#" class="adm-sidebar-link active" data-section="propiedades">
+                    <i class="fas fa-building"></i>
+                    <span>Propiedades</span>
+                </a>
+                <a href="#" class="adm-sidebar-link" data-section="taxonomia">
+                    <i class="fas fa-tags"></i>
+                    <span>Filtros del buscador</span>
+                </a>
+            </div>
+            <div class="adm-sidebar-section">
+                <span class="adm-sidebar-section-label">Sitio</span>
+                <a href="index.html" target="_blank" class="adm-sidebar-link">
+                    <i class="fas fa-globe"></i>
+                    <span>Ver sitio</span>
+                </a>
+            </div>
+        </nav>
+        <div class="adm-sidebar-footer">
+            <button id="sidebar-logout-btn" class="adm-sidebar-logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar sesión</span>
+            </button>
+        </div>
+    </aside>
 
     <!-- ── Contenido ───────────────────────────────────────────────── -->
     <main class="adm-main">
@@ -175,141 +208,639 @@
             </div>
         </div>
     </main>
+    </div><!-- /.adm-wrapper -->
 
     <!-- ── Modal Nueva / Editar propiedad ──────────────────────────── -->
     <div id="property-modal" class="adm-modal-overlay" style="display:none">
-        <div class="adm-modal">
-            <div class="adm-modal-header">
-                <h3 id="modal-title">Nueva Propiedad</h3>
+        <div class="adm-modal adm-modal-wide">
+
+            <!-- Header: título + estado + cerrar -->
+            <div class="adm-modal-header adm-modal-header-full">
+                <div class="adm-mh-left">
+                    <h3 id="modal-title">Nueva Propiedad</h3>
+                    <span class="adm-mh-id">ID: <strong id="display-prop-code">—</strong></span>
+                    <input type="hidden" id="prop-code">
+                </div>
+                <div class="adm-status-pills" id="status-pills">
+                    <label class="status-pill pendiente"><input type="radio" name="status" value="pendiente" checked>Pendiente</label>
+                    <label class="status-pill borrador"><input type="radio" name="status" value="borrador">Borrador</label>
+                    <label class="status-pill publicado"><input type="radio" name="status" value="publicado">Publicado</label>
+                    <label class="status-pill pausa"><input type="radio" name="status" value="pausa">Pausa</label>
+                    <label class="status-pill vendido"><input type="radio" name="status" value="vendido">Vendido</label>
+                </div>
                 <button class="adm-modal-close close-modal"><i class="fas fa-times"></i></button>
             </div>
 
-            <form id="property-form">
-                <div class="adm-modal-body">
+            <form id="property-form" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden">
 
-                    <!-- ID generado -->
-                    <div class="adm-prop-id-row">
-                        <span class="adm-prop-id-label">ID Propiedad</span>
-                        <span class="adm-prop-id-value" id="display-prop-code">—</span>
-                        <input type="hidden" id="prop-code">
-                    </div>
-
-                    <!-- Estado -->
-                    <div class="adm-form-group full">
-                        <label>Estado de publicación</label>
-                        <div class="adm-status-pills" id="status-pills">
-                            <label class="status-pill pendiente">
-                                <input type="radio" name="status" value="pendiente" checked>
-                                Pendiente
-                            </label>
-                            <label class="status-pill borrador">
-                                <input type="radio" name="status" value="borrador">
-                                Borrador
-                            </label>
-                            <label class="status-pill publicado">
-                                <input type="radio" name="status" value="publicado">
-                                Publicado
-                            </label>
-                            <label class="status-pill pausa">
-                                <input type="radio" name="status" value="pausa">
-                                Pausa
-                            </label>
-                            <label class="status-pill vendido">
-                                <input type="radio" name="status" value="vendido">
-                                Vendido
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="adm-form-divider"></div>
-
-                    <!-- Campos principales -->
-                    <div class="adm-form-grid">
-                        <div class="adm-form-group full">
-                            <label for="title">Título de la propiedad *</label>
-                            <input type="text" id="title" placeholder="Ej: Departamento 3 amb. con balcón en Palermo" required>
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="price">Precio *</label>
-                            <input type="number" id="price" placeholder="0" required>
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="currency">Moneda</label>
-                            <select id="currency">
-                                <option value="USD">USD</option>
-                                <option value="ARS">ARS</option>
-                            </select>
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="type">Tipo de propiedad</label>
-                            <div class="adm-select-row">
-                                <select id="type"></select>
-                                <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="category" title="Agregar tipo nuevo"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="operation">Operación</label>
-                            <select id="operation">
-                                <option value="venta">Venta</option>
-                                <option value="alquiler">Alquiler</option>
-                            </select>
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="neighborhood">Barrio *</label>
-                            <div class="adm-select-row">
-                                <select id="neighborhood" required></select>
-                                <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="neighborhood" title="Agregar barrio nuevo"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="zone">Ciudad *</label>
-                            <div class="adm-select-row">
-                                <select id="zone" required></select>
-                                <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="city" title="Agregar ciudad nueva"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="surface">Superficie (m²)</label>
-                            <input type="number" id="surface" placeholder="0">
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="bedrooms">Ambientes</label>
-                            <input type="number" id="bedrooms" placeholder="0" min="0">
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="bathrooms">Baños</label>
-                            <input type="number" id="bathrooms" placeholder="0" min="0">
-                        </div>
-                        <div class="adm-form-group">
-                            <label for="garage">Cocheras</label>
-                            <input type="number" id="garage" placeholder="0" min="0">
-                        </div>
-                        <div class="adm-form-group full">
-                            <label for="description">Descripción</label>
-                            <textarea id="description" rows="4" placeholder="Describí la propiedad..."></textarea>
-                        </div>
-
-                        <!-- Imágenes -->
-                        <div class="adm-form-group full">
-                            <label>Imágenes <span class="adm-hint">(URLs de imágenes)</span></label>
-                            <div id="image-url-list" style="display:flex;flex-direction:column;gap:12px;margin-bottom:10px"></div>
-                            <button type="button" class="adm-btn adm-btn-ghost" id="add-image-btn">
-                                <i class="fas fa-plus"></i> Agregar foto
-                            </button>
-                        </div>
-                    </div>
+                <!-- Barra de tabs -->
+                <div class="adm-tabs-bar" id="form-tabs-bar">
+                    <button type="button" class="adm-tab-btn active" data-tab="tab-principal"><i class="fas fa-home"></i> Principal</button>
+                    <button type="button" class="adm-tab-btn" data-tab="tab-destacados"><i class="fas fa-star"></i> Destacados</button>
+                    <button type="button" class="adm-tab-btn" data-tab="tab-superficies"><i class="fas fa-ruler-combined"></i> Superficies</button>
+                    <button type="button" class="adm-tab-btn" data-tab="tab-ambientes"><i class="fas fa-couch"></i> Ambientes</button>
+                    <button type="button" class="adm-tab-btn" data-tab="tab-servicios"><i class="fas fa-bolt"></i> Servicios</button>
+                    <button type="button" class="adm-tab-btn" data-tab="tab-edificio"><i class="fas fa-building"></i> Edificio</button>
+                    <button type="button" class="adm-tab-btn" data-tab="tab-comercial"><i class="fas fa-briefcase"></i> Comercial</button>
+                    <button type="button" class="adm-tab-btn" data-tab="tab-medios"><i class="fas fa-photo-video"></i> Medios</button>
                 </div>
 
+                <!-- Cuerpo scrollable -->
+                <div class="adm-tabs-body">
+
+                    <!-- ══ TAB 1: PRINCIPAL ══════════════════════════════════ -->
+                    <div id="tab-principal" class="adm-tab-panel active">
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-tag"></i> Identificación</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group full">
+                                    <label for="title">Título / Dirección *</label>
+                                    <input type="text" id="title" placeholder='Ej: Mendoza 4800 o "Highland Park"' required>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="type">Tipo de propiedad</label>
+                                    <div class="adm-select-row">
+                                        <select id="type"></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="category" title="Agregar tipo"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="operation">Operación</label>
+                                    <select id="operation">
+                                        <option value="venta">Venta</option>
+                                        <option value="alquiler">Alquiler</option>
+                                        <option value="alquiler-temporario">Alquiler temporario</option>
+                                    </select>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="price">Precio</label>
+                                    <div style="display:grid;grid-template-columns:1fr 90px;gap:8px">
+                                        <input type="number" id="price" placeholder="0">
+                                        <select id="currency">
+                                            <option value="USD">USD</option>
+                                            <option value="ARS">ARS</option>
+                                        </select>
+                                    </div>
+                                    <label class="adm-consultar-toggle" style="margin-top:8px">
+                                        <input type="checkbox" id="consultar-precio">
+                                        <span class="adm-toggle-track"></span>
+                                        Consultar precio
+                                    </label>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="branch">Sucursal / Plataforma</label>
+                                    <input type="text" id="branch" placeholder="Ej: UMEN Palermo">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-map-marker-alt"></i> Ubicación</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label for="neighborhood">Barrio *</label>
+                                    <div class="adm-select-row">
+                                        <select id="neighborhood" required></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="neighborhood" title="Agregar barrio"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="zone">Localidad / Partido *</label>
+                                    <div class="adm-select-row">
+                                        <select id="zone" required></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="city" title="Agregar ciudad"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="provincia">Provincia</label>
+                                    <input type="text" id="provincia" placeholder="Ej: Buenos Aires">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="pais">País</label>
+                                    <input type="text" id="pais" value="Argentina">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-align-left"></i> Descripción</div>
+                            <div class="adm-form-group" style="margin-bottom:14px">
+                                <label for="description">Descripción *</label>
+                                <textarea id="description" rows="4" placeholder="Describí la propiedad..." required></textarea>
+                            </div>
+                            <div class="adm-form-group">
+                                <label for="observaciones">Observaciones internas</label>
+                                <textarea id="observaciones" rows="2" placeholder="Notas adicionales, información para el equipo..."></textarea>
+                            </div>
+                        </div>
+
+                    </div><!-- /tab-principal -->
+
+                    <!-- ══ TAB 2: DESTACADOS ═════════════════════════════════ -->
+                    <div id="tab-destacados" class="adm-tab-panel">
+                        <div class="adm-tab-info">
+                            <i class="fas fa-star"></i> Estos datos aparecen con íconos en la ficha de la propiedad. Son los "datos cabecera" que el comprador ve de un vistazo.
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-ruler-combined"></i> Superficie y ambientes</div>
+                            <div class="adm-form-grid-3">
+                                <div class="adm-form-group">
+                                    <label for="surface">Sup. total (m²) <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="surface" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="sup-cubierta-dest">M² cubiertos <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="sup-cubierta-dest" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="bedrooms">Ambientes <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="bedrooms" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="dormitorios">Dormitorios <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="dormitorios" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="bathrooms">Baños <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="bathrooms" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="toilette">Toilette <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="toilette" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="antiguedad">Antigüedad (años) <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="antiguedad" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="garage">Cocheras (cant.) <span class="adm-badge-dest">Dest.</span></label>
+                                    <input type="number" id="garage" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="orientacion">Orientación <span class="adm-badge-dest">Dest.</span></label>
+                                    <select id="orientacion">
+                                        <option value="">—</option>
+                                        <option>N</option><option>S</option><option>E</option><option>O</option>
+                                        <option>NE</option><option>NO</option><option>SE</option><option>SO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-sun"></i> Luminosidad</div>
+                            <div class="adm-form-group">
+                                <label>Luminoso <span class="adm-badge-dest">Dest.</span></label>
+                                <div class="adm-bool-group" style="max-width:220px">
+                                    <label class="adm-bool-pill"><input type="radio" name="luminoso" value="si"> Sí</label>
+                                    <label class="adm-bool-pill no"><input type="radio" name="luminoso" value="no"> No</label>
+                                    <label class="adm-bool-pill no"><input type="radio" name="luminoso" value="" checked> —</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /tab-destacados -->
+
+                    <!-- ══ TAB 3: SUPERFICIES ════════════════════════════════ -->
+                    <div id="tab-superficies" class="adm-tab-panel">
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-vector-square"></i> Superficies (m²)</div>
+                            <div class="adm-form-grid-3">
+                                <div class="adm-form-group">
+                                    <label for="sup-cubierta">Cubierta</label>
+                                    <input type="number" id="sup-cubierta" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="sup-semicubierta">Semicubierta</label>
+                                    <input type="number" id="sup-semicubierta" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="sup-descubierta">Descubierta</label>
+                                    <input type="number" id="sup-descubierta" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="sup-propia">Propia</label>
+                                    <input type="number" id="sup-propia" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="sup-terreno">Terreno</label>
+                                    <input type="number" id="sup-terreno" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="sup-total-disp">Total disponible</label>
+                                    <input type="number" id="sup-total-disp" placeholder="0" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-arrows-alt-h"></i> Medidas del terreno</div>
+                            <div class="adm-form-grid-3">
+                                <div class="adm-form-group">
+                                    <label for="frente">Frente (mts.)</label>
+                                    <input type="number" id="frente" placeholder="0" min="0" step="0.01">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="fondo">Fondo (mts.)</label>
+                                    <input type="number" id="fondo" placeholder="0" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-layer-group"></i> Pisos comerciales (m²)</div>
+                            <div class="adm-form-grid-3">
+                                <div class="adm-form-group">
+                                    <label for="planta-baja">Planta Baja</label>
+                                    <input type="number" id="planta-baja" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="primer-piso">1° Piso</label>
+                                    <input type="number" id="primer-piso" placeholder="0" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /tab-superficies -->
+
+                    <!-- ══ TAB 4: AMBIENTES ══════════════════════════════════ -->
+                    <div id="tab-ambientes" class="adm-tab-panel">
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-bed"></i> Dormitorios y baños</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label for="cant-dormitorios">Cantidad de dormitorios</label>
+                                    <input type="number" id="cant-dormitorios" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="detalle-dormitorios">Detalle dormitorios</label>
+                                    <input type="text" id="detalle-dormitorios" placeholder='Ej: 1° en suite con vestidor'>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="cant-banos">Cantidad de baños</label>
+                                    <input type="number" id="cant-banos" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="detalle-banos">Detalle baños</label>
+                                    <input type="text" id="detalle-banos" placeholder='Ej: 1° completo'>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-utensils"></i> Cocina y lavadero</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label for="tipo-cocina">Tipo de cocina</label>
+                                    <select id="tipo-cocina">
+                                        <option value="">—</option>
+                                        <option>Integrada</option>
+                                        <option>Con desayunador</option>
+                                        <option>Separada</option>
+                                    </select>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="lavadero">Lavadero</label>
+                                    <select id="lavadero">
+                                        <option value="">—</option>
+                                        <option>Independiente</option>
+                                        <option>En bajo escalera</option>
+                                    </select>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="cochera-tipo">Cochera tipo</label>
+                                    <select id="cochera-tipo">
+                                        <option value="">—</option>
+                                        <option>Fija cubierta</option>
+                                        <option>Cubierta</option>
+                                        <option>Descubierta</option>
+                                    </select>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="tipo-disposicion">Tipo / disposición</label>
+                                    <input type="text" id="tipo-disposicion" placeholder='Ej: aterrazado'>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-map-signs"></i> Distribución</div>
+                            <div class="adm-form-group">
+                                <label>Espacios incluidos</label>
+                                <div class="adm-check-group">
+                                    <label class="adm-check-chip"><input type="checkbox" name="distribucion" value="Hall"> Hall</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="distribucion" value="Living"> Living</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="distribucion" value="Comedor"> Comedor</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="distribucion" value="Escritorio"> Escritorio</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="distribucion" value="Living íntimo"> Living íntimo</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="distribucion" value="Palier"> Palier</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="distribucion" value="Office"> Office</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-tree"></i> Espacios exteriores / extras</div>
+                            <div class="adm-bool-grid">
+                                <div class="adm-form-group">
+                                    <label>Cocina</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="tiene-cocina" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="tiene-cocina" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="tiene-cocina" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Balcón / Terraza</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="balcon" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="balcon" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="balcon" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Patio</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="patio" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="patio" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="patio" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Jardín</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="jardin" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="jardin" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="jardin" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Quincho</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="quincho" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="quincho" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="quincho" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Piscina (propia)</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="piscina" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="piscina" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="piscina" value="" checked> —</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /tab-ambientes -->
+
+                    <!-- ══ TAB 5: SERVICIOS ══════════════════════════════════ -->
+                    <div id="tab-servicios" class="adm-tab-panel">
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-file-invoice-dollar"></i> Expensas</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label for="expensas">Expensas ($)</label>
+                                    <input type="number" id="expensas" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>No paga expensas</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="no-expensas" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="no-expensas" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="no-expensas" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Expensas con Aysa</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="aysa" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="aysa" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="aysa" value="" checked> —</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-fire-alt"></i> Climatización</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label for="calefaccion">Calefacción</label>
+                                    <input type="text" id="calefaccion" placeholder="Ej: Losa radiante / gas / caldera">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="aire-acondicionado">Aire acondicionado</label>
+                                    <input type="text" id="aire-acondicionado" placeholder="Ej: Frío-calor / split">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="agua-caliente">Agua caliente</label>
+                                    <input type="text" id="agua-caliente" placeholder="Ej: Caldera / termotanque">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="tipo-piso">Tipo de piso</label>
+                                    <input type="text" id="tipo-piso" placeholder="Ej: Porcelanato / madera / cerámico">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="ventilacion">Ventilación</label>
+                                    <select id="ventilacion">
+                                        <option value="">—</option>
+                                        <option>Natural</option>
+                                        <option>Forzada</option>
+                                    </select>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Todo destino</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="todo-destino" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="todo-destino" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="todo-destino" value="" checked> —</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-plus-circle"></i> Extras</div>
+                            <div class="adm-form-group">
+                                <label>Extras incluidos</label>
+                                <div class="adm-check-group">
+                                    <label class="adm-check-chip"><input type="checkbox" name="extras" value="Chimenea"> Chimenea</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="extras" value="Portón automático"> Portón automático</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="extras" value="Parrilla"> Parrilla</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="extras" value="Lector privado"> Lector privado</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="extras" value="Jardín en azotea"> Jardín en azotea</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /tab-servicios -->
+
+                    <!-- ══ TAB 6: EDIFICIO ═══════════════════════════════════ -->
+                    <div id="tab-edificio" class="adm-tab-panel">
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-building"></i> Datos del edificio</div>
+                            <div class="adm-form-grid-3">
+                                <div class="adm-form-group">
+                                    <label for="pisos-edificio">N° de pisos</label>
+                                    <input type="number" id="pisos-edificio" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="deptos-por-piso">Deptos. por piso</label>
+                                    <input type="number" id="deptos-por-piso" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="ascensor">Ascensor</label>
+                                    <input type="text" id="ascensor" placeholder="Ej: 1 / 2 / Sí / No">
+                                </div>
+                            </div>
+                            <div class="adm-form-group" style="margin-top:14px">
+                                <label for="tipo-edilicio">Tipo edilicio</label>
+                                <input type="text" id="tipo-edilicio" placeholder="Ej: Torre / Entre medianeras / Complejo">
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-swimmer"></i> Amenities del edificio</div>
+                            <div class="adm-form-group">
+                                <label>Amenities disponibles</label>
+                                <div class="adm-check-group">
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Solarium"> Solarium</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Piscina"> Piscina</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Seguridad 24hs"> Seguridad 24hs</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="SUM"> SUM</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Gimnasio"> Gimnasio</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Sauna"> Sauna</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Spa"> Spa</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Cowork"> Cowork</label>
+                                    <label class="adm-check-chip"><input type="checkbox" name="amenities" value="Quincho del edificio"> Quincho del edificio</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /tab-edificio -->
+
+                    <!-- ══ TAB 7: COMERCIAL ══════════════════════════════════ -->
+                    <div id="tab-comercial" class="adm-tab-panel">
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-store"></i> Datos comerciales</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label>Baños generales internos</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="banos-generales" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="banos-generales" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="banos-generales" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="cant-habitaciones">Cant. habitaciones (hotelero)</label>
+                                    <input type="number" id="cant-habitaciones" placeholder="0" min="0">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="estado-ocupacion">Estado / Ocupación</label>
+                                    <input type="text" id="estado-ocupacion" placeholder='Ej: En funcionamiento'>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="estado-construccion">Estado de construcción</label>
+                                    <select id="estado-construccion">
+                                        <option value="">—</option>
+                                        <option>Sin construcción</option>
+                                        <option>En construcción</option>
+                                        <option>Construido</option>
+                                        <option>A estrenar</option>
+                                    </select>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="entrega">Entrega</label>
+                                    <select id="entrega">
+                                        <option value="">—</option>
+                                        <option>Inmediata</option>
+                                        <option>A coordinar</option>
+                                    </select>
+                                </div>
+                                <div class="adm-form-group full">
+                                    <label for="forma-pago">Forma de pago</label>
+                                    <textarea id="forma-pago" rows="3" placeholder="Ej: Etapas / financiación / 30-70..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /tab-comercial -->
+
+                    <!-- ══ TAB 8: MEDIOS ═════════════════════════════════════ -->
+                    <div id="tab-medios" class="adm-tab-panel">
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-images"></i> Galería de imágenes</div>
+                            <!-- Cloudinary drag-drop gallery — montada por cloudinaryUpload.js -->
+                            <div id="cld-gallery-container"></div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-film"></i> Videos y recorridos</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label for="video-url">Video <span class="adm-hint">(YouTube / Vimeo)</span></label>
+                                    <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=...">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="recorrido-url">Recorrido 360° <span class="adm-hint">(Kuula / Matterport)</span></label>
+                                    <input type="url" id="recorrido-url" placeholder="https://kuula.co/...">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="plano-url">Plano <span class="adm-hint">(imagen / PDF)</span></label>
+                                    <input type="url" id="plano-url" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-map-pin"></i> Geolocalización</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label for="geo-lat">Latitud</label>
+                                    <input type="number" id="geo-lat" placeholder="-34.6037" step="0.000001">
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="geo-lng">Longitud</label>
+                                    <input type="number" id="geo-lng" placeholder="-58.3816" step="0.000001">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /tab-medios -->
+
+                </div><!-- /adm-tabs-body -->
+
+                <!-- Footer con navegación entre tabs + guardar -->
                 <div class="adm-modal-footer">
                     <button type="button" class="adm-btn adm-btn-secondary close-modal">Cancelar</button>
-                    <button type="submit" class="adm-btn adm-btn-primary">
-                        <i class="fas fa-save"></i> Guardar propiedad
-                    </button>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <button type="button" class="adm-btn adm-btn-secondary" id="tab-prev-btn"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <button type="button" class="adm-btn adm-btn-secondary" id="tab-next-btn">Siguiente <i class="fas fa-chevron-right"></i></button>
+                        <button type="submit" class="adm-btn adm-btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
+    <script type="module" src="js/adminDashboard.js?v=7.0"></script>
+    <script>
+        // Sidebar logout → clicks the main logout button
+        document.getElementById('sidebar-logout-btn').addEventListener('click', () => {
+            document.getElementById('logout-btn').click();
+        });
 
-    <script type="module" src="js/adminDashboard.js?v=5.0"></script>
+        // Sidebar navigation active state
+        document.querySelectorAll('.adm-sidebar-link[data-section]').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelectorAll('.adm-sidebar-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>
