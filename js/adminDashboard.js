@@ -140,6 +140,7 @@ function setupEventListeners() {
     newPropertyBtn?.addEventListener('click', openNewPropertyModal);
     propertyForm?.addEventListener('submit', handleFormSubmit);
     document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', closeModal));
+    document.getElementById('open-taxo-modal-btn')?.addEventListener('click', () => document.getElementById('taxo-modal').style.display = 'flex');
 
     Object.entries(TAXO_CONFIG).forEach(([taxoType, cfg]) => {
         const input  = document.getElementById(cfg.inputEl);
