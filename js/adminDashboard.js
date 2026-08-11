@@ -46,6 +46,9 @@ let cities        = [];
 let neighborhoods = [];
 let currentPage   = 1;
 const ITEMS_PER_PAGE = 10;
+let statusChart = null;
+let operationChart = null;
+let typeChart = null;
 
 // ── Taxonomías ────────────────────────────────────────────────────────────────
 const TAXO_CONFIG = {
@@ -197,10 +200,37 @@ async function loadAdminData() {
         clearTimeout(timeout);
         renderAdminTable();
         updateStats();
+        fetchWeather();
+        updateGreeting();
     } catch (e) {
         clearTimeout(timeout);
         console.error(e);
         propertiesTbody.innerHTML = '<tr><td colspan="8" class="adm-table-empty" style="color:red">Error al conectar con la base de datos.</td></tr>';
+    }
+}
+
+// ── Clima y Bienvenida ──────────────────────────────────────────────────────
+async function fetchWeather() {
+    try {
+        // Coordenadas de Buenos Aires
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.6037&longitude=-58.3816&current_weather=true');
+        const data = await res.json();
+        if (data.current_weather) {
+            const temp = Math.round(data.current_weather.temperature);
+            const tempEl = document.getElementById('weather-temp');
+            if (tempEl) tempEl.textContent = `${temp}°C`;
+        }
+    } catch (e) {
+        console.error("Error al obtener el clima:", e);
+    }
+}
+
+function updateGreeting() {
+    const greetingEl = document.getElementById('adm-greeting-name');
+    if (greetingEl) {
+        const user = window.auth?.currentUser;
+        const name = user?.displayName || user?.email?.split('@')[0] || 'Administrador';
+        greetingEl.textContent = `Hola, ${name}`;
     }
 }
 
@@ -365,11 +395,11 @@ function renderAdminTable() {
 
     propertiesTbody.innerHTML = paginatedProps.map(p => `
         <tr>
-            <td><strong>${p.code || p.id.slice(0,6)}</strong></td>
-            <td><strong>${p.title}</strong><span>${p.type || ''}</span></td>
-            <td><span class="badge ${p.operation}">${(p.operation||'').toUpperCase()}</span></td>
-            <td>${p.status || '—'}</td>
-            <td>${p.consultarPrecio ? 'Consultar' : ((p.currency||'') + ' ' + (p.price||0).toLocaleString())}</td>
+            <td><span class="adm-data-mono">${p.code || p.id.slice(0,6)}</span></td>
+            <td><strong>${p.title}</strong><span style="display:block;font-size:0.8em;color:var(--adm-muted)">${p.type || ''}</span></td>
+            <td><span class="adm-status-dot ${p.operation || ''}">${(p.operation||'').toUpperCase()}</span></td>
+            <td><span class="adm-status-dot ${p.status || 'pendiente'}">${(p.status || 'Pendiente').toUpperCase()}</span></td>
+            <td><span class="adm-data-mono">${p.consultarPrecio ? 'Consultar' : ((p.currency||'') + ' ' + (p.price||0).toLocaleString())}</span></td>
             <td>${[p.neighborhood, p.zone].filter(Boolean).join(', ')}</td>
             <td>${formatDate(p.createdAt)}</td>
             <td>
@@ -407,12 +437,174 @@ function formatDate(v) {
 
 function updateStats() {
     if (totalPropertiesEl) totalPropertiesEl.textContent = properties.length;
-    if (totalAlquilerEl)   totalAlquilerEl.textContent   = properties.filter(p => p.operation?.startsWith('alquiler')).length;
-    if (totalVentaEl)      totalVentaEl.textContent      = properties.filter(p => p.operation === 'venta').length;
+    
+    const alquilerCount = properties.filter(p => p.operation?.startsWith('alquiler')).length;
+    const ventaCount = properties.filter(p => p.operation === 'venta').length;
+    
+    if (totalAlquilerEl) totalAlquilerEl.textContent = alquilerCount;
+    if (totalVentaEl)    totalVentaEl.textContent = ventaCount;
+    
+    const pubCount = properties.filter(p => p.status === 'publicado').length;
+    const vendCount = properties.filter(p => p.status === 'vendido').length;
+    const pendCount = properties.filter(p => p.status === 'pendiente').length;
+    const pausaCount = properties.filter(p => p.status === 'pausa').length;
+    const borrCount = properties.filter(p => p.status === 'borrador').length;
+
     const pub  = document.getElementById('total-publicadas');
     const vend = document.getElementById('total-vendidas');
-    if (pub)  pub.textContent  = properties.filter(p => p.status === 'publicado').length;
-    if (vend) vend.textContent = properties.filter(p => p.status === 'vendido').length;
+    if (pub)  pub.textContent  = pubCount;
+    if (vend) vend.textContent = vendCount;
+
+    // Actualizar gráficos si Chart está disponible
+    if (typeof Chart !== 'undefined') {
+        if (typeof ChartDataLabels !== 'undefined') {
+            Chart.register(ChartDataLabels);
+        }
+
+        const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+        const operationCtx = document.getElementById('operationChart')?.getContext('2d');
+        const typeCtx = document.getElementById('typeChart')?.getContext('2d');
+
+        // Configuración común de tooltips y datalabels para porcentajes
+        const datalabelsConfig = {
+            color: '#fff',
+            font: { weight: 'bold', size: 14 },
+            formatter: (value, ctx) => {
+                try {
+                    let sum = 0;
+                    let dataArr = ctx.chart.data.datasets[0].data;
+                    dataArr.forEach(data => { sum += Number(data) || 0; });
+                    if (sum === 0 || value === 0) return '';
+                    let percentage = (Number(value) * 100 / sum).toFixed(0) + "%";
+                    return percentage;
+                } catch (e) {
+                    return '';
+                }
+            }
+        };
+
+        const tooltipOptions = {
+            callbacks: {
+                label: function(context) {
+                    const dataset = context.dataset;
+                    const total = dataset.data.reduce((acc, val) => acc + val, 0);
+                    const currentValue = dataset.data[context.dataIndex];
+                    const percentage = total === 0 ? 0 : Math.round((currentValue / total) * 100);
+                    return ` ${context.label}: ${currentValue} (${percentage}%)`;
+                }
+            }
+        };
+
+        if (statusCtx) {
+            if (statusChart) {
+                statusChart.data.datasets[0].data = [pubCount, pendCount, pausaCount, borrCount, vendCount];
+                statusChart.update();
+            } else {
+                statusChart = new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Publicadas', 'Pendientes', 'Pausa', 'Borrador', 'Vendido'],
+                        datasets: [{
+                            data: [pubCount, pendCount, pausaCount, borrCount, vendCount],
+                            backgroundColor: ['#F68C18', '#94A3B8', '#DC2626', '#EAB308', '#171717'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" } } },
+                            tooltip: tooltipOptions,
+                            datalabels: datalabelsConfig
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+        }
+
+        if (operationCtx) {
+            if (operationChart) {
+                operationChart.data.datasets[0].data = [ventaCount, alquilerCount];
+                operationChart.update();
+            } else {
+                operationChart = new Chart(operationCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Venta', 'Alquiler'],
+                        datasets: [{
+                            data: [ventaCount, alquilerCount],
+                            backgroundColor: ['#171717', '#F68C18'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" } } },
+                            tooltip: tooltipOptions,
+                            datalabels: datalabelsConfig
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+        }
+
+        if (typeCtx) {
+            // Contar por tipo
+            const typesCount = {};
+            properties.forEach(p => {
+                const t = p.type || 'Otro';
+                typesCount[t] = (typesCount[t] || 0) + 1;
+            });
+            const labels = Object.keys(typesCount);
+            const data = Object.values(typesCount);
+
+            if (typeChart) {
+                typeChart.data.labels = labels;
+                typeChart.data.datasets[0].data = data;
+                typeChart.update();
+            } else {
+                typeChart = new Chart(typeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Cantidad',
+                            data: data,
+                            backgroundColor: ['#171717', '#FDBA74', '#52525B', '#F68C18', '#94A3B8', '#DC2626', '#EAB308'],
+                            borderWidth: 0,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: tooltipOptions,
+                            datalabels: datalabelsConfig
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
 }
 
 // ── Imágenes — gestionadas por cloudinaryUpload.js ───────────────────────────

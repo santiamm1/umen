@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración | UMEN</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/admin.css?v=9.1">
+    <link rel="stylesheet" href="css/admin.css?v=9.8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script type="module">
         import { firebaseConfig } from './js/config.js';
         import { initializeApp }  from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
@@ -48,7 +50,11 @@
         <nav class="adm-sidebar-nav">
             <div class="adm-sidebar-section">
                 <span class="adm-sidebar-section-label">General</span>
-                <a href="#" class="adm-sidebar-link active" data-section="propiedades">
+                <a href="#" class="adm-sidebar-link active" data-section="dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="adm-sidebar-link" data-section="propiedades">
                     <i class="fas fa-building"></i>
                     <span>Propiedades</span>
                 </a>
@@ -75,46 +81,93 @@
 
     <!-- ── Contenido ───────────────────────────────────────────────── -->
     <main class="adm-main">
-        <div id="section-propiedades" class="adm-section">
+        
+        <!-- ======================= SECTION: DASHBOARD ======================= -->
+        <div id="section-dashboard" class="adm-section active">
+            
+            <!-- Bienvenida y Clima -->
+            <div class="adm-welcome-banner">
+                <div class="adm-welcome-text">
+                    <h2 id="adm-greeting-name">Hola, Usuario</h2>
+                    <p>Bienvenido al panel de administración de UMEN.</p>
+                </div>
+                <div class="adm-weather-widget" id="weather-widget">
+                    <i class="fas fa-cloud-sun"></i>
+                    <div class="adm-weather-info">
+                        <span id="weather-temp">--°C</span>
+                        <span id="weather-desc">Buenos Aires</span>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Stats -->
-        <div class="adm-stats">
-            <div class="adm-stat">
-                <i class="fas fa-building"></i>
-                <div>
-                    <strong id="total-properties">0</strong>
-                    <span>Total</span>
+            <!-- Dashboard Top (KPIs y Gráficos) -->
+            <div class="adm-dashboard-top">
+                <!-- Stats -->
+                <div class="adm-stats">
+                    <div class="adm-stat adm-stat-total">
+                        <i class="fas fa-city"></i>
+                        <div>
+                            <strong id="total-properties">0</strong>
+                            <span>Total Propiedades</span>
+                        </div>
+                    </div>
+                    <div class="adm-stat adm-stat-pub highlight">
+                        <i class="fas fa-globe-americas"></i>
+                        <div>
+                            <strong id="total-publicadas">0</strong>
+                            <span>Publicadas Online</span>
+                        </div>
+                    </div>
+                    <div class="adm-stat">
+                        <i class="fas fa-store-alt"></i>
+                        <div>
+                            <strong id="total-venta">0</strong>
+                            <span>En Venta</span>
+                        </div>
+                    </div>
+                    <div class="adm-stat">
+                        <i class="fas fa-house-user"></i>
+                        <div>
+                            <strong id="total-alquiler">0</strong>
+                            <span>Alquiler</span>
+                        </div>
+                    </div>
+                    <div class="adm-stat">
+                        <i class="fas fa-handshake"></i>
+                        <div>
+                            <strong id="total-vendidas">0</strong>
+                            <span>Operaciones Exitosas</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="adm-stat highlight">
-                <i class="fas fa-check-circle"></i>
-                <div>
-                    <strong id="total-publicadas">0</strong>
-                    <span>Publicadas</span>
-                </div>
-            </div>
-            <div class="adm-stat">
-                <i class="fas fa-tag"></i>
-                <div>
-                    <strong id="total-venta">0</strong>
-                    <span>En venta</span>
-                </div>
-            </div>
-            <div class="adm-stat">
-                <i class="fas fa-key"></i>
-                <div>
-                    <strong id="total-alquiler">0</strong>
-                    <span>Alquiler</span>
-                </div>
-            </div>
-            <div class="adm-stat">
-                <i class="fas fa-handshake"></i>
-                <div>
-                    <strong id="total-vendidas">0</strong>
-                    <span>Vendidas</span>
+
+                <!-- Gráficos -->
+                <div class="adm-charts" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <div class="adm-chart-card">
+                        <h4>Distribución por Estado</h4>
+                        <div class="adm-chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="adm-chart-card">
+                        <h4>Venta vs Alquiler</h4>
+                        <div class="adm-chart-container">
+                            <canvas id="operationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="adm-chart-card">
+                        <h4>Tipo de Propiedad</h4>
+                        <div class="adm-chart-container">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- ======================= SECTION: PROPIEDADES ======================= -->
+        <div id="section-propiedades" class="adm-section" style="display: none;">
+
 
         <!-- Tabla card -->
         <div class="adm-card">
@@ -845,8 +898,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    
-    <script type="module" src="js/adminDashboard.js?v=9.2"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.10"></script>
     <script>
         // Sidebar logout → clicks the main logout button
         document.getElementById('sidebar-logout-btn').addEventListener('click', () => {
