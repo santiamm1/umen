@@ -9,6 +9,20 @@ import {
 } from './propertyService.js';
 import { initImageGallery, setGalleryUrls, getGalleryUrls } from './cloudinaryUpload.js';
 
+window.showToast = function(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) { alert(message); return; }
+    const toast = document.createElement('div');
+    toast.className = `adm-toast ${type}`;
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    toast.innerHTML = `<i class="fas ${icon} adm-toast-icon"></i><div class="adm-toast-content">${message}</div>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'toast-slide-out 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
+
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const logoutBtn          = document.getElementById('logout-btn');
 const propertiesTbody    = document.getElementById('properties-tbody');
@@ -30,6 +44,8 @@ let editingId     = null;
 let categories    = [];
 let cities        = [];
 let neighborhoods = [];
+let currentPage   = 1;
+const ITEMS_PER_PAGE = 10;
 
 // ── Taxonomías ────────────────────────────────────────────────────────────────
 const TAXO_CONFIG = {
@@ -140,7 +156,14 @@ function setupEventListeners() {
     newPropertyBtn?.addEventListener('click', openNewPropertyModal);
     propertyForm?.addEventListener('submit', handleFormSubmit);
     document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', closeModal));
-    document.getElementById('open-taxo-modal-btn')?.addEventListener('click', () => document.getElementById('taxo-modal').style.display = 'flex');
+    document.getElementById('open-taxo-modal-btn')?.addEventListener('click', () => {
+        document.querySelector('.adm-sidebar-link[data-section="taxonomia"]')?.click();
+    });
+    
+    document.getElementById('admin-search')?.addEventListener('input', () => {
+        currentPage = 1;
+        renderAdminTable();
+    });
 
     Object.entries(TAXO_CONFIG).forEach(([taxoType, cfg]) => {
         const input  = document.getElementById(cfg.inputEl);
@@ -219,7 +242,7 @@ async function handleTaxoAdd(taxoType) {
     const input = document.getElementById(cfg.inputEl);
     const name  = input.value.trim();
     if (!name) return;
-    if (cfg.getList().some(i => i.name.toLowerCase() === name.toLowerCase())) { alert('Esa opción ya existe.'); return; }
+    if (cfg.getList().some(i => i.name.toLowerCase() === name.toLowerCase())) { showToast('Esa opción ya existe.', 'error'); return; }
     try {
         await cfg.create({ name });
         input.value = '';
@@ -227,7 +250,7 @@ async function handleTaxoAdd(taxoType) {
         renderTaxoList(taxoType);
         populateFormSelects();
         if (taxoType === 'category') populateFilterTypeSelect();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 function handleTaxoEdit(taxoType, id, chipEl) {
@@ -248,7 +271,7 @@ function handleTaxoEdit(taxoType, id, chipEl) {
             renderTaxoList(taxoType);
             populateFormSelects();
             if (taxoType === 'category') populateFilterTypeSelect();
-        } catch (e) { alert('Error: ' + e.message); renderTaxoList(taxoType); }
+        } catch (e) { showToast('Error: ' + e.message, 'error'); renderTaxoList(taxoType); }
     };
     input.addEventListener('blur', save);
     input.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
@@ -264,7 +287,7 @@ async function handleTaxoDelete(taxoType, id) {
         renderTaxoList(taxoType);
         populateFormSelects();
         if (taxoType === 'category') populateFilterTypeSelect();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 async function handleQuickAdd(taxoType) {
@@ -280,7 +303,7 @@ async function handleQuickAdd(taxoType) {
         if (taxoType === 'category') populateFilterTypeSelect();
         const sel = { category: typeSelect, city: citySelect, neighborhood: neighborhoodSelect }[taxoType];
         if (sel) sel.value = name.trim();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 function populateFormSelects() {
@@ -314,13 +337,35 @@ function populateFilterTypeSelect() {
 
 // ── Tabla de propiedades ──────────────────────────────────────────────────────
 function renderAdminTable() {
-    if (!properties.length) {
-        propertiesTbody.innerHTML = '<tr><td colspan="8" class="adm-table-empty">No hay propiedades cargadas.</td></tr>';
+    const container = document.getElementById('pagination-container');
+    const searchTerm = (document.getElementById('admin-search')?.value || '').toLowerCase();
+    
+    // Filtrar por término de búsqueda (título, barrio, zona o código)
+    const listToRender = properties.filter(p => {
+        if (!searchTerm) return true;
+        const s = searchTerm;
+        return (p.title || '').toLowerCase().includes(s) ||
+               (p.neighborhood || '').toLowerCase().includes(s) ||
+               (p.zone || '').toLowerCase().includes(s) ||
+               (p.code || '').toLowerCase().includes(s);
+    });
+
+    if (!listToRender.length) {
+        propertiesTbody.innerHTML = '<tr><td colspan="8" class="adm-table-empty">No se encontraron propiedades.</td></tr>';
+        if (container) container.innerHTML = '';
         return;
     }
-    propertiesTbody.innerHTML = properties.map(p => `
+
+    const totalPages = Math.ceil(listToRender.length / ITEMS_PER_PAGE);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedProps = listToRender.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    propertiesTbody.innerHTML = paginatedProps.map(p => `
         <tr>
-            <td>${p.id.slice(0,6)}</td>
+            <td><strong>${p.code || p.id.slice(0,6)}</strong></td>
             <td><strong>${p.title}</strong><span>${p.type || ''}</span></td>
             <td><span class="badge ${p.operation}">${(p.operation||'').toUpperCase()}</span></td>
             <td>${p.status || '—'}</td>
@@ -335,7 +380,24 @@ function renderAdminTable() {
             </td>
         </tr>
     `).join('');
+
+    if (container) {
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+        } else {
+            let buttonsHtml = '';
+            for (let i = 1; i <= totalPages; i++) {
+                buttonsHtml += `<button class="adm-btn ${i === currentPage ? 'adm-btn-primary' : 'adm-btn-secondary'}" style="padding: 6px 12px; min-width:36px;" onclick="window.goToPage(${i})">${i}</button>`;
+            }
+            container.innerHTML = buttonsHtml;
+        }
+    }
 }
+
+window.goToPage = function(page) {
+    currentPage = page;
+    renderAdminTable();
+};
 
 function formatDate(v) {
     if (!v) return '—';
@@ -361,6 +423,7 @@ function updateStats() {
 function readFormData() {
     return {
         // Principal
+        code:            val('prop-code'),
         title:           val('title'),
         status:          propertyForm.querySelector('input[name="status"]:checked')?.value || 'pendiente',
         price:           Number(val('price')) || 0,
@@ -457,6 +520,7 @@ function readFormData() {
 // ── Cargar datos en el formulario ─────────────────────────────────────────────
 function fillForm(p) {
     // Principal
+    setVal('prop-code', p.code || '');
     setVal('title', p.title);
     setVal('price', p.price);
     setVal('currency', p.currency || 'USD');
@@ -561,7 +625,7 @@ window.editProperty = async id => {
     const p = properties.find(x => x.id === id);
     if (!p) return;
     modalTitle.textContent = 'Editar Propiedad';
-    document.getElementById('display-prop-code').textContent = p.code || id.slice(0, 6);
+    document.getElementById('display-prop-code').textContent = id;
     fillForm(p);
     switchTab('tab-principal');
     propertyModal.style.display = 'flex';
@@ -571,9 +635,9 @@ window.handleDeleteProperty = async id => {
     if (!confirm('¿Eliminar esta propiedad? Esta acción no se puede deshacer.')) return;
     try {
         await deleteProperty(id);
-        alert('Propiedad eliminada.');
+        showToast('Propiedad eliminada.', 'success');
         loadAdminData();
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
 async function handleFormSubmit(e) {
@@ -586,12 +650,12 @@ async function handleFormSubmit(e) {
     try {
         if (editingId) {
             await updateProperty(editingId, data);
-            alert('Propiedad actualizada con éxito.');
+            showToast('Propiedad actualizada con éxito.', 'success');
         } else {
             await createProperty(data);
-            alert('Propiedad creada con éxito.');
+            showToast('Propiedad creada con éxito.', 'success');
         }
         closeModal();
         loadAdminData();
-    } catch (e) { alert('Error al guardar: ' + e.message); }
+    } catch (e) { showToast('Error al guardar: ' + e.message, 'error'); }
 }
