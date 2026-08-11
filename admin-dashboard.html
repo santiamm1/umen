@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración | UMEN</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/admin.css?v=9.8">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css?v=9.25">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
@@ -58,9 +59,28 @@
                     <i class="fas fa-building"></i>
                     <span>Propiedades</span>
                 </a>
-                <a href="#" class="adm-sidebar-link" data-section="taxonomia">
-                    <i class="fas fa-tags"></i>
-                    <span>Filtros del buscador</span>
+            </div>
+            <div class="adm-sidebar-section">
+                <span class="adm-sidebar-section-label">Gestión de Datos</span>
+                <a href="#" class="adm-sidebar-link" data-section="category">
+                    <i class="fas fa-home"></i>
+                    <span>Tipo de Propiedad</span>
+                </a>
+                <a href="#" class="adm-sidebar-link" data-section="operation">
+                    <i class="fas fa-handshake"></i>
+                    <span>Operación</span>
+                </a>
+                <a href="#" class="adm-sidebar-link" data-section="status">
+                    <i class="fas fa-flag"></i>
+                    <span>Estado</span>
+                </a>
+                <a href="#" class="adm-sidebar-link" data-section="currency">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Moneda</span>
+                </a>
+                <a href="#" class="adm-sidebar-link" data-section="location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Ubicación</span>
                 </a>
             </div>
             <div class="adm-sidebar-section">
@@ -102,6 +122,15 @@
 
             <!-- Dashboard Top (KPIs y Gráficos) -->
             <div class="adm-dashboard-top">
+                <div class="adm-dashboard-toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin:0; color:var(--adm-text);">Estadísticas Generales</h3>
+                    <select id="dashboard-date-filter" class="adm-input" style="width: auto; font-weight: 600; padding: 8px 16px;">
+                        <option value="all">Histórico (Todo)</option>
+                        <option value="week">Esta semana (Últimos 7 días)</option>
+                        <option value="month">Este mes</option>
+                        <option value="year">Este año</option>
+                    </select>
+                </div>
                 <!-- Stats -->
                 <div class="adm-stats">
                     <div class="adm-stat adm-stat-total">
@@ -236,36 +265,155 @@
         </div>
         </div><!-- /#section-propiedades -->
 
-        <div id="section-taxonomia" class="adm-section" style="display:none;">
+        <!-- ======================= SECTIONS: GESTIÓN DE DATOS ======================= -->
+        
+        <!-- Tipo de Propiedad -->
+        <div id="section-category" class="adm-section" style="display:none;">
             <div class="adm-card">
                 <div class="adm-card-header">
                     <div>
-                        <h2><i class="fas fa-sliders-h" style="color:var(--adm-primary)"></i> Opciones de Filtros</h2>
-                        <p>Gestioná los tipos de propiedad, ciudades y barrios disponibles en los selectores del buscador y formulario.</p>
+                        <h2><i class="fas fa-home" style="color:var(--adm-primary)"></i> Tipos de Propiedad</h2>
+                        <p>Gestioná los tipos de propiedades (Ej: Departamento, Casa, Lote).</p>
                     </div>
                 </div>
                 <div style="padding: 24px;">
                     <div class="adm-taxo-grid">
                         <div class="adm-taxo-group">
-                            <h4>Tipos de propiedad</h4>
                             <div class="adm-taxo-add">
-                                <input type="text" id="new-category-input" placeholder="Ej: Departamento">
+                                <input type="text" id="new-category-input" placeholder="Nuevo tipo...">
                                 <button type="button" id="add-category-btn"><i class="fas fa-plus"></i></button>
                             </div>
                             <div class="adm-taxo-list" id="category-list"></div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operación -->
+        <div id="section-operation" class="adm-section" style="display:none;">
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div>
+                        <h2><i class="fas fa-handshake" style="color:var(--adm-primary)"></i> Operación</h2>
+                        <p>Gestioná los tipos de operación (Ej: Venta, Alquiler, Alquiler Temporal).</p>
+                    </div>
+                </div>
+                <div style="padding: 24px;">
+                    <div class="adm-taxo-grid">
                         <div class="adm-taxo-group">
+                            <div class="adm-taxo-add">
+                                <input type="text" id="new-operation-input" placeholder="Nueva operación...">
+                                <button type="button" id="add-operation-btn"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="adm-taxo-list" id="operation-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado -->
+        <div id="section-status" class="adm-section" style="display:none;">
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div>
+                        <h2><i class="fas fa-flag" style="color:var(--adm-primary)"></i> Estado</h2>
+                        <p>Gestioná los estados de las propiedades (Ej: Publicado, Pausa, Vendido).</p>
+                    </div>
+                </div>
+                <div style="padding: 24px;">
+                    <div class="adm-taxo-grid">
+                        <div class="adm-taxo-group">
+                            <div class="adm-taxo-add">
+                                <input type="text" id="new-status-input" placeholder="Nuevo estado...">
+                                <button type="button" id="add-status-btn"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="adm-taxo-list" id="status-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moneda -->
+        <div id="section-currency" class="adm-section" style="display:none;">
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div>
+                        <h2><i class="fas fa-money-bill-wave" style="color:var(--adm-primary)"></i> Moneda</h2>
+                        <p>Gestioná las monedas aceptadas (Ej: USD, ARS, EUR).</p>
+                    </div>
+                </div>
+                <div style="padding: 24px;">
+                    <div class="adm-taxo-grid">
+                        <div class="adm-taxo-group">
+                            <div class="adm-taxo-add">
+                                <input type="text" id="new-currency-input" placeholder="Nueva moneda...">
+                                <button type="button" id="add-currency-btn"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="adm-taxo-list" id="currency-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div id="section-location" class="adm-section" style="display:none;">
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div>
+                        <h2><i class="fas fa-map-marker-alt" style="color:var(--adm-primary)"></i> Ubicación</h2>
+                        <p>Gestioná las ciudades y barrios disponibles.</p>
+                    </div>
+                </div>
+                <div style="padding: 24px;">
+                    <div class="adm-subtabs">
+                        <button class="adm-subtab active" data-target="loc-paises">Países</button>
+                        <button class="adm-subtab" data-target="loc-provincias">Provincias</button>
+                        <button class="adm-subtab" data-target="loc-ciudades">Ciudades</button>
+                        <button class="adm-subtab" data-target="loc-localidades">Localidades</button>
+                        <button class="adm-subtab" data-target="loc-barrios">Barrios</button>
+                    </div>
+
+                    <div class="adm-taxo-grid">
+                        <div class="adm-taxo-group loc-panel active" id="loc-paises">
+                            <h4>Países</h4>
+                            <div class="adm-taxo-add">
+                                <input type="text" id="new-country-input" placeholder="Nuevo país...">
+                                <button type="button" id="add-country-btn"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="adm-taxo-list" id="country-list"></div>
+                        </div>
+                        <div class="adm-taxo-group loc-panel" id="loc-provincias" style="display:none;">
+                            <h4>Provincias</h4>
+                            <div class="adm-taxo-add">
+                                <input type="text" id="new-province-input" placeholder="Nueva provincia...">
+                                <button type="button" id="add-province-btn"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="adm-taxo-list" id="province-list"></div>
+                        </div>
+                        <div class="adm-taxo-group loc-panel" id="loc-ciudades" style="display:none;">
                             <h4>Ciudades</h4>
                             <div class="adm-taxo-add">
-                                <input type="text" id="new-city-input" placeholder="Ej: Bariloche">
+                                <input type="text" id="new-city-input" placeholder="Nueva ciudad...">
                                 <button type="button" id="add-city-btn"><i class="fas fa-plus"></i></button>
                             </div>
                             <div class="adm-taxo-list" id="city-list"></div>
                         </div>
-                        <div class="adm-taxo-group">
+                        <div class="adm-taxo-group loc-panel" id="loc-localidades" style="display:none;">
+                            <h4>Localidades</h4>
+                            <div class="adm-taxo-add">
+                                <input type="text" id="new-locality-input" placeholder="Nueva localidad...">
+                                <button type="button" id="add-locality-btn"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="adm-taxo-list" id="locality-list"></div>
+                        </div>
+                        <div class="adm-taxo-group loc-panel" id="loc-barrios" style="display:none;">
                             <h4>Barrios</h4>
                             <div class="adm-taxo-add">
-                                <input type="text" id="new-neighborhood-input" placeholder="Ej: Belgrano">
+                                <input type="text" id="new-neighborhood-input" placeholder="Nuevo barrio...">
                                 <button type="button" id="add-neighborhood-btn"><i class="fas fa-plus"></i></button>
                             </div>
                             <div class="adm-taxo-list" id="neighborhood-list"></div>
@@ -273,7 +421,7 @@
                     </div>
                 </div>
             </div>
-        </div><!-- /#section-taxonomia -->
+        </div>
 
     </main>
     </div><!-- /.adm-wrapper -->
@@ -288,12 +436,10 @@
                     <h3 id="modal-title">Nueva Propiedad</h3>
                     <span class="adm-mh-id">ID de BD: <strong id="display-prop-code">—</strong></span>
                 </div>
-                <div class="adm-status-pills" id="status-pills">
-                    <label class="status-pill pendiente"><input type="radio" name="status" value="pendiente" checked>Pendiente</label>
-                    <label class="status-pill borrador"><input type="radio" name="status" value="borrador">Borrador</label>
-                    <label class="status-pill publicado"><input type="radio" name="status" value="publicado">Publicado</label>
-                    <label class="status-pill pausa"><input type="radio" name="status" value="pausa">Pausa</label>
-                    <label class="status-pill vendido"><input type="radio" name="status" value="vendido">Vendido</label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:0.9rem; font-weight:600;">Estado:</span>
+                    <select id="status" class="adm-input" style="padding:4px 8px; width:auto; border-radius:6px; margin:0;"></select>
+                    <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="status" title="Agregar estado"><i class="fas fa-plus"></i></button>
                 </div>
                 <button class="adm-modal-close close-modal"><i class="fas fa-times"></i></button>
             </div>
@@ -338,20 +484,17 @@
                                 </div>
                                 <div class="adm-form-group">
                                     <label for="operation">Operación</label>
-                                    <select id="operation">
-                                        <option value="venta">Venta</option>
-                                        <option value="alquiler">Alquiler</option>
-                                        <option value="alquiler-temporario">Alquiler temporario</option>
-                                    </select>
+                                    <div style="display:flex; gap:8px;">
+                                        <select id="operation" style="flex:1;"></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="operation" title="Agregar operación"><i class="fas fa-plus"></i></button>
+                                    </div>
                                 </div>
                                 <div class="adm-form-group">
                                     <label for="price">Precio</label>
-                                    <div style="display:grid;grid-template-columns:1fr 90px;gap:8px">
+                                    <div style="display:grid;grid-template-columns:1fr 100px 42px;gap:8px;align-items:center;">
                                         <input type="number" id="price" placeholder="0">
-                                        <select id="currency">
-                                            <option value="USD">USD</option>
-                                            <option value="ARS">ARS</option>
-                                        </select>
+                                        <select id="currency"></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="currency" title="Agregar moneda"><i class="fas fa-plus"></i></button>
                                     </div>
                                     <label class="adm-consultar-toggle" style="margin-top:8px">
                                         <input type="checkbox" id="consultar-precio">
@@ -370,26 +513,39 @@
                             <div class="adm-form-section-title"><i class="fas fa-map-marker-alt"></i> Ubicación</div>
                             <div class="adm-form-grid">
                                 <div class="adm-form-group">
-                                    <label for="neighborhood">Barrio *</label>
+                                    <label for="pais">País</label>
                                     <div class="adm-select-row">
-                                        <select id="neighborhood" required></select>
-                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="neighborhood" title="Agregar barrio"><i class="fas fa-plus"></i></button>
+                                        <select id="pais"></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="country" title="Agregar país"><i class="fas fa-plus"></i></button>
                                     </div>
                                 </div>
                                 <div class="adm-form-group">
-                                    <label for="zone">Localidad / Partido *</label>
+                                    <label for="provincia">Provincia</label>
+                                    <div class="adm-select-row">
+                                        <select id="provincia"></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="province" title="Agregar provincia"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label for="zone">Ciudad *</label>
                                     <div class="adm-select-row">
                                         <select id="zone" required></select>
                                         <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="city" title="Agregar ciudad"><i class="fas fa-plus"></i></button>
                                     </div>
                                 </div>
                                 <div class="adm-form-group">
-                                    <label for="provincia">Provincia</label>
-                                    <input type="text" id="provincia" placeholder="Ej: Buenos Aires">
+                                    <label for="localidad">Localidad</label>
+                                    <div class="adm-select-row">
+                                        <select id="localidad"></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="locality" title="Agregar localidad"><i class="fas fa-plus"></i></button>
+                                    </div>
                                 </div>
                                 <div class="adm-form-group">
-                                    <label for="pais">País</label>
-                                    <input type="text" id="pais" value="Argentina">
+                                    <label for="neighborhood">Barrio *</label>
+                                    <div class="adm-select-row">
+                                        <select id="neighborhood" required></select>
+                                        <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="neighborhood" title="Agregar barrio"><i class="fas fa-plus"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -898,7 +1054,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.10"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.25"></script>
     <script>
         // Sidebar logout → clicks the main logout button
         document.getElementById('sidebar-logout-btn').addEventListener('click', () => {

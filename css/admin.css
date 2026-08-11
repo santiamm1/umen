@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
     /* ── Structural Precision Palette ── */
@@ -18,8 +18,8 @@
     --adm-glass-bg: rgba(255, 255, 255, 0.75);
     
     /* Font families */
-    --adm-font-ui: 'Inter', system-ui, -apple-system, sans-serif;
-    --adm-font-display: 'Outfit', sans-serif;
+    --adm-font-ui: 'Google Sans', sans-serif;
+    --adm-font-display: 'Google Sans', sans-serif;
     --adm-font-mono: 'JetBrains Mono', monospace;
 }
 
@@ -45,8 +45,8 @@ body {
 }
 
 .adm-topbar-inner {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     padding: 16px 32px;
     display: flex;
     align-items: center;
@@ -68,7 +68,7 @@ body {
 }
 
 .adm-brand-label {
-    font-weight: 700;
+    font-weight: 800;
     font-size: 0.95rem;
     color: var(--adm-dark);
     text-transform: uppercase;
@@ -154,7 +154,7 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #64748b;
+    color: #ffffff;
     padding: 0 12px;
     margin-bottom: 8px;
 }
@@ -168,7 +168,7 @@ body {
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
-    color: var(--adm-sidebar-text);
+    color: #ffffff;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -176,7 +176,7 @@ body {
     width: 20px;
     text-align: center;
     font-size: 1.05rem;
-    color: #64748b;
+    color: #ffffff;
     transition: color 0.25s ease;
 }
 
@@ -425,7 +425,14 @@ body {
     justify-content: center;
 }
 
-h1, h2, h3, h4 { margin: 0; font-family: var(--adm-font-display); font-weight: 600; color: var(--adm-text); }
+/* ── Formateo Global de Textos ── */
+h1, h2, h3, h4 { 
+    margin: 0; 
+    font-family: var(--adm-font-display); 
+    font-weight: 800; 
+    color: var(--adm-dark); 
+    letter-spacing: -0.02em; 
+}
 h1 { font-size: 1.5rem; }
 h2 { font-size: 1.25rem; }
 h3 { font-size: 1.1rem; }
@@ -607,7 +614,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 .adm-data-mono {
     font-family: var(--adm-font-mono);
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: -0.02em;
 }
 
@@ -616,7 +623,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.8rem;
     color: var(--adm-text);
 }
@@ -627,14 +634,14 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     height: 8px;
     border-radius: 50%;
 }
-.adm-status-dot.publicado::before { background-color: #10B981; }
-.adm-status-dot.pendiente::before { background-color: #F59E0B; }
-.adm-status-dot.borrador::before  { background-color: #6B7280; }
-.adm-status-dot.pausa::before     { background-color: #EF4444; }
-.adm-status-dot.vendido::before   { background-color: #3B82F6; }
-.adm-status-dot.venta::before     { background-color: #8B5CF6; }
-.adm-status-dot.alquiler::before  { background-color: #14B8A6; }
-.adm-status-dot.alquiler_temporal::before { background-color: #06B6D4; }
+.adm-status-dot.publicado::before { background-color: #10B981; } /* Verde - común para publicado */
+.adm-status-dot.pendiente::before { background-color: #F59E0B; } /* Naranja suave/Amarillo */
+.adm-status-dot.borrador::before  { background-color: #737373; } /* Gris medio */
+.adm-status-dot.pausa::before     { background-color: #EF4444; } /* Rojo */
+.adm-status-dot.vendido::before   { background-color: #171717; } /* Negro (o gris muy oscuro) */
+.adm-status-dot.venta::before     { background-color: #F68C18; } /* Naranja UMEN */
+.adm-status-dot.alquiler::before  { background-color: #404040; } /* Gris grafito / casi negro */
+.adm-status-dot.alquiler_temporario::before { background-color: #a3a3a3; } /* Gris claro */
 
 .adm-table-empty {
     text-align: center;
@@ -674,6 +681,34 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 }
 .btn-edit:hover { background: #e0f2fe; color: #0284c7; }
 .btn-delete:hover { background: #fee2e2; color: #ef4444; }
+
+/* ── Taxonomies (Gestión de Datos) ─────────────────────────── */
+.adm-subtabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--adm-border);
+    padding-bottom: 12px;
+}
+.adm-subtab {
+    background: transparent;
+    border: none;
+    color: var(--adm-text-light);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+.adm-subtab:hover {
+    color: var(--adm-text);
+    background: #f1f5f9;
+}
+.adm-subtab.active {
+    color: #fff;
+    background: var(--adm-primary);
+}
 
 /* ── Taxonomía (tipos / ciudades / barrios) ─────────────────────── */
 .adm-taxo-grid {
@@ -726,55 +761,74 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 .adm-taxo-add button:hover { background: rgba(246, 140, 24, 0.1); }
 
 .adm-taxo-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
     min-height: 32px;
 }
 
 .adm-taxo-chip {
-    display: inline-flex;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 4px;
     background: var(--adm-white);
     border: 1px solid var(--adm-border);
     border-radius: 8px;
-    padding: 4px 6px 4px 12px;
-    font-size: 0.82rem;
-    font-weight: 600;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
     color: var(--adm-text);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    transition: border-color 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
 }
-.adm-taxo-chip:hover { border-color: #cbd5e1; }
+.adm-taxo-chip:hover { 
+    border-color: #cbd5e1; 
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    transform: translateY(-1px);
+}
+
+.adm-taxo-chip-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .adm-taxo-chip input.adm-taxo-rename {
-    border: none;
-    background: #f1f5f9;
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 0.82rem;
+    border: 1px solid var(--adm-primary);
+    background: #fff;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
     font-family: inherit;
-    width: 110px;
+    flex: 1;
+    margin-right: 8px;
     outline: none;
+    box-shadow: 0 0 0 2px rgba(246, 140, 24, 0.1);
 }
+
+.adm-taxo-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0.2;
+    transition: opacity 0.2s ease;
+}
+.adm-taxo-chip:hover .adm-taxo-actions { opacity: 1; }
 
 .adm-taxo-chip button {
     border: none;
     background: transparent;
     cursor: pointer;
-    color: #94a3b8;
-    width: 24px;
-    height: 24px;
+    color: #64748b;
+    width: 28px;
+    height: 28px;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     transition: all 0.2s ease;
-    opacity: 0.3;
 }
-.adm-taxo-chip:hover button { opacity: 1; }
 .adm-taxo-chip button:hover { background: #f1f5f9; color: var(--adm-dark); }
 .adm-taxo-chip button.adm-taxo-del:hover { background: #fee2e2; color: #dc2626; }
 
@@ -904,7 +958,8 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 
 .adm-form-group input,
 .adm-form-group select,
-.adm-form-group textarea {
+.adm-form-group textarea,
+select.adm-input {
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     padding: 14px 16px;
@@ -917,15 +972,30 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     transition: all 0.2s ease;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
+
+/* Custom dropdown style */
+.adm-form-group select, select.adm-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 40px;
+    cursor: pointer;
+}
 .adm-form-group input:hover,
 .adm-form-group select:hover,
-.adm-form-group textarea:hover { 
+.adm-form-group textarea:hover,
+select.adm-input:hover { 
     background: var(--adm-white); 
     border-color: rgba(0, 0, 0, 0.15);
 }
 .adm-form-group input:focus,
 .adm-form-group select:focus,
-.adm-form-group textarea:focus {
+.adm-form-group textarea:focus,
+select.adm-input:focus {
     border-color: var(--adm-primary);
     background: var(--adm-white);
     box-shadow: 0 0 0 4px rgba(246, 140, 24, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.02);

@@ -5,7 +5,13 @@ import {
     ensureDefaultTaxonomy,
     getCategories, createCategory, updateCategory, deleteCategory,
     getCities, createCity, updateCity, deleteCity,
-    getAllNeighborhoods, createNeighborhood, updateNeighborhood, deleteNeighborhood
+    getAllNeighborhoods, createNeighborhood, updateNeighborhood, deleteNeighborhood,
+    getOperations, createOperation, updateOperation, deleteOperation,
+    getStatuses, createStatus, updateStatus, deleteStatus,
+    getCurrencies, createCurrency, updateCurrency, deleteCurrency,
+    getCountries, createCountry, updateCountry, deleteCountry,
+    getProvinces, createProvince, updateProvince, deleteProvince,
+    getLocalities, createLocality, updateLocality, deleteLocality
 } from './propertyService.js';
 import { initImageGallery, setGalleryUrls, getGalleryUrls } from './cloudinaryUpload.js';
 
@@ -44,6 +50,12 @@ let editingId     = null;
 let categories    = [];
 let cities        = [];
 let neighborhoods = [];
+let operations    = [];
+let statuses      = [];
+let currencies    = [];
+let countries     = [];
+let provinces     = [];
+let localities    = [];
 let currentPage   = 1;
 const ITEMS_PER_PAGE = 10;
 let statusChart = null;
@@ -66,6 +78,36 @@ const TAXO_CONFIG = {
         getList: () => neighborhoods, setList: v => { neighborhoods = v; },
         fetch: getAllNeighborhoods, create: createNeighborhood, update: updateNeighborhood, delete: deleteNeighborhood,
         listEl: 'neighborhood-list', inputEl: 'new-neighborhood-input', addBtnEl: 'add-neighborhood-btn'
+    },
+    operation: {
+        getList: () => operations, setList: v => { operations = v; },
+        fetch: getOperations, create: createOperation, update: updateOperation, delete: deleteOperation,
+        listEl: 'operation-list', inputEl: 'new-operation-input', addBtnEl: 'add-operation-btn'
+    },
+    status: {
+        getList: () => statuses, setList: v => { statuses = v; },
+        fetch: getStatuses, create: createStatus, update: updateStatus, delete: deleteStatus,
+        listEl: 'status-list', inputEl: 'new-status-input', addBtnEl: 'add-status-btn'
+    },
+    currency: {
+        getList: () => currencies, setList: v => { currencies = v; },
+        fetch: getCurrencies, create: createCurrency, update: updateCurrency, delete: deleteCurrency,
+        listEl: 'currency-list', inputEl: 'new-currency-input', addBtnEl: 'add-currency-btn'
+    },
+    country: {
+        getList: () => countries, setList: v => { countries = v; },
+        fetch: getCountries, create: createCountry, update: updateCountry, delete: deleteCountry,
+        listEl: 'country-list', inputEl: 'new-country-input', addBtnEl: 'add-country-btn'
+    },
+    province: {
+        getList: () => provinces, setList: v => { provinces = v; },
+        fetch: getProvinces, create: createProvince, update: updateProvince, delete: deleteProvince,
+        listEl: 'province-list', inputEl: 'new-province-input', addBtnEl: 'add-province-btn'
+    },
+    locality: {
+        getList: () => localities, setList: v => { localities = v; },
+        fetch: getLocalities, create: createLocality, update: updateLocality, delete: deleteLocality,
+        listEl: 'locality-list', inputEl: 'new-locality-input', addBtnEl: 'add-locality-btn'
     }
 };
 
@@ -163,6 +205,8 @@ function setupEventListeners() {
         document.querySelector('.adm-sidebar-link[data-section="taxonomia"]')?.click();
     });
     
+    document.getElementById('dashboard-date-filter')?.addEventListener('change', updateStats);
+    
     document.getElementById('admin-search')?.addEventListener('input', () => {
         currentPage = 1;
         renderAdminTable();
@@ -179,6 +223,18 @@ function setupEventListeners() {
     document.querySelectorAll('.adm-quick-add').forEach(btn => {
         btn.addEventListener('click', () => handleQuickAdd(btn.dataset.taxo));
     });
+
+    // Subtabs de Ubicación
+    document.querySelectorAll('.adm-subtab').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetId = e.target.dataset.target;
+            document.querySelectorAll('.adm-subtab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.loc-panel').forEach(p => p.style.display = 'none');
+            
+            e.target.classList.add('active');
+            document.getElementById(targetId).style.display = 'block';
+        });
+    });
 }
 
 async function handleLogout() {
@@ -194,10 +250,22 @@ async function loadAdminData() {
         }
     }, 6000);
     try {
-        await ensureDefaultTaxonomy();
+        // Sembrar valores por defecto solo 1 vez por navegador para que cargue ultra rápido
+        if (!localStorage.getItem('umen_taxo_seeded_v3')) {
+            await ensureDefaultTaxonomy();
+            localStorage.setItem('umen_taxo_seeded_v3', 'true');
+        } else {
+            // Se ejecuta de fondo sin frenar la UI
+            ensureDefaultTaxonomy().catch(console.error);
+        }
+
+        // Cargamos todas las propiedades y las listas de taxonomía EN PARALELO
+        const propertiesPromise = getProperties();
         await loadAllTaxonomies();
-        properties = await getProperties();
+        
+        properties = await propertiesPromise;
         clearTimeout(timeout);
+        
         renderAdminTable();
         updateStats();
         fetchWeather();
@@ -236,10 +304,14 @@ function updateGreeting() {
 
 // ── Taxonomía ─────────────────────────────────────────────────────────────────
 async function loadAllTaxonomies() {
-    for (const [type, cfg] of Object.entries(TAXO_CONFIG)) {
-        cfg.setList(await cfg.fetch());
+    // Disparar las 9 peticiones en paralelo
+    const promises = Object.entries(TAXO_CONFIG).map(async ([type, cfg]) => {
+        const list = await cfg.fetch();
+        cfg.setList(list);
         renderTaxoList(type);
-    }
+    });
+    await Promise.all(promises);
+
     populateFormSelects();
     populateFilterTypeSelect();
 }
@@ -255,9 +327,11 @@ function renderTaxoList(taxoType) {
     }
     container.innerHTML = list.map(item => `
         <span class="adm-taxo-chip" data-id="${item.id}">
-            <span class="adm-taxo-chip-label">${item.name}</span>
-            <button type="button" class="adm-taxo-edit" title="Renombrar"><i class="fas fa-pen"></i></button>
-            <button type="button" class="adm-taxo-del" title="Eliminar"><i class="fas fa-times"></i></button>
+            <span class="adm-taxo-chip-label" title="${item.name}">${item.name}</span>
+            <div class="adm-taxo-actions">
+                <button type="button" class="adm-taxo-edit" title="Renombrar"><i class="fas fa-pen"></i></button>
+                <button type="button" class="adm-taxo-del" title="Eliminar"><i class="fas fa-times"></i></button>
+            </div>
         </span>
     `).join('');
     container.querySelectorAll('.adm-taxo-chip').forEach(chip => {
@@ -322,7 +396,17 @@ async function handleTaxoDelete(taxoType, id) {
 
 async function handleQuickAdd(taxoType) {
     const cfg   = TAXO_CONFIG[taxoType];
-    const label = { category: 'tipo de propiedad', city: 'ciudad', neighborhood: 'barrio' }[taxoType];
+    const label = { 
+        category: 'tipo de propiedad', 
+        city: 'ciudad', 
+        neighborhood: 'barrio', 
+        operation: 'operación', 
+        status: 'estado', 
+        currency: 'moneda',
+        country: 'país',
+        province: 'provincia',
+        locality: 'localidad'
+    }[taxoType];
     const name  = prompt(`Nuevo ${label}:`);
     if (!name?.trim()) return;
     try {
@@ -331,7 +415,17 @@ async function handleQuickAdd(taxoType) {
         renderTaxoList(taxoType);
         populateFormSelects();
         if (taxoType === 'category') populateFilterTypeSelect();
-        const sel = { category: typeSelect, city: citySelect, neighborhood: neighborhoodSelect }[taxoType];
+        const sel = { 
+            category: typeSelect, 
+            city: citySelect, 
+            neighborhood: neighborhoodSelect,
+            operation: document.getElementById('operation'),
+            status: document.getElementById('status'),
+            currency: document.getElementById('currency'),
+            country: document.getElementById('pais'),
+            province: document.getElementById('provincia'),
+            locality: document.getElementById('localidad')
+        }[taxoType];
         if (sel) sel.value = name.trim();
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
@@ -340,13 +434,31 @@ function populateFormSelects() {
     fillSelect(typeSelect, categories);
     fillSelect(citySelect, cities, 'Seleccionar ciudad');
     fillSelect(neighborhoodSelect, neighborhoods, 'Seleccionar barrio');
+    fillSelect(document.getElementById('operation'), operations);
+    fillSelect(document.getElementById('status'), statuses);
+    fillSelect(document.getElementById('currency'), currencies);
+    fillSelect(document.getElementById('pais'), countries, 'Seleccionar país');
+    fillSelect(document.getElementById('provincia'), provinces, 'Seleccionar provincia');
+    fillSelect(document.getElementById('localidad'), localities, 'Seleccionar localidad');
 }
 function fillSelect(select, items, placeholder) {
     if (!select) return;
-    const current = select.value;
-    select.innerHTML = (placeholder ? `<option value="">${placeholder}</option>` : '')
-        + items.map(i => `<option value="${i.name}">${i.name}</option>`).join('');
-    if (current) ensureOptionExists(select, current);
+    select.innerHTML = '';
+    if (placeholder) select.innerHTML += `<option value="">${placeholder}</option>`;
+    
+    const seen = new Set();
+    items.forEach(i => {
+        const val = i.name || '';
+        const key = val.toLowerCase().trim();
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        
+        const option = document.createElement('option');
+        option.value = val;
+        // Capitalizamos la primera letra para unificar visualmente en el panel
+        option.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+        select.appendChild(option);
+    });
 }
 function ensureOptionExists(select, value) {
     if (!value) return;
@@ -397,8 +509,8 @@ function renderAdminTable() {
         <tr>
             <td><span class="adm-data-mono">${p.code || p.id.slice(0,6)}</span></td>
             <td><strong>${p.title}</strong><span style="display:block;font-size:0.8em;color:var(--adm-muted)">${p.type || ''}</span></td>
-            <td><span class="adm-status-dot ${p.operation || ''}">${(p.operation||'').toUpperCase()}</span></td>
-            <td><span class="adm-status-dot ${p.status || 'pendiente'}">${(p.status || 'Pendiente').toUpperCase()}</span></td>
+            <td><span class="adm-status-dot ${(p.operation || '').toLowerCase().replace(/ /g, '_')}">${(p.operation||'').toUpperCase()}</span></td>
+            <td><span class="adm-status-dot ${(p.status || 'pendiente').toLowerCase().replace(/ /g, '_')}">${(p.status || 'Pendiente').toUpperCase()}</span></td>
             <td><span class="adm-data-mono">${p.consultarPrecio ? 'Consultar' : ((p.currency||'') + ' ' + (p.price||0).toLocaleString())}</span></td>
             <td>${[p.neighborhood, p.zone].filter(Boolean).join(', ')}</td>
             <td>${formatDate(p.createdAt)}</td>
@@ -436,19 +548,45 @@ function formatDate(v) {
 }
 
 function updateStats() {
-    if (totalPropertiesEl) totalPropertiesEl.textContent = properties.length;
+    // Forzar la tipografía global de Chart.js
+    Chart.defaults.font.family = "'Google Sans', sans-serif";
+    Chart.defaults.color = "#64748b";
+
+    let filteredProps = properties;
+    const filterEl = document.getElementById('dashboard-date-filter');
+    if (filterEl) {
+        const filterVal = filterEl.value;
+        if (filterVal !== 'all') {
+            const now = new Date();
+            filteredProps = properties.filter(p => {
+                const pDate = p.createdAt?.toDate ? p.createdAt.toDate() : (p.createdAt ? new Date(p.createdAt) : new Date(0));
+                if (filterVal === 'month') {
+                    return pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear();
+                } else if (filterVal === 'week') {
+                    const diffTime = Math.abs(now - pDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    return diffDays <= 7;
+                } else if (filterVal === 'year') {
+                    return pDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+    }
+
+    if (totalPropertiesEl) totalPropertiesEl.textContent = filteredProps.length;
     
-    const alquilerCount = properties.filter(p => p.operation?.startsWith('alquiler')).length;
-    const ventaCount = properties.filter(p => p.operation === 'venta').length;
+    const alquilerCount = filteredProps.filter(p => p.operation?.toLowerCase().includes('alquiler')).length;
+    const ventaCount = filteredProps.filter(p => p.operation?.toLowerCase() === 'venta').length;
     
     if (totalAlquilerEl) totalAlquilerEl.textContent = alquilerCount;
     if (totalVentaEl)    totalVentaEl.textContent = ventaCount;
     
-    const pubCount = properties.filter(p => p.status === 'publicado').length;
-    const vendCount = properties.filter(p => p.status === 'vendido').length;
-    const pendCount = properties.filter(p => p.status === 'pendiente').length;
-    const pausaCount = properties.filter(p => p.status === 'pausa').length;
-    const borrCount = properties.filter(p => p.status === 'borrador').length;
+    const pubCount = filteredProps.filter(p => p.status?.toLowerCase() === 'publicado').length;
+    const vendCount = filteredProps.filter(p => p.status?.toLowerCase() === 'vendido').length;
+    const pendCount = filteredProps.filter(p => p.status?.toLowerCase() === 'pendiente').length;
+    const pausaCount = filteredProps.filter(p => p.status?.toLowerCase() === 'pausa').length;
+    const borrCount = filteredProps.filter(p => p.status?.toLowerCase() === 'borrador').length;
 
     const pub  = document.getElementById('total-publicadas');
     const vend = document.getElementById('total-vendidas');
@@ -506,7 +644,7 @@ function updateStats() {
                         labels: ['Publicadas', 'Pendientes', 'Pausa', 'Borrador', 'Vendido'],
                         datasets: [{
                             data: [pubCount, pendCount, pausaCount, borrCount, vendCount],
-                            backgroundColor: ['#F68C18', '#94A3B8', '#DC2626', '#EAB308', '#171717'],
+                            backgroundColor: ['#F68C18', '#64748b', '#dc2626', '#eab308', '#171717'],
                             borderWidth: 0,
                             hoverOffset: 4
                         }]
@@ -558,7 +696,7 @@ function updateStats() {
         if (typeCtx) {
             // Contar por tipo
             const typesCount = {};
-            properties.forEach(p => {
+            filteredProps.forEach(p => {
                 const t = p.type || 'Otro';
                 typesCount[t] = (typesCount[t] || 0) + 1;
             });
@@ -577,9 +715,11 @@ function updateStats() {
                         datasets: [{
                             label: 'Cantidad',
                             data: data,
-                            backgroundColor: ['#171717', '#FDBA74', '#52525B', '#F68C18', '#94A3B8', '#DC2626', '#EAB308'],
+                            backgroundColor: ['#F68C18', '#171717', '#F59E0B', '#404040', '#fb923c', '#737373', '#fcd34d', '#a3a3a3'],
                             borderWidth: 0,
-                            borderRadius: 6
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
                         }]
                     },
                     options: {
@@ -617,13 +757,14 @@ function readFormData() {
         // Principal
         code:            val('prop-code'),
         title:           val('title'),
-        status:          propertyForm.querySelector('input[name="status"]:checked')?.value || 'pendiente',
+        status:          val('status'),
         price:           Number(val('price')) || 0,
         currency:        val('currency'),
         consultarPrecio: document.getElementById('consultar-precio')?.checked || false,
         type:            val('type'),
         operation:       val('operation'),
         neighborhood:    val('neighborhood'),
+        localidad:       val('localidad'),
         zone:            val('zone'),
         provincia:       val('provincia'),
         pais:            val('pais'),
@@ -715,17 +856,23 @@ function fillForm(p) {
     setVal('prop-code', p.code || '');
     setVal('title', p.title);
     setVal('price', p.price);
-    setVal('currency', p.currency || 'USD');
     if (document.getElementById('consultar-precio'))
         document.getElementById('consultar-precio').checked = !!p.consultarPrecio;
-    const sr = propertyForm.querySelector(`input[name="status"][value="${p.status||'pendiente'}"]`);
-    if (sr) sr.checked = true;
     populateFormSelects();
     ensureOptionExists(typeSelect, p.type);
     ensureOptionExists(citySelect, p.zone);
     ensureOptionExists(neighborhoodSelect, p.neighborhood);
+    ensureOptionExists(document.getElementById('localidad'), p.localidad);
+    ensureOptionExists(document.getElementById('provincia'), p.provincia);
+    ensureOptionExists(document.getElementById('pais'), p.pais);
+    ensureOptionExists(document.getElementById('operation'), p.operation);
+    ensureOptionExists(document.getElementById('status'), p.status);
+    ensureOptionExists(document.getElementById('currency'), p.currency);
+    
     setVal('type', p.type); setVal('operation', p.operation);
+    setVal('status', p.status); setVal('currency', p.currency || 'USD');
     setVal('neighborhood', p.neighborhood); setVal('zone', p.zone);
+    setVal('localidad', p.localidad);
     setVal('provincia', p.provincia); setVal('pais', p.pais || 'Argentina');
     setVal('branch', p.branch);
     setVal('description', p.description); setVal('observaciones', p.observaciones);

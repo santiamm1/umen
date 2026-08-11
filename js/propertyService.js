@@ -301,22 +301,7 @@ export async function deleteNeighborhood(id) {
     await deleteDoc(doc(db, 'neighborhoods', id));
 }
 
-// Locations (legacy: jerarquía provincia → zona → barrio, sin UI actualmente)
-export async function getProvinces() {
-    try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'provinces'));
-        const provinces = [];
-        querySnapshot.forEach((doc) => {
-            provinces.push({ id: doc.id, ...doc.data() });
-        });
-        return provinces;
-    } catch (error) {
-        console.error('Error getting provinces:', error);
-        return [];
-    }
-}
-
+// Locations (legacy: jerarquía zona → barrio, sin UI actualmente)
 export async function getZones(provinceId) {
     try {
         const q = query(collection(window.db, 'zones'), where('provinceId', '==', provinceId));
@@ -350,9 +335,27 @@ export async function getNeighborhoods(zoneId) {
 // Taxonomía por defecto — replica los filtros del sitio anterior (umen.com.ar/propiedades-buscador)
 // Se usa solo para poblar Firestore la primera vez (si la colección está vacía); luego todo se edita desde el admin.
 const DEFAULT_TAXONOMY = {
-    categories: ['Departamento', 'PH', 'Oficina', 'Edificio en Block', 'Hotel', 'Negocio Especial', 'Terreno'],
-    cities: ['Capital Federal', 'Bariloche', 'Dina Huapi', 'La Plata'],
-    neighborhoods: ['Almagro', 'Belgrano', 'Caballito', 'Centro', 'Microcentro', 'Nuñez', 'San Cristóbal', 'Villa Crespo']
+    categories: ['Casa', 'Departamento', 'Lote', 'Local Comercial', 'Oficina', 'Galpón', 'Cochera'],
+    countries: ['Argentina'],
+    provinces: [
+        'Ciudad Autónoma de Buenos Aires', 'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'
+    ],
+    cities: ['Capital Federal', 'GBA Norte', 'GBA Sur', 'GBA Oeste'],
+    localities: [
+        // CABA no tiene localidades per se, pero GBA sí:
+        'Vicente López', 'San Isidro', 'San Fernando', 'Tigre', 'Pilar', // Norte
+        'Avellaneda', 'Lanús', 'Lomas de Zamora', 'Quilmes', 'Berazategui', // Sur
+        'Tres de Febrero', 'San Martín', 'Morón', 'Ituzaingó', 'Moreno' // Oeste
+    ],
+    neighborhoods: [
+        // CABA
+        'Palermo', 'Belgrano', 'Recoleta', 'Caballito', 'Puerto Madero', 'San Telmo', 'Nuñez', 'Almagro', 'Villa Urquiza', 'Villa Devoto', 'Villa Crespo', 'Colegiales', 'Retiro', 'Balvanera',
+        // GBA (Algunos barrios o zonas conocidas)
+        'Olivos', 'Florida', 'La Lucila', 'Martínez', 'Acassuso', 'Beccar', 'Victoria', 'Nordelta', 'Castelar', 'Ramos Mejía', 'Banfield', 'Temperley', 'Adrogué'
+    ],
+    operations: ['Venta', 'Alquiler', 'Alquiler temporario'],
+    statuses: ['Publicado', 'Pausa', 'Vendido', 'Pendiente', 'Borrador'],
+    currencies: ['USD', 'ARS']
 };
 
 export async function ensureDefaultTaxonomy() {
@@ -361,16 +364,26 @@ export async function ensureDefaultTaxonomy() {
 
         const seedIfEmpty = async (collectionName, names) => {
             const snapshot = await getDocs(collection(db, collectionName));
-            if (!snapshot.empty) return;
+            const existingNames = new Set();
+            snapshot.forEach(doc => existingNames.add(doc.data().name?.toLowerCase()));
+            
             for (const name of names) {
-                await addDoc(collection(db, collectionName), { name });
+                if (!existingNames.has(name.toLowerCase())) {
+                    await addDoc(collection(db, collectionName), { name });
+                }
             }
         };
 
         await Promise.all([
             seedIfEmpty('categories', DEFAULT_TAXONOMY.categories),
+            seedIfEmpty('countries', DEFAULT_TAXONOMY.countries),
+            seedIfEmpty('provinces', DEFAULT_TAXONOMY.provinces),
             seedIfEmpty('cities', DEFAULT_TAXONOMY.cities),
-            seedIfEmpty('neighborhoods', DEFAULT_TAXONOMY.neighborhoods)
+            seedIfEmpty('localities', DEFAULT_TAXONOMY.localities),
+            seedIfEmpty('neighborhoods', DEFAULT_TAXONOMY.neighborhoods),
+            seedIfEmpty('operations', DEFAULT_TAXONOMY.operations),
+            seedIfEmpty('statuses', DEFAULT_TAXONOMY.statuses),
+            seedIfEmpty('currencies', DEFAULT_TAXONOMY.currencies)
         ]);
     } catch (error) {
         console.error('Error seeding default taxonomy:', error);
@@ -398,4 +411,184 @@ export async function deleteImage(url) {
         console.error('Error deleting image:', error);
         throw error;
     }
+}
+
+// ── Operaciones ──
+export async function getOperations() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'operations'));
+        const arr = [];
+        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+        return arr;
+    } catch (error) { console.error(error); return []; }
+}
+export async function createOperation(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'operations'), data);
+        return docRef.id;
+    } catch (error) { throw error; }
+}
+export async function updateOperation(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'operations', id), data);
+    } catch (error) { throw error; }
+}
+export async function deleteOperation(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'operations', id));
+    } catch (error) { throw error; }
+}
+
+// ── Estados ──
+export async function getStatuses() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'statuses'));
+        const arr = [];
+        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+        return arr;
+    } catch (error) { console.error(error); return []; }
+}
+export async function createStatus(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'statuses'), data);
+        return docRef.id;
+    } catch (error) { throw error; }
+}
+export async function updateStatus(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'statuses', id), data);
+    } catch (error) { throw error; }
+}
+export async function deleteStatus(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'statuses', id));
+    } catch (error) { throw error; }
+}
+
+// ── Monedas ──
+export async function getCurrencies() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'currencies'));
+        const arr = [];
+        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+        return arr;
+    } catch (error) { console.error(error); return []; }
+}
+export async function createCurrency(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'currencies'), data);
+        return docRef.id;
+    } catch (error) { throw error; }
+}
+export async function updateCurrency(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'currencies', id), data);
+    } catch (error) { throw error; }
+}
+export async function deleteCurrency(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'currencies', id));
+    } catch (error) { throw error; }
+}
+
+// ── Países ──
+export async function getCountries() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'countries'));
+        const arr = [];
+        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+        return arr;
+    } catch (error) { console.error(error); return []; }
+}
+export async function createCountry(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'countries'), data);
+        return docRef.id;
+    } catch (error) { throw error; }
+}
+export async function updateCountry(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'countries', id), data);
+    } catch (error) { throw error; }
+}
+export async function deleteCountry(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'countries', id));
+    } catch (error) { throw error; }
+}
+
+// ── Provincias ──
+export async function getProvinces() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'provinces'));
+        const arr = [];
+        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+        return arr;
+    } catch (error) { console.error(error); return []; }
+}
+export async function createProvince(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'provinces'), data);
+        return docRef.id;
+    } catch (error) { throw error; }
+}
+export async function updateProvince(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'provinces', id), data);
+    } catch (error) { throw error; }
+}
+export async function deleteProvince(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'provinces', id));
+    } catch (error) { throw error; }
+}
+
+// ── Localidades ──
+export async function getLocalities() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'localities'));
+        const arr = [];
+        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+        return arr;
+    } catch (error) { console.error(error); return []; }
+}
+export async function createLocality(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'localities'), data);
+        return docRef.id;
+    } catch (error) { throw error; }
+}
+export async function updateLocality(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'localities', id), data);
+    } catch (error) { throw error; }
+}
+export async function deleteLocality(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'localities', id));
+    } catch (error) { throw error; }
 }
