@@ -5,6 +5,7 @@ import {
     getDocs,
     doc,
     getDoc,
+    setDoc,
     addDoc,
     updateDoc,
     deleteDoc,
@@ -590,5 +591,20 @@ export async function deleteLocality(id) {
     try {
         const db = await getDb();
         await deleteDoc(doc(db, 'localities', id));
+    } catch (error) { throw error; }
+}
+
+// Perfil del administrador (nombre, teléfono — email/contraseña se manejan por Firebase Auth)
+export async function getAdminProfile(uid) {
+    try {
+        const db = await getDb();
+        const snap = await getDoc(doc(db, 'admins', uid));
+        return snap.exists() ? snap.data() : {};
+    } catch (error) { console.error(error); return {}; }
+}
+export async function saveAdminProfile(uid, data) {
+    try {
+        const db = await getDb();
+        await setDoc(doc(db, 'admins', uid), data, { merge: true });
     } catch (error) { throw error; }
 }

@@ -1,5 +1,5 @@
 // adminDashboard.js — Panel de administración UMEN
-import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+import { onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 import {
     getProperties, createProperty, updateProperty, deleteProperty,
     ensureDefaultTaxonomy,
@@ -11,9 +11,10 @@ import {
     getCurrencies, createCurrency, updateCurrency, deleteCurrency,
     getCountries, createCountry, updateCountry, deleteCountry,
     getProvinces, createProvince, updateProvince, deleteProvince,
-    getLocalities, createLocality, updateLocality, deleteLocality
-} from './propertyService.js';
-import { initImageGallery, setGalleryUrls, getGalleryUrls } from './cloudinaryUpload.js';
+    getLocalities, createLocality, updateLocality, deleteLocality,
+    getAdminProfile, saveAdminProfile
+} from './propertyService.js?v=2';
+import { initImageGallery, setGalleryUrls, getGalleryUrls, uploadFile } from './cloudinaryUpload.js?v=2';
 
 window.showToast = function(message, type = 'success') {
     const container = document.getElementById('toast-container');
@@ -201,11 +202,16 @@ function setupEventListeners() {
     newPropertyBtn?.addEventListener('click', openNewPropertyModal);
     propertyForm?.addEventListener('submit', handleFormSubmit);
     document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', closeModal));
-    document.getElementById('open-taxo-modal-btn')?.addEventListener('click', () => {
-        document.querySelector('.adm-sidebar-link[data-section="taxonomia"]')?.click();
-    });
-    
+
     document.getElementById('dashboard-date-filter')?.addEventListener('change', updateStats);
+
+    document.addEventListener('adm:enter-profile', loadProfileForm);
+    document.getElementById('profile-form')?.addEventListener('submit', handleProfileSubmit);
+    document.getElementById('profile-photo-btn')?.addEventListener('click', () => {
+        document.getElementById('profile-photo-input')?.click();
+    });
+    document.getElementById('profile-photo-input')?.addEventListener('change', handleProfilePhotoChange);
+    document.getElementById('profile-photo-remove-btn')?.addEventListener('click', handleRemoveProfilePhoto);
     
     document.getElementById('admin-search')?.addEventListener('input', () => {
         currentPage = 1;
@@ -270,6 +276,8 @@ async function loadAdminData() {
         updateStats();
         fetchWeather();
         updateGreeting();
+        const currentUser = window.auth?.currentUser;
+        if (currentUser) getAdminProfile(currentUser.uid).then(p => { adminProfileCache = p; updateGreeting(); });
     } catch (e) {
         clearTimeout(timeout);
         console.error(e);
@@ -293,12 +301,105 @@ async function fetchWeather() {
     }
 }
 
+let adminProfileCache = null; // { name, phone, photoURL } — cacheado tras el primer fetch
+
 function updateGreeting() {
+    const user = window.auth?.currentUser;
+    const name = adminProfileCache?.name || user?.displayName || user?.email?.split('@')[0] || 'Administrador';
+    // ?? (no ||): una foto eliminada queda en '', que es un valor válido y no debe
+    // caer de nuevo en la foto de Google/Auth — solo cae si nunca se definió (null/undefined).
+    const photoURL = adminProfileCache?.photoURL ?? user?.photoURL ?? '';
+
     const greetingEl = document.getElementById('adm-greeting-name');
-    if (greetingEl) {
-        const user = window.auth?.currentUser;
-        const name = user?.displayName || user?.email?.split('@')[0] || 'Administrador';
-        greetingEl.textContent = `Hola, ${name}`;
+    if (greetingEl) greetingEl.textContent = `Hola, ${name}`;
+
+    const sidebarNameEl = document.getElementById('adm-sidebar-name');
+    if (sidebarNameEl) sidebarNameEl.textContent = name;
+
+    applyAvatar('adm-sidebar-avatar', 'adm-sidebar-avatar-fallback', name, photoURL);
+    applyAvatar('profile-avatar', 'profile-avatar-fallback', name, photoURL);
+
+    const removeBtn = document.getElementById('profile-photo-remove-btn');
+    if (removeBtn) removeBtn.style.display = photoURL ? 'inline-flex' : 'none';
+}
+
+// Muestra la foto de perfil si existe, o un círculo con la inicial del nombre.
+function applyAvatar(imgId, fallbackId, name, photoURL) {
+    const imgEl = document.getElementById(imgId);
+    const fallbackEl = document.getElementById(fallbackId);
+    if (!imgEl || !fallbackEl) return;
+    if (photoURL) {
+        imgEl.src = photoURL;
+        imgEl.style.display = 'block';
+        fallbackEl.style.display = 'none';
+    } else {
+        imgEl.style.display = 'none';
+        fallbackEl.style.display = 'flex';
+        fallbackEl.textContent = (name || 'A').trim().charAt(0).toUpperCase();
+    }
+}
+
+// ── Mi Perfil (nombre, teléfono y foto; email/contraseña son de Firebase Auth) ─
+async function loadProfileForm() {
+    const user = window.auth?.currentUser;
+    if (!user) return;
+    const nameEl  = document.getElementById('profile-name');
+    const phoneEl = document.getElementById('profile-phone');
+    const emailEl = document.getElementById('profile-email');
+    if (emailEl) emailEl.value = user.email || '';
+
+    adminProfileCache = await getAdminProfile(user.uid);
+    if (nameEl)  nameEl.value  = adminProfileCache.name  || user.displayName || '';
+    if (phoneEl) phoneEl.value = adminProfileCache.phone || '';
+    updateGreeting();
+}
+
+async function handleProfileSubmit(e) {
+    e.preventDefault();
+    const user = window.auth?.currentUser;
+    if (!user) return;
+    const name  = document.getElementById('profile-name').value.trim();
+    const phone = document.getElementById('profile-phone').value.trim();
+    try {
+        await saveAdminProfile(user.uid, { name, phone });
+        if (name && name !== user.displayName) await updateProfile(user, { displayName: name });
+        adminProfileCache = { ...adminProfileCache, name, phone };
+        updateGreeting();
+        showToast('Perfil actualizado.');
+    } catch (err) {
+        showToast('Error al guardar el perfil: ' + err.message, 'error');
+    }
+}
+
+async function handleProfilePhotoChange(e) {
+    const file = e.target.files[0];
+    e.target.value = '';
+    const user = window.auth?.currentUser;
+    if (!file || !user) return;
+    try {
+        showToast('Subiendo foto…');
+        const result = await uploadFile(file);
+        await saveAdminProfile(user.uid, { photoURL: result.secure_url });
+        await updateProfile(user, { photoURL: result.secure_url }).catch(() => {}); // no crítico si falla
+        adminProfileCache = { ...adminProfileCache, photoURL: result.secure_url };
+        updateGreeting();
+        showToast('Foto de perfil actualizada.');
+    } catch (err) {
+        showToast('Error al subir la foto: ' + err.message, 'error');
+    }
+}
+
+async function handleRemoveProfilePhoto() {
+    const user = window.auth?.currentUser;
+    if (!user) return;
+    try {
+        await saveAdminProfile(user.uid, { photoURL: '' });
+        await updateProfile(user, { photoURL: null }).catch(() => {}); // no crítico si falla
+        adminProfileCache = { ...adminProfileCache, photoURL: '' };
+        updateGreeting();
+        showToast('Foto de perfil eliminada.');
+    } catch (err) {
+        showToast('Error al eliminar la foto: ' + err.message, 'error');
     }
 }
 
@@ -455,8 +556,7 @@ function fillSelect(select, items, placeholder) {
         
         const option = document.createElement('option');
         option.value = val;
-        // Capitalizamos la primera letra para unificar visualmente en el panel
-        option.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+        option.textContent = capitalize(val);
         select.appendChild(option);
     });
 }
@@ -464,7 +564,8 @@ function ensureOptionExists(select, value) {
     if (!value) return;
     if (!Array.from(select.options).some(o => o.value === value)) {
         const opt = document.createElement('option');
-        opt.value = value; opt.textContent = value;
+        opt.value = value;
+        opt.textContent = capitalize(value);
         select.appendChild(opt);
     }
     select.value = value;
@@ -508,9 +609,9 @@ function renderAdminTable() {
     propertiesTbody.innerHTML = paginatedProps.map(p => `
         <tr>
             <td><span class="adm-data-mono">${p.code || p.id.slice(0,6)}</span></td>
-            <td><strong>${p.title}</strong><span style="display:block;font-size:0.8em;color:var(--adm-muted)">${p.type || ''}</span></td>
-            <td><span class="adm-status-dot ${(p.operation || '').toLowerCase().replace(/ /g, '_')}">${(p.operation||'').toUpperCase()}</span></td>
-            <td><span class="adm-status-dot ${(p.status || 'pendiente').toLowerCase().replace(/ /g, '_')}">${(p.status || 'Pendiente').toUpperCase()}</span></td>
+            <td><strong>${p.title}</strong><span class="adm-table-subtitle">${p.type || ''}</span></td>
+            <td><span class="adm-status-dot ${(p.operation || '').toLowerCase().replace(/ /g, '_')}">${capitalize(p.operation)}</span></td>
+            <td><span class="adm-status-dot ${(p.status || 'pendiente').toLowerCase().replace(/ /g, '_')}">${capitalize(p.status || 'Pendiente')}</span></td>
             <td><span class="adm-data-mono">${p.consultarPrecio ? 'Consultar' : ((p.currency||'') + ' ' + (p.price||0).toLocaleString())}</span></td>
             <td>${[p.neighborhood, p.zone].filter(Boolean).join(', ')}</td>
             <td>${formatDate(p.createdAt)}</td>
@@ -529,7 +630,7 @@ function renderAdminTable() {
         } else {
             let buttonsHtml = '';
             for (let i = 1; i <= totalPages; i++) {
-                buttonsHtml += `<button class="adm-btn ${i === currentPage ? 'adm-btn-primary' : 'adm-btn-secondary'}" style="padding: 6px 12px; min-width:36px;" onclick="window.goToPage(${i})">${i}</button>`;
+                buttonsHtml += `<button class="adm-pagination-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
             }
             container.innerHTML = buttonsHtml;
         }
@@ -540,6 +641,11 @@ window.goToPage = function(page) {
     currentPage = page;
     renderAdminTable();
 };
+
+function capitalize(v) {
+    v = (v || '').toString();
+    return v.charAt(0).toUpperCase() + v.slice(1);
+}
 
 function formatDate(v) {
     if (!v) return '—';
@@ -653,7 +759,7 @@ function updateStats() {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" } } },
+                            legend: { position: 'bottom', labels: { font: { family: "'Google Sans', sans-serif" } } },
                             tooltip: tooltipOptions,
                             datalabels: datalabelsConfig
                         },
@@ -683,7 +789,7 @@ function updateStats() {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" } } },
+                            legend: { position: 'bottom', labels: { font: { family: "'Google Sans', sans-serif" } } },
                             tooltip: tooltipOptions,
                             datalabels: datalabelsConfig
                         },

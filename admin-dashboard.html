@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración | UMEN</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=9.25">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css?v=9.31">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
@@ -24,30 +26,16 @@
 </head>
 <body>
 
-    <!-- ── Top bar ─────────────────────────────────────────────────── -->
-    <header class="adm-topbar">
-        <div class="adm-topbar-inner">
-            <div class="adm-brand">
-                <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN">
-                <span class="adm-brand-sep"></span>
-                <span class="adm-brand-label">Panel de Administración</span>
-            </div>
-            <div class="adm-topbar-actions">
-                <a href="index.html" target="_blank" class="adm-link-btn">
-                    <i class="fas fa-external-link-alt"></i> Ver sitio
-                </a>
-                <button id="logout-btn" class="adm-logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-                </button>
-            </div>
-        </div>
-    </header>
-
     <!-- ── Wrapper ───────────────────────────────────────────────── -->
     <div class="adm-wrapper">
 
     <!-- ── Sidebar ───────────────────────────────────────────────── -->
     <aside class="adm-sidebar" id="adm-sidebar">
+        <!-- Brand -->
+        <div class="adm-brand">
+            <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN">
+        </div>
+
         <nav class="adm-sidebar-nav">
             <div class="adm-sidebar-section">
                 <span class="adm-sidebar-section-label">General</span>
@@ -92,6 +80,16 @@
             </div>
         </nav>
         <div class="adm-sidebar-footer">
+            <button type="button" id="adm-sidebar-profile-btn" class="adm-user-profile" title="Editar perfil">
+                <span class="adm-avatar">
+                    <img id="adm-sidebar-avatar" class="adm-user-avatar" alt="Foto de perfil" style="display:none">
+                    <span id="adm-sidebar-avatar-fallback" class="adm-avatar-fallback">A</span>
+                </span>
+                <div class="adm-user-info">
+                    <span class="adm-user-name" id="adm-sidebar-name">Administrador</span>
+                    <span class="adm-user-role">UMEN Real Estate</span>
+                </div>
+            </button>
             <button id="sidebar-logout-btn" class="adm-sidebar-logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar sesión</span>
@@ -99,12 +97,58 @@
         </div>
     </aside>
 
-    <!-- ── Contenido ───────────────────────────────────────────────── -->
-    <main class="adm-main">
+    <!-- ── Content Wrapper ───────────────────────────────────────── -->
+    <div class="adm-content-wrapper">
         
-        <!-- ======================= SECTION: DASHBOARD ======================= -->
+
+
+        <!-- ── Contenido ───────────────────────────────────────────────── -->
+        <main class="adm-main">
+        
+        
+        <!-- ── GLOBAL TOPBAR ───────────────────────────────────────────────── -->
+        <header class="adm-topbar">
+            <div class="adm-topbar-header">
+                <div style="display:flex; align-items:center;">
+                    <button class="adm-sidebar-toggle"><i class="fas fa-bars"></i></button>
+                    <h2 id="global-topbar-title">Dashboard</h2>
+                </div>
+                <div style="display:flex;gap:12px;align-items:center;">
+                    <button id="new-property-btn" class="adm-btn adm-btn-primary">
+                        <i class="fas fa-plus"></i> Nueva propiedad
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros globales (siempre visibles por pedido del usuario) -->
+            <div class="adm-filters">
+                <div class="adm-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="admin-search" placeholder="Buscar título, barrio, zona...">
+                </div>
+                <select id="filter-operation">
+                    <option value="">Operación</option>
+                    <option value="venta">Venta</option>
+                    <option value="alquiler">Alquiler</option>
+                </select>
+                <select id="filter-type">
+                    <option value="">Tipo</option>
+                </select>
+                <select id="filter-status">
+                    <option value="">Estado</option>
+                    <option value="publicado">Publicado</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="borrador">Borrador</option>
+                    <option value="pausa">Pausa</option>
+                    <option value="vendido">Vendido</option>
+                </select>
+            </div>
+        </header>
+<!-- ======================= SECTION: DASHBOARD ======================= -->
         <div id="section-dashboard" class="adm-section active">
             
+            
+
             <!-- Bienvenida y Clima -->
             <div class="adm-welcome-banner">
                 <div class="adm-welcome-text">
@@ -122,8 +166,8 @@
 
             <!-- Dashboard Top (KPIs y Gráficos) -->
             <div class="adm-dashboard-top">
-                <div class="adm-dashboard-toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin:0; color:var(--adm-text);">Estadísticas Generales</h3>
+                <div class="adm-dashboard-toolbar">
+                    <h3>Estadísticas Generales</h3>
                     <select id="dashboard-date-filter" class="adm-input" style="width: auto; font-weight: 600; padding: 8px 16px;">
                         <option value="all">Histórico (Todo)</option>
                         <option value="week">Esta semana (Últimos 7 días)</option>
@@ -192,51 +236,16 @@
                     </div>
                 </div>
             </div>
+            
         </div>
 
         <!-- ======================= SECTION: PROPIEDADES ======================= -->
         <div id="section-propiedades" class="adm-section" style="display: none;">
+            
+            
 
-
-        <!-- Tabla card -->
-        <div class="adm-card">
-
-            <!-- Card header -->
-            <div class="adm-card-header">
-                <h2>Propiedades</h2>
-                <div style="display:flex;gap:12px">
-                    <button id="open-taxo-modal-btn" class="adm-btn adm-btn-secondary">
-                        <i class="fas fa-sliders-h"></i> Opciones de filtros
-                    </button>
-                    <button id="new-property-btn" class="adm-btn adm-btn-primary">
-                        <i class="fas fa-plus"></i> Nueva propiedad
-                    </button>
-                </div>
-            </div>
-
-            <!-- Filtros -->
-            <div class="adm-filters">
-                <div class="adm-search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="admin-search" placeholder="Buscar título, barrio, zona...">
-                </div>
-                <select id="filter-operation">
-                    <option value="">Operación</option>
-                    <option value="venta">Venta</option>
-                    <option value="alquiler">Alquiler</option>
-                </select>
-                <select id="filter-type">
-                    <option value="">Tipo</option>
-                </select>
-                <select id="filter-status">
-                    <option value="">Estado</option>
-                    <option value="publicado">Publicado</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="borrador">Borrador</option>
-                    <option value="pausa">Pausa</option>
-                    <option value="vendido">Vendido</option>
-                </select>
-            </div>
+            <!-- Tabla card -->
+                <div class="adm-card">
 
             <!-- Tabla -->
             <div class="adm-table-wrap">
@@ -263,19 +272,21 @@
                 <!-- Botones se generarán dinámicamente -->
             </div>
         </div>
-        </div><!-- /#section-propiedades -->
+        </div>
+        <!-- /#section-propiedades -->
 
         <!-- ======================= SECTIONS: GESTIÓN DE DATOS ======================= -->
         
         <!-- Tipo de Propiedad -->
         <div id="section-category" class="adm-section" style="display:none;">
+            
             <div class="adm-card">
-                <div class="adm-card-header">
-                    <div>
-                        <h2><i class="fas fa-home" style="color:var(--adm-primary)"></i> Tipos de Propiedad</h2>
+                    <div class="adm-card-header">
+                        <div>
+                            <h2><i class="fas fa-home" style="color:var(--adm-primary)"></i> Tipos de Propiedad</h2>
                         <p>Gestioná los tipos de propiedades (Ej: Departamento, Casa, Lote).</p>
+                        </div>
                     </div>
-                </div>
                 <div style="padding: 24px;">
                     <div class="adm-taxo-grid">
                         <div class="adm-taxo-group">
@@ -292,13 +303,14 @@
 
         <!-- Operación -->
         <div id="section-operation" class="adm-section" style="display:none;">
+            
             <div class="adm-card">
-                <div class="adm-card-header">
-                    <div>
-                        <h2><i class="fas fa-handshake" style="color:var(--adm-primary)"></i> Operación</h2>
+                    <div class="adm-card-header">
+                        <div>
+                            <h2><i class="fas fa-handshake" style="color:var(--adm-primary)"></i> Operación</h2>
                         <p>Gestioná los tipos de operación (Ej: Venta, Alquiler, Alquiler Temporal).</p>
+                        </div>
                     </div>
-                </div>
                 <div style="padding: 24px;">
                     <div class="adm-taxo-grid">
                         <div class="adm-taxo-group">
@@ -315,13 +327,14 @@
 
         <!-- Estado -->
         <div id="section-status" class="adm-section" style="display:none;">
+            
             <div class="adm-card">
-                <div class="adm-card-header">
-                    <div>
-                        <h2><i class="fas fa-flag" style="color:var(--adm-primary)"></i> Estado</h2>
+                    <div class="adm-card-header">
+                        <div>
+                            <h2><i class="fas fa-flag" style="color:var(--adm-primary)"></i> Estado</h2>
                         <p>Gestioná los estados de las propiedades (Ej: Publicado, Pausa, Vendido).</p>
+                        </div>
                     </div>
-                </div>
                 <div style="padding: 24px;">
                     <div class="adm-taxo-grid">
                         <div class="adm-taxo-group">
@@ -338,13 +351,14 @@
 
         <!-- Moneda -->
         <div id="section-currency" class="adm-section" style="display:none;">
+            
             <div class="adm-card">
-                <div class="adm-card-header">
-                    <div>
-                        <h2><i class="fas fa-money-bill-wave" style="color:var(--adm-primary)"></i> Moneda</h2>
+                    <div class="adm-card-header">
+                        <div>
+                            <h2><i class="fas fa-money-bill-wave" style="color:var(--adm-primary)"></i> Moneda</h2>
                         <p>Gestioná las monedas aceptadas (Ej: USD, ARS, EUR).</p>
+                        </div>
                     </div>
-                </div>
                 <div style="padding: 24px;">
                     <div class="adm-taxo-grid">
                         <div class="adm-taxo-group">
@@ -361,13 +375,14 @@
 
         <!-- Ubicación -->
         <div id="section-location" class="adm-section" style="display:none;">
+            
             <div class="adm-card">
-                <div class="adm-card-header">
-                    <div>
-                        <h2><i class="fas fa-map-marker-alt" style="color:var(--adm-primary)"></i> Ubicación</h2>
+                    <div class="adm-card-header">
+                        <div>
+                            <h2><i class="fas fa-map-marker-alt" style="color:var(--adm-primary)"></i> Ubicación</h2>
                         <p>Gestioná las ciudades y barrios disponibles.</p>
+                        </div>
                     </div>
-                </div>
                 <div style="padding: 24px;">
                     <div class="adm-subtabs">
                         <button class="adm-subtab active" data-target="loc-paises">Países</button>
@@ -423,7 +438,58 @@
             </div>
         </div>
 
-    </main>
+        <!-- Mi Perfil -->
+        <div id="section-profile" class="adm-section" style="display:none;">
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div>
+                        <h2><i class="fas fa-user" style="color:var(--adm-primary)"></i> Mi Perfil</h2>
+                        <p>Actualizá tu nombre y teléfono de contacto.</p>
+                    </div>
+                </div>
+                <form id="profile-form" style="padding: 24px;">
+                    <div class="adm-profile-photo-row">
+                        <span class="adm-avatar adm-avatar-lg">
+                            <img id="profile-avatar" class="adm-user-avatar" alt="Foto de perfil" style="display:none">
+                            <span id="profile-avatar-fallback" class="adm-avatar-fallback">A</span>
+                        </span>
+                        <div>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" id="profile-photo-btn" class="adm-btn adm-btn-secondary">
+                                    <i class="fas fa-camera"></i> Cambiar foto
+                                </button>
+                                <button type="button" id="profile-photo-remove-btn" class="adm-btn adm-btn-secondary" style="display:none">
+                                    <i class="fas fa-trash"></i> Eliminar foto
+                                </button>
+                            </div>
+                            <input type="file" id="profile-photo-input" accept="image/*" hidden>
+                            <p class="adm-hint" style="margin:8px 0 0">JPG o PNG. Si no subís una foto, se muestra la inicial de tu nombre.</p>
+                        </div>
+                    </div>
+                    <div class="adm-form-grid">
+                        <div class="adm-form-group">
+                            <label for="profile-name">Nombre</label>
+                            <input type="text" id="profile-name" placeholder="Tu nombre">
+                        </div>
+                        <div class="adm-form-group">
+                            <label for="profile-phone">Teléfono</label>
+                            <input type="tel" id="profile-phone" placeholder="Ej: +54 9 11 1234-5678">
+                        </div>
+                        <div class="adm-form-group full">
+                            <label for="profile-email">Correo electrónico</label>
+                            <input type="email" id="profile-email" disabled>
+                            <span class="adm-hint">El correo y la contraseña se gestionan desde tu cuenta y no se pueden editar acá.</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="adm-btn adm-btn-primary" style="margin-top:20px">
+                        <i class="fas fa-save"></i> Guardar cambios
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        </main>
+    </div><!-- /.adm-content-wrapper -->
     </div><!-- /.adm-wrapper -->
 
     <!-- ── Modal Nueva / Editar propiedad ──────────────────────────── -->
@@ -436,10 +502,10 @@
                     <h3 id="modal-title">Nueva Propiedad</h3>
                     <span class="adm-mh-id">ID de BD: <strong id="display-prop-code">—</strong></span>
                 </div>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:0.9rem; font-weight:600;">Estado:</span>
-                    <select id="status" class="adm-input" style="padding:4px 8px; width:auto; border-radius:6px; margin:0;"></select>
-                    <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="status" title="Agregar estado"><i class="fas fa-plus"></i></button>
+                <div class="adm-mh-status">
+                    <span class="adm-mh-status-label">Estado:</span>
+                    <select id="status" class="adm-input"></select>
+                    <button type="button" class="adm-btn adm-btn-icon adm-quick-add" data-taxo="status" title="Agregar nuevo estado"><i class="fas fa-plus"></i></button>
                 </div>
                 <button class="adm-modal-close close-modal"><i class="fas fa-times"></i></button>
             </div>
@@ -1054,24 +1120,58 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.25"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.28"></script>
     <script>
         // Sidebar logout → clicks the main logout button
         document.getElementById('sidebar-logout-btn').addEventListener('click', () => {
             document.getElementById('logout-btn').click();
         });
 
-        // Sidebar navigation active state and section switching
+        // Cambia de sección + actualiza título del topbar + estado activo del link (si lo hay)
+        const sectionTitleMap = {
+            'dashboard': 'Dashboard',
+            'propiedades': 'Propiedades',
+            'category': 'Tipos de Propiedad',
+            'operation': 'Tipos de Operación',
+            'status': 'Estados de Publicación',
+            'currency': 'Tipos de Moneda',
+            'location': 'Ubicaciones',
+            'profile': 'Mi Perfil'
+        };
+        window.goToSection = function(target, linkEl) {
+            document.querySelectorAll('.adm-sidebar-link').forEach(l => l.classList.remove('active'));
+            if (linkEl) linkEl.classList.add('active');
+
+            const topbarTitle = document.getElementById('global-topbar-title');
+            if (topbarTitle && sectionTitleMap[target]) {
+                topbarTitle.textContent = sectionTitleMap[target];
+            }
+
+            document.querySelectorAll('.adm-section').forEach(sec => sec.style.display = 'none');
+            const sec = document.getElementById('section-' + target);
+            if (sec) sec.style.display = 'block';
+
+            document.getElementById('adm-sidebar').classList.remove('adm-sidebar-open');
+            if (target === 'profile') document.dispatchEvent(new CustomEvent('adm:enter-profile'));
+        };
+
+        // Sidebar navigation
         document.querySelectorAll('.adm-sidebar-link[data-section]').forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
-                document.querySelectorAll('.adm-sidebar-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                
-                const target = link.getAttribute('data-section');
-                document.querySelectorAll('.adm-section').forEach(sec => sec.style.display = 'none');
-                const sec = document.getElementById('section-' + target);
-                if (sec) sec.style.display = 'block';
+                window.goToSection(link.getAttribute('data-section'), link);
+            });
+        });
+
+        // Perfil del usuario (footer del sidebar) → sección "Mi Perfil"
+        document.getElementById('adm-sidebar-profile-btn')?.addEventListener('click', () => {
+            window.goToSection('profile', null);
+        });
+
+        // Sidebar toggle for mobile (open/close)
+        document.querySelectorAll('.adm-sidebar-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('adm-sidebar').classList.toggle('adm-sidebar-open');
             });
         });
     </script>

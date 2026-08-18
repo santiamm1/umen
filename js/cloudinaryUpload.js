@@ -176,7 +176,7 @@ async function handleFiles(files) {
     setTimeout(() => setStatus(''), 3000);
 }
 
-async function uploadFile(file) {
+export async function uploadFile(file) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
