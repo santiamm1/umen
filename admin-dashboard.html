@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=9.42">
+    <link rel="stylesheet" href="css/admin.css?v=9.43">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -253,11 +253,15 @@
 
         <!-- ======================= SECTION: PROPIEDADES ======================= -->
         <div id="section-propiedades" class="adm-section" style="display: none;">
-            
-            
+
+            <!-- Toggle Tabla / Kanban -->
+            <div class="adm-view-toggle">
+                <button type="button" class="adm-view-toggle-btn active" id="view-table-btn"><i class="fas fa-list"></i> Tabla</button>
+                <button type="button" class="adm-view-toggle-btn" id="view-kanban-btn"><i class="fas fa-columns"></i> Kanban</button>
+            </div>
 
             <!-- Tabla card -->
-                <div class="adm-card">
+            <div class="adm-card" id="properties-table-view">
 
             <!-- Tabla -->
             <div class="adm-table-wrap">
@@ -283,6 +287,10 @@
             <div id="pagination-container" style="display:flex; justify-content:center; gap:8px; padding: 16px 24px; border-top: 1px solid var(--adm-border);">
                 <!-- Botones se generarán dinámicamente -->
             </div>
+        </div>
+
+            <!-- Vista Kanban (por estado) -->
+            <div id="properties-kanban-view" class="adm-kanban" style="display:none"></div>
         </div>
         </div>
         <!-- /#section-propiedades -->
@@ -1134,7 +1142,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.37"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.38"></script>
     <script>
         // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
         lucide.createIcons();

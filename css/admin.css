@@ -556,6 +556,72 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     overflow: hidden;
 }
 
+/* ── Toggle Tabla / Kanban ────────────────────────────────────── */
+.adm-view-toggle { display: flex; gap: 4px; margin-bottom: 16px; background: var(--adm-white); border-radius: 10px; padding: 4px; width: fit-content; box-shadow: var(--adm-shadow); }
+.adm-view-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--adm-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+.adm-view-toggle-btn.active { background: var(--adm-primary); color: var(--adm-white); }
+
+/* ── Vista Kanban ─────────────────────────────────────────────── */
+.adm-kanban {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(260px, 1fr);
+    gap: 16px;
+    overflow-x: auto;
+    align-items: start;
+    padding-bottom: 8px;
+}
+.adm-kanban-col {
+    background: #f8fafc;
+    border-radius: var(--adm-radius);
+    border: 1px solid var(--adm-border);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 260px);
+    transition: background 0.15s ease;
+}
+.adm-kanban-col.drag-over { background: rgba(246, 140, 24, 0.08); border-color: rgba(246, 140, 24, 0.3); }
+.adm-kanban-col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--adm-border);
+}
+.adm-kanban-count { font-size: 0.75rem; font-weight: 700; color: var(--adm-muted); background: var(--adm-white); border-radius: 20px; padding: 2px 9px; }
+.adm-kanban-col-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; }
+.adm-kanban-empty { text-align: center; color: var(--adm-muted); font-size: 0.8rem; padding: 20px 0; }
+.adm-kanban-card {
+    background: var(--adm-white);
+    border: 1px solid var(--adm-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: grab;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.adm-kanban-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.adm-kanban-card.dragging { opacity: 0.4; }
+.adm-kanban-card-title { font-size: 0.88rem; font-weight: 500; color: var(--adm-dark); }
+.adm-kanban-card-meta { font-size: 0.76rem; color: var(--adm-muted); }
+.adm-kanban-card-price { font-size: 0.8rem; font-weight: 600; color: var(--adm-primary-hover); }
+
 .adm-card-header {
     display: flex;
     align-items: center;

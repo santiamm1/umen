@@ -251,8 +251,11 @@ function setupEventListeners() {
     
     document.getElementById('admin-search')?.addEventListener('input', () => {
         currentPage = 1;
-        renderAdminTable();
+        if (kanbanView) renderKanban(); else renderAdminTable();
     });
+
+    document.getElementById('view-table-btn')?.addEventListener('click', () => setPropertiesView('table'));
+    document.getElementById('view-kanban-btn')?.addEventListener('click', () => setPropertiesView('kanban'));
 
     Object.entries(TAXO_CONFIG).forEach(([taxoType, cfg]) => {
         const input  = document.getElementById(cfg.inputEl);
@@ -309,6 +312,7 @@ async function loadAdminData() {
         clearTimeout(timeout);
         
         renderAdminTable();
+        setPropertiesView(kanbanView ? 'kanban' : 'table');
         updateStats();
         renderPropertiesMap();
         fetchWeather();
@@ -616,20 +620,23 @@ function populateFilterTypeSelect() {
     filterTypeSelect.value = cur;
 }
 
+// Filtra por el término de búsqueda global (título, barrio, zona o código) — usado por tabla y kanban.
+function getSearchFilteredProperties() {
+    const searchTerm = (document.getElementById('admin-search')?.value || '').toLowerCase();
+    if (!searchTerm) return properties;
+    const s = searchTerm;
+    return properties.filter(p =>
+        (p.title || '').toLowerCase().includes(s) ||
+        (p.neighborhood || '').toLowerCase().includes(s) ||
+        (p.zone || '').toLowerCase().includes(s) ||
+        (p.code || '').toLowerCase().includes(s)
+    );
+}
+
 // ── Tabla de propiedades ──────────────────────────────────────────────────────
 function renderAdminTable() {
     const container = document.getElementById('pagination-container');
-    const searchTerm = (document.getElementById('admin-search')?.value || '').toLowerCase();
-    
-    // Filtrar por término de búsqueda (título, barrio, zona o código)
-    const listToRender = properties.filter(p => {
-        if (!searchTerm) return true;
-        const s = searchTerm;
-        return (p.title || '').toLowerCase().includes(s) ||
-               (p.neighborhood || '').toLowerCase().includes(s) ||
-               (p.zone || '').toLowerCase().includes(s) ||
-               (p.code || '').toLowerCase().includes(s);
-    });
+    const listToRender = getSearchFilteredProperties();
 
     if (!listToRender.length) {
         propertiesTbody.innerHTML = '<tr><td colspan="8" class="adm-table-empty">No se encontraron propiedades.</td></tr>';
@@ -681,6 +688,77 @@ window.goToPage = function(page) {
     currentPage = page;
     renderAdminTable();
 };
+
+// ── Vista Kanban (tableros por estado) ──────────────────────────────────────
+let kanbanView = localStorage.getItem('umen_properties_view') === 'kanban';
+
+function setPropertiesView(view) {
+    kanbanView = view === 'kanban';
+    localStorage.setItem('umen_properties_view', kanbanView ? 'kanban' : 'table');
+    document.getElementById('view-table-btn')?.classList.toggle('active', !kanbanView);
+    document.getElementById('view-kanban-btn')?.classList.toggle('active', kanbanView);
+    document.getElementById('properties-table-view').style.display = kanbanView ? 'none' : '';
+    document.getElementById('properties-kanban-view').style.display = kanbanView ? 'grid' : 'none';
+    if (kanbanView) renderKanban();
+}
+
+function renderKanban() {
+    const board = document.getElementById('properties-kanban-view');
+    if (!board) return;
+
+    // Columnas = estados configurados en "Gestión de Datos → Estado"; fallback si aún no hay ninguno.
+    const columns = statuses.length ? statuses.map(s => s.name) : ['Pendiente', 'Publicado', 'Pausa', 'Borrador', 'Vendido'];
+    const listToRender = getSearchFilteredProperties();
+
+    board.innerHTML = columns.map(statusName => {
+        const key = statusName.toLowerCase().replace(/ /g, '_');
+        const cards = listToRender.filter(p => (p.status || 'pendiente').toLowerCase() === statusName.toLowerCase());
+        return `
+            <div class="adm-kanban-col" data-status="${statusName}">
+                <div class="adm-kanban-col-header">
+                    <span class="adm-status-dot ${key}">${capitalize(statusName)}</span>
+                    <span class="adm-kanban-count">${cards.length}</span>
+                </div>
+                <div class="adm-kanban-col-body">
+                    ${cards.map(p => `
+                        <div class="adm-kanban-card" draggable="true" data-id="${p.id}" onclick="editProperty('${p.id}')">
+                            <span class="adm-kanban-card-title">${p.title || 'Sin título'}</span>
+                            <span class="adm-kanban-card-meta">${[p.neighborhood, p.zone].filter(Boolean).join(', ') || '—'}</span>
+                            <span class="adm-kanban-card-price">${p.consultarPrecio ? 'Consultar' : `${p.currency || ''} ${(p.price || 0).toLocaleString()}`}</span>
+                        </div>
+                    `).join('') || '<div class="adm-kanban-empty">Sin propiedades</div>'}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Drag & drop nativo — arrastrar una tarjeta a otra columna cambia su estado.
+    board.querySelectorAll('.adm-kanban-card').forEach(card => {
+        card.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', card.dataset.id);
+            card.classList.add('dragging');
+        });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    });
+    board.querySelectorAll('.adm-kanban-col').forEach(col => {
+        col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+        col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+        col.addEventListener('drop', async e => {
+            e.preventDefault();
+            col.classList.remove('drag-over');
+            const id = e.dataTransfer.getData('text/plain');
+            const newStatus = col.dataset.status;
+            const p = properties.find(x => x.id === id);
+            if (!p || (p.status || '').toLowerCase() === newStatus.toLowerCase()) return;
+            try {
+                await updateProperty(id, { status: newStatus });
+                p.status = newStatus;
+                showToast(`Estado actualizado a "${newStatus}".`, 'success');
+                renderKanban();
+            } catch (err) { showToast('Error al mover la propiedad: ' + err.message, 'error'); }
+        });
+    });
+}
 
 function capitalize(v) {
     v = (v || '').toString();
