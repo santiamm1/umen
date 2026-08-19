@@ -30,6 +30,41 @@ window.showToast = function(message, type = 'success') {
     }, 3000);
 };
 
+// Reemplaza al confirm() nativo del navegador por un modal con el estilo del panel.
+function confirmDialog(message, { title = '¿Confirmar acción?', acceptLabel = 'Aceptar' } = {}) {
+    return new Promise(resolve => {
+        const overlay  = document.getElementById('confirm-modal');
+        const titleEl  = document.getElementById('confirm-modal-title');
+        const msgEl    = document.getElementById('confirm-modal-message');
+        const cancelBtn = document.getElementById('confirm-modal-cancel');
+        const acceptBtn = document.getElementById('confirm-modal-accept');
+        if (!overlay) { resolve(confirm(message)); return; }
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        acceptBtn.textContent = acceptLabel;
+        overlay.style.display = 'flex';
+
+        const cleanup = (result) => {
+            overlay.style.display = 'none';
+            cancelBtn.removeEventListener('click', onCancel);
+            acceptBtn.removeEventListener('click', onAccept);
+            overlay.removeEventListener('click', onOverlay);
+            document.removeEventListener('keydown', onKeydown);
+            resolve(result);
+        };
+        const onCancel  = () => cleanup(false);
+        const onAccept  = () => cleanup(true);
+        const onOverlay = (e) => { if (e.target === overlay) cleanup(false); };
+        const onKeydown = (e) => { if (e.key === 'Escape') cleanup(false); };
+
+        cancelBtn.addEventListener('click', onCancel);
+        acceptBtn.addEventListener('click', onAccept);
+        overlay.addEventListener('click', onOverlay);
+        document.addEventListener('keydown', onKeydown);
+    });
+}
+
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const logoutBtn          = document.getElementById('logout-btn');
 const propertiesTbody    = document.getElementById('properties-tbody');
@@ -201,6 +236,7 @@ function setupEventListeners() {
     logoutBtn?.addEventListener('click', handleLogout);
     newPropertyBtn?.addEventListener('click', openNewPropertyModal);
     propertyForm?.addEventListener('submit', handleFormSubmit);
+    document.getElementById('save-draft-btn')?.addEventListener('click', handleSaveDraft);
     document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', closeModal));
 
     document.getElementById('dashboard-date-filter')?.addEventListener('change', updateStats);
@@ -274,6 +310,7 @@ async function loadAdminData() {
         
         renderAdminTable();
         updateStats();
+        renderPropertiesMap();
         fetchWeather();
         updateGreeting();
         const currentUser = window.auth?.currentUser;
@@ -485,7 +522,8 @@ function handleTaxoEdit(taxoType, id, chipEl) {
 async function handleTaxoDelete(taxoType, id) {
     const cfg  = TAXO_CONFIG[taxoType];
     const item = cfg.getList().find(i => i.id === id);
-    if (!item || !confirm(`¿Eliminar "${item.name}"?`)) return;
+    if (!item) return;
+    if (!await confirmDialog(`¿Eliminar "${item.name}"?`, { acceptLabel: 'Eliminar' })) return;
     try {
         await cfg.delete(id);
         cfg.setList(await cfg.fetch());
@@ -609,7 +647,7 @@ function renderAdminTable() {
     propertiesTbody.innerHTML = paginatedProps.map(p => `
         <tr>
             <td><span class="adm-data-mono">${p.code || p.id.slice(0,6)}</span></td>
-            <td><strong>${p.title}</strong><span class="adm-table-subtitle">${p.type || ''}</span></td>
+            <td><span class="adm-table-title">${p.title}</span><span class="adm-table-subtitle">${p.type || ''}</span></td>
             <td><span class="adm-status-dot ${(p.operation || '').toLowerCase().replace(/ /g, '_')}">${capitalize(p.operation)}</span></td>
             <td><span class="adm-status-dot ${(p.status || 'pendiente').toLowerCase().replace(/ /g, '_')}">${capitalize(p.status || 'Pendiente')}</span></td>
             <td><span class="adm-data-mono">${p.consultarPrecio ? 'Consultar' : ((p.currency||'') + ' ' + (p.price||0).toLocaleString())}</span></td>
@@ -618,6 +656,7 @@ function renderAdminTable() {
             <td>
                 <div class="action-btns">
                     <button class="btn-edit" onclick="editProperty('${p.id}')" title="Editar"><i class="fas fa-edit"></i></button>
+                    <button class="btn-duplicate" onclick="handleDuplicateProperty('${p.id}')" title="Duplicar"><i class="fas fa-copy"></i></button>
                     <button class="btn-delete" onclick="handleDeleteProperty('${p.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
@@ -651,6 +690,38 @@ function formatDate(v) {
     if (!v) return '—';
     const d = v.toDate ? v.toDate() : new Date(v);
     return isNaN(d) ? '—' : d.toLocaleDateString('es-AR');
+}
+
+// ── Mapa de propiedades (Leaflet + OpenStreetMap, gratis) ──────────────────────
+let propertiesMap = null;
+let propertiesMarkers = null;
+function renderPropertiesMap() {
+    const mapEl = document.getElementById('properties-map');
+    if (!mapEl || typeof L === 'undefined') return;
+
+    if (!propertiesMap) {
+        propertiesMap = L.map(mapEl).setView([-34.6037, -58.3816], 12); // Buenos Aires
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            maxZoom: 19
+        }).addTo(propertiesMap);
+        propertiesMarkers = L.layerGroup().addTo(propertiesMap);
+    }
+
+    propertiesMarkers.clearLayers();
+    const geoProps = properties.filter(p => p.geoLat && p.geoLng);
+    geoProps.forEach(p => {
+        const price = p.price ? `${p.currency || 'USD'} ${Number(p.price).toLocaleString('es-AR')}` : 'Consultar precio';
+        L.marker([p.geoLat, p.geoLng])
+            .bindPopup(`<strong>${p.title || 'Propiedad'}</strong><br>${capitalize(p.status || '')}<br>${price}`)
+            .addTo(propertiesMarkers);
+    });
+
+    if (geoProps.length) {
+        propertiesMap.fitBounds(geoProps.map(p => [p.geoLat, p.geoLng]), { padding: [30, 30], maxZoom: 15 });
+    }
+    // Leaflet necesita este recalculo si el contenedor estaba oculto al inicializar
+    setTimeout(() => propertiesMap.invalidateSize(), 100);
 }
 
 function updateStats() {
@@ -1076,14 +1147,47 @@ window.editProperty = async id => {
     propertyModal.style.display = 'flex';
 };
 
+window.handleDuplicateProperty = async id => {
+    const p = properties.find(x => x.id === id);
+    if (!p) return;
+    const { id: _id, createdAt, updatedAt, ...rest } = p;
+    const data = { ...rest, code: '', title: `${p.title} (duplicado)`, status: 'borrador' };
+    try {
+        await createProperty(data);
+        showToast('Propiedad duplicada como borrador.', 'success');
+        loadAdminData();
+    } catch (e) { showToast('Error al duplicar: ' + e.message, 'error'); }
+};
+
 window.handleDeleteProperty = async id => {
-    if (!confirm('¿Eliminar esta propiedad? Esta acción no se puede deshacer.')) return;
+    const ok = await confirmDialog('Esta acción no se puede deshacer.', { title: '¿Eliminar esta propiedad?', acceptLabel: 'Eliminar' });
+    if (!ok) return;
     try {
         await deleteProperty(id);
         showToast('Propiedad eliminada.', 'success');
         loadAdminData();
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
+
+// Guarda lo cargado hasta el momento como borrador, sin exigir los campos obligatorios del form.
+async function handleSaveDraft() {
+    const data = readFormData();
+    if (!data.title.trim()) { showToast('Ingresá al menos un título para guardar el borrador.', 'error'); return; }
+    data.status = 'borrador';
+    if (!data.distribucion?.length) delete data.distribucion;
+    if (!data.extras?.length) delete data.extras;
+    if (!data.amenities?.length) delete data.amenities;
+    try {
+        if (editingId) {
+            await updateProperty(editingId, data);
+        } else {
+            await createProperty(data);
+        }
+        showToast('Borrador guardado.', 'success');
+        closeModal();
+        loadAdminData();
+    } catch (e) { showToast('Error al guardar el borrador: ' + e.message, 'error'); }
+}
 
 async function handleFormSubmit(e) {
     e.preventDefault();

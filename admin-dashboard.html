@@ -8,8 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=9.31">
+    <link rel="stylesheet" href="css/admin.css?v=9.40">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script type="module">
@@ -34,47 +37,50 @@
         <!-- Brand -->
         <div class="adm-brand">
             <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN">
+            <button type="button" id="adm-sidebar-collapse-btn" class="adm-sidebar-collapse-btn" title="Colapsar barra lateral">
+                <i data-lucide="chevrons-left"></i>
+            </button>
         </div>
 
         <nav class="adm-sidebar-nav">
             <div class="adm-sidebar-section">
                 <span class="adm-sidebar-section-label">General</span>
-                <a href="#" class="adm-sidebar-link active" data-section="dashboard">
-                    <i class="fas fa-chart-pie"></i>
+                <a href="#" class="adm-sidebar-link active" data-section="dashboard" title="Dashboard">
+                    <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="adm-sidebar-link" data-section="propiedades">
-                    <i class="fas fa-building"></i>
+                <a href="#" class="adm-sidebar-link" data-section="propiedades" title="Propiedades">
+                    <i data-lucide="building-2"></i>
                     <span>Propiedades</span>
                 </a>
             </div>
             <div class="adm-sidebar-section">
                 <span class="adm-sidebar-section-label">Gestión de Datos</span>
-                <a href="#" class="adm-sidebar-link" data-section="category">
-                    <i class="fas fa-home"></i>
+                <a href="#" class="adm-sidebar-link" data-section="category" title="Tipo de Propiedad">
+                    <i data-lucide="home"></i>
                     <span>Tipo de Propiedad</span>
                 </a>
-                <a href="#" class="adm-sidebar-link" data-section="operation">
-                    <i class="fas fa-handshake"></i>
+                <a href="#" class="adm-sidebar-link" data-section="operation" title="Operación">
+                    <i data-lucide="handshake"></i>
                     <span>Operación</span>
                 </a>
-                <a href="#" class="adm-sidebar-link" data-section="status">
-                    <i class="fas fa-flag"></i>
+                <a href="#" class="adm-sidebar-link" data-section="status" title="Estado">
+                    <i data-lucide="flag"></i>
                     <span>Estado</span>
                 </a>
-                <a href="#" class="adm-sidebar-link" data-section="currency">
-                    <i class="fas fa-money-bill-wave"></i>
+                <a href="#" class="adm-sidebar-link" data-section="currency" title="Moneda">
+                    <i data-lucide="banknote"></i>
                     <span>Moneda</span>
                 </a>
-                <a href="#" class="adm-sidebar-link" data-section="location">
-                    <i class="fas fa-map-marker-alt"></i>
+                <a href="#" class="adm-sidebar-link" data-section="location" title="Ubicación">
+                    <i data-lucide="map-pin"></i>
                     <span>Ubicación</span>
                 </a>
             </div>
             <div class="adm-sidebar-section">
                 <span class="adm-sidebar-section-label">Sitio</span>
-                <a href="index.html" target="_blank" class="adm-sidebar-link">
-                    <i class="fas fa-globe"></i>
+                <a href="index.html" target="_blank" class="adm-sidebar-link" title="Ver sitio">
+                    <i data-lucide="globe"></i>
                     <span>Ver sitio</span>
                 </a>
             </div>
@@ -91,7 +97,7 @@
                 </div>
             </button>
             <button id="sidebar-logout-btn" class="adm-sidebar-logout">
-                <i class="fas fa-sign-out-alt"></i>
+                <i data-lucide="log-out"></i>
                 <span>Cerrar sesión</span>
             </button>
         </div>
@@ -235,8 +241,14 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Mapa -->
+                <div class="adm-chart-card" style="margin-top:20px">
+                    <h4>Mapa de Propiedades</h4>
+                    <div id="properties-map" style="height:420px;border-radius:8px;margin-top:12px"></div>
+                </div>
             </div>
-            
+
         </div>
 
         <!-- ======================= SECTION: PROPIEDADES ======================= -->
@@ -1113,6 +1125,7 @@
                     <div style="display:flex;gap:8px;align-items:center">
                         <button type="button" class="adm-btn adm-btn-secondary" id="tab-prev-btn"><i class="fas fa-chevron-left"></i> Anterior</button>
                         <button type="button" class="adm-btn adm-btn-secondary" id="tab-next-btn">Siguiente <i class="fas fa-chevron-right"></i></button>
+                        <button type="button" class="adm-btn adm-btn-secondary" id="save-draft-btn" title="Guarda lo cargado hasta ahora, sin exigir los campos obligatorios"><i class="fas fa-file-pen"></i> Guardar borrador</button>
                         <button type="submit" class="adm-btn adm-btn-primary"><i class="fas fa-save"></i> Guardar</button>
                     </div>
                 </div>
@@ -1120,8 +1133,11 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.28"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.35"></script>
     <script>
+        // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
+        lucide.createIcons();
+
         // Sidebar logout → clicks the main logout button
         document.getElementById('sidebar-logout-btn').addEventListener('click', () => {
             document.getElementById('logout-btn').click();
@@ -1174,7 +1190,31 @@
                 document.getElementById('adm-sidebar').classList.toggle('adm-sidebar-open');
             });
         });
+
+        // Colapsar/expandir sidebar en desktop — el usuario decide, queda guardado
+        const collapseBtn = document.getElementById('adm-sidebar-collapse-btn');
+        const wrapper = document.querySelector('.adm-wrapper');
+        if (localStorage.getItem('umen_sidebar_collapsed') === 'true') {
+            wrapper.classList.add('adm-sidebar-collapsed');
+        }
+        collapseBtn?.addEventListener('click', () => {
+            const collapsed = wrapper.classList.toggle('adm-sidebar-collapsed');
+            localStorage.setItem('umen_sidebar_collapsed', collapsed);
+        });
     </script>
+
+    <!-- ── Modal de confirmación (reemplaza al confirm() nativo) ────────── -->
+    <div id="confirm-modal" class="adm-modal-overlay" style="display:none">
+        <div class="adm-confirm-modal">
+            <div class="adm-confirm-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <h3 id="confirm-modal-title">¿Confirmar acción?</h3>
+            <p id="confirm-modal-message"></p>
+            <div class="adm-confirm-actions">
+                <button type="button" class="adm-btn adm-btn-secondary" id="confirm-modal-cancel">Cancelar</button>
+                <button type="button" class="adm-btn adm-btn-danger" id="confirm-modal-accept">Eliminar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ── Toast Notifications ────────────────────────────────────────── -->
     <div id="toast-container" class="adm-toast-container"></div>
