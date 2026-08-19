@@ -775,7 +775,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 
 .action-btns { display: flex; gap: 8px; }
 
-.btn-edit, .btn-duplicate, .btn-delete {
+.btn-edit, .btn-duplicate, .btn-print, .btn-delete {
     border: none;
     background: var(--adm-bg);
     width: 36px;
@@ -791,6 +791,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 }
 .btn-edit:hover { background: #e0f2fe; color: #0284c7; }
 .btn-duplicate:hover { background: #f1f5f9; color: #475569; }
+.btn-print:hover { background: #f0fdf4; color: #16a34a; }
 .btn-delete:hover { background: #fee2e2; color: #ef4444; }
 
 /* ── Taxonomies (Gestión de Datos) ─────────────────────────── */
@@ -1743,4 +1744,44 @@ details.adm-taxo-accordion[open] summary .adm-taxo-chevron { transform: rotate(1
 @keyframes toast-slide-out {
     from { transform: translateX(0); opacity: 1; }
     to { transform: translateX(120%); opacity: 0; }
+}
+
+/* ── Ficha imprimible de propiedad ────────────────────────────── */
+#print-sheet { display: none; }
+
+#print-sheet .print-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #F68C18;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+#print-sheet .print-header img { height: 36px; }
+#print-sheet .print-header-code { font-size: 0.85rem; color: #666; font-weight: 600; }
+#print-sheet .print-cover { width: 100%; max-height: 320px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+#print-sheet h1 { font-size: 1.4rem; margin: 0 0 6px; color: #1A1D20; }
+#print-sheet .print-price { font-size: 1.1rem; font-weight: 700; color: #F68C18; margin-bottom: 20px; }
+#print-sheet .print-facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px 24px;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 0;
+    margin-bottom: 20px;
+}
+#print-sheet .print-fact { display: flex; flex-direction: column; gap: 2px; }
+#print-sheet .print-fact span { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888; }
+#print-sheet .print-fact strong { font-size: 0.95rem; color: #1A1D20; }
+#print-sheet .print-section h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #444; margin: 0 0 8px; }
+#print-sheet .print-section p { font-size: 0.9rem; line-height: 1.6; color: #333; white-space: pre-line; }
+#print-sheet .print-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#print-sheet .print-gallery img { width: 100%; height: 130px; object-fit: cover; border-radius: 6px; break-inside: avoid; }
+#print-sheet .print-footer { margin-top: 32px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 0.75rem; color: #888; text-align: center; }
+
+@media print {
+    body * { visibility: hidden; }
+    #print-sheet, #print-sheet * { visibility: visible; }
+    #print-sheet { display: block; position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
 }

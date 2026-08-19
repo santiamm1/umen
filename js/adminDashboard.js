@@ -657,6 +657,7 @@ function renderAdminTable() {
                 <div class="action-btns">
                     <button class="btn-edit" onclick="editProperty('${p.id}')" title="Editar"><i class="fas fa-edit"></i></button>
                     <button class="btn-duplicate" onclick="handleDuplicateProperty('${p.id}')" title="Duplicar"><i class="fas fa-copy"></i></button>
+                    <button class="btn-print" onclick="printPropertySheet('${p.id}')" title="Imprimir ficha / PDF"><i class="fas fa-print"></i></button>
                     <button class="btn-delete" onclick="handleDeleteProperty('${p.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
@@ -1157,6 +1158,64 @@ window.handleDuplicateProperty = async id => {
         showToast('Propiedad duplicada como borrador.', 'success');
         loadAdminData();
     } catch (e) { showToast('Error al duplicar: ' + e.message, 'error'); }
+};
+
+// Arma la ficha imprimible de la propiedad y dispara el diálogo de impresión
+// del navegador (el usuario elige "Guardar como PDF" ahí — sin librerías extra).
+window.printPropertySheet = id => {
+    const p = properties.find(x => x.id === id);
+    if (!p) return;
+
+    const price = p.consultarPrecio ? 'Consultar precio' : `${p.currency || 'USD'} ${(p.price || 0).toLocaleString('es-AR')}`;
+    const ubicacion = [p.neighborhood, p.zone].filter(Boolean).join(', ');
+    const images = p.images || [];
+    const cover = images[0] || '';
+    const gallery = images.slice(1);
+
+    const facts = [
+        ['Operación', capitalize(p.operation)],
+        ['Estado', capitalize(p.status)],
+        ['Tipo', p.type],
+        ['Ubicación', ubicacion],
+        ['Superficie', p.surface ? `${p.surface} m²` : ''],
+        ['Dormitorios', p.dormitorios || p.bedrooms],
+        ['Baños', p.cantBanos || p.bathrooms],
+        ['Antigüedad', p.antiguedad ? `${p.antiguedad} años` : ''],
+        ['Cocheras', p.garage],
+    ].filter(([, v]) => v);
+
+    document.getElementById('print-sheet').innerHTML = `
+        <div class="print-header">
+            <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN">
+            <div class="print-header-code">Cód. ${p.code || id.slice(0, 6)}</div>
+        </div>
+        ${cover ? `<img class="print-cover" src="${cover}" alt="">` : ''}
+        <h1>${p.title || 'Propiedad'}</h1>
+        <div class="print-price">${price}</div>
+        <div class="print-facts">
+            ${facts.map(([label, value]) => `
+                <div class="print-fact"><span>${label}</span><strong>${value}</strong></div>
+            `).join('')}
+        </div>
+        ${p.description ? `<div class="print-section"><h2>Descripción</h2><p>${p.description}</p></div>` : ''}
+        ${gallery.length ? `
+            <div class="print-section"><h2>Fotos</h2>
+                <div class="print-gallery">
+                    ${gallery.map(url => `<img src="${url}" alt="">`).join('')}
+                </div>
+            </div>
+        ` : ''}
+        <div class="print-footer">${p.branch || 'UMEN Real Estate'} — Ficha generada el ${new Date().toLocaleDateString('es-AR')}</div>
+    `;
+
+    // Espera a que todas las imágenes terminen de cargar antes de imprimir,
+    // si no algunas quedan en blanco en el PDF (el navegador imprime antes de que lleguen).
+    const imgs = Array.from(document.querySelectorAll('#print-sheet img'));
+    const pending = imgs.filter(img => !img.complete);
+    if (!pending.length) { window.print(); return; }
+    let remaining = pending.length;
+    const done = () => { remaining--; if (remaining <= 0) window.print(); };
+    pending.forEach(img => { img.addEventListener('load', done, { once: true }); img.addEventListener('error', done, { once: true }); });
 };
 
 window.handleDeleteProperty = async id => {

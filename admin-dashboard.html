@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=9.40">
+    <link rel="stylesheet" href="css/admin.css?v=9.42">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -635,8 +635,9 @@
                                 <textarea id="description" rows="4" placeholder="Describí la propiedad..." required></textarea>
                             </div>
                             <div class="adm-form-group">
-                                <label for="observaciones">Observaciones internas</label>
-                                <textarea id="observaciones" rows="2" placeholder="Notas adicionales, información para el equipo..."></textarea>
+                                <label for="observaciones"><i class="fas fa-lock" style="font-size:0.75em;color:var(--adm-muted)"></i> Notas privadas</label>
+                                <textarea id="observaciones" rows="4" placeholder="Notas o referencias personales sobre esta propiedad..."></textarea>
+                                <span class="adm-hint">Solo visible acá, en el panel interno. No se publica en el sitio ni en la ficha impresa.</span>
                             </div>
                         </div>
 
@@ -1133,7 +1134,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.35"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.37"></script>
     <script>
         // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
         lucide.createIcons();
@@ -1215,6 +1216,9 @@
             </div>
         </div>
     </div>
+
+    <!-- ── Ficha imprimible de propiedad (solo visible al imprimir / exportar PDF) ── -->
+    <div id="print-sheet"></div>
 
     <!-- ── Toast Notifications ────────────────────────────────────────── -->
     <div id="toast-container" class="adm-toast-container"></div>
