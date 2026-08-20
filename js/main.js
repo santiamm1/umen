@@ -54,6 +54,7 @@ let currentFilters = {
 
     setupHeaderScroll();
     setupMobileMenu();
+    setupScrollReveal();
 
     const isFirebaseConfigured = checkFirebaseConfig();
     if (isFirebaseConfigured) {
@@ -164,10 +165,37 @@ function setupHeaderScroll() {
             header.classList.remove('scrolled');
         }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     // Ejecutar una vez al inicio en caso de recargar con scroll
     handleScroll();
+
+    // header es fixed y su alto varía según ancho de viewport (wrap de topbar/nav) —
+    // se mide en vivo para que el hero siempre reserve el espacio justo debajo.
+    const syncHeaderHeight = () => {
+        document.documentElement.style.setProperty('--header-h', `${header.offsetHeight}px`);
+    };
+    syncHeaderHeight();
+    window.addEventListener('resize', syncHeaderHeight);
+    window.addEventListener('load', syncHeaderHeight);
+}
+
+// Animar entrada de las tarjetas de categorías al hacer scroll
+function setupScrollReveal() {
+    const items = document.querySelectorAll('#destacado .item');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    items.forEach((item, i) => {
+        item.style.transitionDelay = `${i * 80}ms`;
+        observer.observe(item);
+    });
 }
 
 // Configurar menú móvil
