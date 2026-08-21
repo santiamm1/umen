@@ -1,6 +1,6 @@
 // propiedades.js - Página de listado completo de propiedades UMEN
 
-import { getProperties, getCategories, getCities, getAllNeighborhoods } from './propertyService.js';
+import { getProperties, getCategories, getCities, getAllNeighborhoods, getHotelNotes } from './propertyService.js';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -115,6 +115,7 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
     populatePropertyTypes();
     setupCustomSelect();
     setupSearchBox();
+    applyFiltersFromUrl();
     setupNumberFilterBtns();
     setupRangeFilters();
     renderTypePills();
@@ -178,16 +179,17 @@ function renderNeighborhoodCheckboxes() {
 // ── Setup: tipos de propiedad ─────────────────────────────────────────────────
 
 function populatePropertyTypes() {
+    // El valor usa el nombre de la categoría: es lo que Firestore guarda en el campo 'type' de cada propiedad
     propertyTypeSelect.innerHTML = `
         <option value="">Todo tipo de propiedades</option>
-        ${categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+        ${categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
     `;
 
     const dropdown = document.querySelector('#custom-property-type .custom-select-dropdown');
     if (!dropdown) return;
     const options = [
         { value: '', label: 'Todo tipo de propiedades' },
-        ...categories.map(c => ({ value: c.id, label: c.name }))
+        ...categories.map(c => ({ value: c.name, label: c.name }))
     ];
     dropdown.innerHTML = options.map((o, i) =>
         `<li class="custom-select-option${i === 0 ? ' selected' : ''}" role="option" data-value="${o.value}">${o.label}</li>`
@@ -264,6 +266,36 @@ function setupFilterToggle() {
             sidebarOverlay.classList.remove('active');
             filterToggleBtn.innerHTML = '<i class="fas fa-sliders-h"></i> Filtros';
         });
+    }
+}
+
+// Lee operation/category/keyword de la URL (llegan del buscador del home) y sincroniza filtros + UI
+function applyFiltersFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const operation = params.get('operation');
+    const category = params.get('category');
+    const keyword = params.get('keyword');
+
+    if (operation) {
+        currentFilters.operation = operation;
+        const radio = document.querySelector(`input[name="operation"][value="${operation}"]`);
+        if (radio) radio.checked = true;
+    }
+
+    if (category) {
+        currentFilters.category = category;
+        propertyTypeSelect.value = category;
+        const opt = document.querySelector(`#custom-property-type .custom-select-option[data-value="${category}"]`);
+        if (opt) {
+            document.querySelector('#custom-property-type .custom-select-value').textContent = opt.textContent;
+            document.querySelectorAll('#custom-property-type .custom-select-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+        }
+    }
+
+    if (keyword) {
+        currentFilters.keyword = keyword.toLowerCase();
+        quicksearch.value = keyword;
     }
 }
 
@@ -448,7 +480,6 @@ async function fetchAndRender() {
             const apiFilters = { operation: currentFilters.operation };
             if (currentFilters.category) apiFilters.category = currentFilters.category;
             results = await getProperties(apiFilters);
-            if (results.length === 0) results = getDemoProperties();
         } else {
             results = getDemoProperties();
         }
@@ -473,7 +504,8 @@ function applyFiltersAndRender() {
             (p.neighborhood && p.neighborhood.toLowerCase().includes(kw)) ||
             (p.zone && p.zone.toLowerCase().includes(kw)) ||
             (p.description && p.description.toLowerCase().includes(kw)) ||
-            (p.type && p.type.toLowerCase().includes(kw))
+            (p.type && p.type.toLowerCase().includes(kw)) ||
+            (kw.includes('buenos aires') && p.zone && isZonaBuenosAires(p.zone))
         );
     }
 
@@ -556,6 +588,49 @@ function applyFiltersAndRender() {
     renderActiveFilterTags();
     renderPage(filtered);
     renderPagination(filtered.length);
+    renderHotelsExternalSection();
+}
+
+// El catálogo completo de hoteles vive en Hoteles en Venta; acá solo mostramos accesos a notas por región
+// cargadas desde el admin (sección "Notas de Hoteles"). Cada nota abre en hotel-nota.html.
+let hotelNotesCache = null;
+
+async function renderHotelsExternalSection() {
+    const section = document.getElementById('hotels-external-section');
+    const list = document.getElementById('hotels-external-list');
+    if (!section || !list) return;
+
+    if (currentFilters.category !== 'Hotel') {
+        section.style.display = 'none';
+        list.innerHTML = '';
+        return;
+    }
+
+    section.style.display = '';
+
+    if (hotelNotesCache === null) {
+        list.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>';
+        hotelNotesCache = await getHotelNotes();
+    }
+
+    if (hotelNotesCache.length === 0) {
+        list.innerHTML = '';
+        return;
+    }
+
+    list.innerHTML = hotelNotesCache.map(n => `
+        <a href="${n.slug ? 'hoteles/' + n.slug : 'hotel-nota.html?id=' + n.id}" class="item">
+            <div class="media">
+                <img src="${n.image || 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=65'}" alt="${n.title}">
+                <span class="cat">${n.region || ''}</span>
+            </div>
+            <div class="item-content">
+                <h4>${n.title}</h4>
+                <p class="item-excerpt">${n.excerpt || ''}</p>
+                <span class="item-more">Leer más <i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+    `).join('');
 }
 
 function updateResultsTitle() {
@@ -818,6 +893,12 @@ function clearAllFilters() {
 }
 
 // ── Propiedades demo ──────────────────────────────────────────────────────────
+
+// Las zonas 'Capital Federal' y 'GBA *' son todas parte del área metropolitana de Buenos Aires
+function isZonaBuenosAires(zone) {
+    const z = zone.toLowerCase();
+    return z.startsWith('capital federal') || z.startsWith('gba');
+}
 
 function getDemoProperties() {
     return [

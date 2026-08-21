@@ -53,6 +53,14 @@
                     <i data-lucide="building-2"></i>
                     <span>Propiedades</span>
                 </a>
+                <a href="#" class="adm-sidebar-link" data-section="hotelnotes" title="Notas de Hoteles">
+                    <i data-lucide="newspaper"></i>
+                    <span>Notas de Hoteles</span>
+                </a>
+                <a href="#" class="adm-sidebar-link" data-section="blog" title="Blog">
+                    <i data-lucide="book-open"></i>
+                    <span>Blog</span>
+                </a>
             </div>
             <div class="adm-sidebar-section">
                 <span class="adm-sidebar-section-label">Gestión de Datos</span>
@@ -292,14 +300,150 @@
             <!-- Vista Kanban (por estado) -->
             <div id="properties-kanban-view" class="adm-kanban" style="display:none"></div>
         </div>
-        </div>
         <!-- /#section-propiedades -->
 
         <!-- ======================= SECTIONS: GESTIÓN DE DATOS ======================= -->
         
         <!-- Tipo de Propiedad -->
+        <!-- Notas de Hoteles -->
+        <div id="section-hotelnotes" class="adm-section" style="display:none;">
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div>
+                        <h2><i class="fas fa-newspaper" style="color:var(--adm-primary)"></i> Notas de Hoteles</h2>
+                        <p>Contenido tipo blog por región que se muestra al filtrar "Hotel" en Propiedades. El catálogo completo de hoteles vive en Hoteles en Venta.</p>
+                    </div>
+                    <button type="button" class="adm-btn adm-btn-primary" id="new-hotelnote-btn"><i class="fas fa-plus"></i> Nueva nota</button>
+                </div>
+
+                <div id="hotelnote-form-wrap" style="display:none; padding: 24px; border-bottom: 1px solid var(--adm-border, #eee);">
+                    <form id="hotelnote-form">
+                        <div class="adm-form-grid">
+                            <div class="adm-form-group">
+                                <label for="hn-title">Título *</label>
+                                <input type="text" id="hn-title" placeholder='Ej: Hoteles en venta en Mendoza' required>
+                            </div>
+                            <div class="adm-form-group">
+                                <label for="hn-region">Región *</label>
+                                <input type="text" id="hn-region" placeholder='Ej: Mendoza' required>
+                            </div>
+                            <div class="adm-form-group" style="grid-column: 1 / -1;">
+                                <label for="hn-excerpt">Resumen (se ve en la tarjeta)</label>
+                                <input type="text" id="hn-excerpt" placeholder="Bajada corta para la tarjeta">
+                            </div>
+                            <div class="adm-form-group" style="grid-column: 1 / -1;">
+                                <label for="hn-body">Contenido</label>
+                                <textarea id="hn-body" rows="6" placeholder="Texto tipo blog para la nota individual"></textarea>
+                            </div>
+                            <div class="adm-form-group">
+                                <label for="hn-external-url">Link al filtro en Hoteles en Venta *</label>
+                                <input type="url" id="hn-external-url" placeholder="https://www.hotelesenventa.com/..." required>
+                            </div>
+                        </div>
+                        <div class="adm-form-group" style="margin-top: 12px;">
+                            <label>Imagen</label>
+                            <div id="hotelnote-image-gallery"></div>
+                        </div>
+                        <div style="display:flex; gap:10px; margin-top: 16px;">
+                            <button type="submit" class="adm-btn adm-btn-primary">Guardar</button>
+                            <button type="button" class="adm-btn" id="cancel-hotelnote-btn">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Región</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hotelnotes-table-body">
+                            <tr><td colspan="3" class="adm-table-empty">Cargando notas...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog -->
+        <div id="section-blog" class="adm-section" style="display:none;">
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div>
+                        <h2><i class="fas fa-book-open" style="color:var(--adm-primary)"></i> Blog</h2>
+                        <p>Notas de interés y urbanismo. Las últimas 3 aparecen en el home.</p>
+                    </div>
+                    <button type="button" class="adm-btn adm-btn-primary" id="new-blogpost-btn"><i class="fas fa-plus"></i> Nueva nota</button>
+                </div>
+
+                <div id="blogpost-form-wrap" style="display:none; padding: 24px; border-bottom: 1px solid var(--adm-border, #eee);">
+                    <form id="blogpost-form">
+                        <div class="adm-form-grid">
+                            <div class="adm-form-group">
+                                <label for="bp-title">Título *</label>
+                                <input type="text" id="bp-title" placeholder='Ej: Recoleta: Oportunidades inmobiliarias...' required>
+                            </div>
+                            <div class="adm-form-group">
+                                <label for="bp-category">Categoría *</label>
+                                <select id="bp-category" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Barrios y Urbanismo">Barrios y Urbanismo</option>
+                                    <option value="Tendencias">Tendencias</option>
+                                    <option value="Informes de Mercado">Informes de Mercado</option>
+                                    <option value="Inversión">Inversión</option>
+                                    <option value="Consejos">Consejos</option>
+                                </select>
+                            </div>
+                            <div class="adm-form-group" style="grid-column: 1 / -1;">
+                                <label for="bp-excerpt">Resumen (se ve en la tarjeta)</label>
+                                <input type="text" id="bp-excerpt" placeholder="Bajada corta para la tarjeta">
+                            </div>
+                            <div class="adm-form-group" style="grid-column: 1 / -1;">
+                                <label for="bp-body">Contenido</label>
+                                <textarea id="bp-body" rows="8" placeholder="Texto de la nota"></textarea>
+                            </div>
+                            <div class="adm-form-group">
+                                <label for="bp-author-name">Autor</label>
+                                <input type="text" id="bp-author-name" placeholder="Ej: Equipo UMEN">
+                            </div>
+                            <div class="adm-form-group">
+                                <label for="bp-author-role">Cargo del autor</label>
+                                <input type="text" id="bp-author-role" placeholder="Ej: Asesores Inmobiliarios">
+                            </div>
+                        </div>
+                        <div class="adm-form-group" style="margin-top: 12px;">
+                            <label>Imagen de portada</label>
+                            <div id="blogpost-image-gallery"></div>
+                        </div>
+                        <div style="display:flex; gap:10px; margin-top: 16px;">
+                            <button type="submit" class="adm-btn adm-btn-primary">Guardar</button>
+                            <button type="button" class="adm-btn" id="cancel-blogpost-btn">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Categoría</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="blogposts-table-body">
+                            <tr><td colspan="3" class="adm-table-empty">Cargando notas...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div id="section-category" class="adm-section" style="display:none;">
-            
+
             <div class="adm-card">
                     <div class="adm-card-header">
                         <div>
@@ -1156,6 +1300,8 @@
         const sectionTitleMap = {
             'dashboard': 'Dashboard',
             'propiedades': 'Propiedades',
+            'hotelnotes': 'Notas de Hoteles',
+            'blog': 'Blog',
             'category': 'Tipos de Propiedad',
             'operation': 'Tipos de Operación',
             'status': 'Estados de Publicación',
@@ -1172,12 +1318,21 @@
                 topbarTitle.textContent = sectionTitleMap[target];
             }
 
+            // El botón "Nueva propiedad" y los filtros de propiedades solo tienen sentido
+            // en Dashboard y Propiedades — en el resto de las secciones (Notas de Hoteles, taxonomías, etc.) sobran.
+            const showPropertyTools = target === 'dashboard' || target === 'propiedades';
+            document.getElementById('new-property-btn')?.style.setProperty('display', showPropertyTools ? '' : 'none');
+            const filtersBar = document.querySelector('.adm-filters');
+            if (filtersBar) filtersBar.style.display = showPropertyTools ? '' : 'none';
+
             document.querySelectorAll('.adm-section').forEach(sec => sec.style.display = 'none');
             const sec = document.getElementById('section-' + target);
             if (sec) sec.style.display = 'block';
 
             document.getElementById('adm-sidebar').classList.remove('adm-sidebar-open');
             if (target === 'profile') document.dispatchEvent(new CustomEvent('adm:enter-profile'));
+            if (target === 'hotelnotes') document.dispatchEvent(new CustomEvent('adm:enter-hotelnotes'));
+            if (target === 'blog') document.dispatchEvent(new CustomEvent('adm:enter-blog'));
         };
 
         // Sidebar navigation

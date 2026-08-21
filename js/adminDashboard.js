@@ -12,7 +12,9 @@ import {
     getCountries, createCountry, updateCountry, deleteCountry,
     getProvinces, createProvince, updateProvince, deleteProvince,
     getLocalities, createLocality, updateLocality, deleteLocality,
-    getAdminProfile, saveAdminProfile
+    getAdminProfile, saveAdminProfile,
+    getHotelNotes, createHotelNote, updateHotelNote, deleteHotelNote,
+    getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost
 } from './propertyService.js?v=2';
 import { initImageGallery, setGalleryUrls, getGalleryUrls, uploadFile } from './cloudinaryUpload.js?v=2';
 
@@ -228,8 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     setupEventListeners();
     setupTabs();
-    // Init Cloudinary gallery (se monta una sola vez)
-    initImageGallery('cld-gallery-container');
 });
 
 function setupEventListeners() {
@@ -1198,12 +1198,29 @@ function resetBooleans() {
 }
 
 // ── Modal actions ─────────────────────────────────────────────────────────────
+// El módulo de galería de Cloudinary usa IDs internos fijos: solo puede haber un contenedor montado
+// a la vez (propiedad, Notas de Hoteles o Blog), por eso se monta bajo demanda y se limpian los otros dos.
+const GALLERY_CONTAINER_IDS = ['cld-gallery-container', 'hotelnote-image-gallery', 'blogpost-image-gallery'];
+
+function mountGallery(containerId) {
+    GALLERY_CONTAINER_IDS.filter(id => id !== containerId).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '';
+    });
+    initImageGallery(containerId);
+}
+
+function mountPropertyGallery() {
+    mountGallery('cld-gallery-container');
+}
+
 function openNewPropertyModal() {
     editingId = null;
     modalTitle.textContent = 'Nueva Propiedad';
     propertyForm.reset();
     resetBooleans();
     populateFormSelects();
+    mountPropertyGallery();
     setGalleryUrls([]); // limpiar galería
     setVal('pais', 'Argentina');
     document.getElementById('display-prop-code').textContent = '—';
@@ -1221,6 +1238,7 @@ window.editProperty = async id => {
     if (!p) return;
     modalTitle.textContent = 'Editar Propiedad';
     document.getElementById('display-prop-code').textContent = id;
+    mountPropertyGallery();
     fillForm(p);
     switchTab('tab-principal');
     propertyModal.style.display = 'flex';
@@ -1345,3 +1363,213 @@ async function handleFormSubmit(e) {
         loadAdminData();
     } catch (e) { showToast('Error al guardar: ' + e.message, 'error'); }
 }
+
+// ── Notas de Hoteles ─────────────────────────────────────────────────────────
+// Contenido tipo blog por región (el catálogo completo de hoteles vive en Hoteles en Venta).
+let hotelNotes = [];
+let editingHotelNoteId = null;
+let hotelNotesLoaded = false;
+
+const hotelNoteFormWrap = document.getElementById('hotelnote-form-wrap');
+const hotelNoteForm     = document.getElementById('hotelnote-form');
+const hotelNotesTbody   = document.getElementById('hotelnotes-table-body');
+
+async function loadHotelNotes() {
+    if (hotelNotesLoaded) return;
+    hotelNotesLoaded = true;
+    hotelNotes = await getHotelNotes();
+    renderHotelNotesTable();
+}
+
+function renderHotelNotesTable() {
+    if (!hotelNotesTbody) return;
+    if (hotelNotes.length === 0) {
+        hotelNotesTbody.innerHTML = '<tr><td colspan="3" class="adm-table-empty">Todavía no hay notas cargadas.</td></tr>';
+        return;
+    }
+    hotelNotesTbody.innerHTML = hotelNotes.map(n => `
+        <tr>
+            <td>${n.title || ''}</td>
+            <td>${n.region || ''}</td>
+            <td>
+                <button type="button" class="adm-btn adm-btn-icon" onclick="editHotelNote('${n.id}')" title="Editar"><i class="fas fa-pen"></i></button>
+                <button type="button" class="adm-btn adm-btn-icon" onclick="deleteHotelNoteHandler('${n.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openHotelNoteForm(note = null) {
+    editingHotelNoteId = note?.id || null;
+    hotelNoteForm.reset();
+    document.getElementById('hn-title').value        = note?.title || '';
+    document.getElementById('hn-region').value        = note?.region || '';
+    document.getElementById('hn-excerpt').value       = note?.excerpt || '';
+    document.getElementById('hn-body').value          = note?.body || '';
+    document.getElementById('hn-external-url').value  = note?.externalUrl || '';
+    mountGallery('hotelnote-image-gallery');
+    setGalleryUrls(note?.image ? [note.image] : []);
+    hotelNoteFormWrap.style.display = 'block';
+}
+
+function closeHotelNoteForm() {
+    hotelNoteFormWrap.style.display = 'none';
+    editingHotelNoteId = null;
+}
+
+// Convierte el título en un slug para la URL pública (hoteles/<slug>)
+function slugify(text) {
+    return text
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca acentos
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+async function handleHotelNoteSubmit(e) {
+    e.preventDefault();
+    const title = document.getElementById('hn-title').value.trim();
+    const data = {
+        title,
+        slug:        slugify(title),
+        region:      document.getElementById('hn-region').value.trim(),
+        excerpt:     document.getElementById('hn-excerpt').value.trim(),
+        body:        document.getElementById('hn-body').value.trim(),
+        externalUrl: document.getElementById('hn-external-url').value.trim(),
+        image:       getGalleryUrls()[0] || ''
+    };
+    try {
+        if (editingHotelNoteId) {
+            await updateHotelNote(editingHotelNoteId, data);
+            showToast('Nota actualizada con éxito.', 'success');
+        } else {
+            await createHotelNote(data);
+            showToast('Nota creada con éxito.', 'success');
+        }
+        closeHotelNoteForm();
+        hotelNotesLoaded = false;
+        await loadHotelNotes();
+    } catch (e) { showToast('Error al guardar la nota: ' + e.message, 'error'); }
+}
+
+window.editHotelNote = id => {
+    const note = hotelNotes.find(n => n.id === id);
+    if (note) openHotelNoteForm(note);
+};
+
+window.deleteHotelNoteHandler = async id => {
+    const note = hotelNotes.find(n => n.id === id);
+    if (!note) return;
+    if (!await confirmDialog(`¿Eliminar "${note.title}"?`, { acceptLabel: 'Eliminar' })) return;
+    try {
+        await deleteHotelNote(id);
+        hotelNotesLoaded = false;
+        await loadHotelNotes();
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+document.addEventListener('adm:enter-hotelnotes', loadHotelNotes);
+document.getElementById('new-hotelnote-btn')?.addEventListener('click', () => openHotelNoteForm());
+document.getElementById('cancel-hotelnote-btn')?.addEventListener('click', closeHotelNoteForm);
+hotelNoteForm?.addEventListener('submit', handleHotelNoteSubmit);
+
+// ── Blog ─────────────────────────────────────────────────────────────────────
+let blogPosts = [];
+let editingBlogPostId = null;
+let blogPostsLoaded = false;
+
+const blogPostFormWrap = document.getElementById('blogpost-form-wrap');
+const blogPostForm     = document.getElementById('blogpost-form');
+const blogPostsTbody   = document.getElementById('blogposts-table-body');
+
+async function loadBlogPosts() {
+    if (blogPostsLoaded) return;
+    blogPostsLoaded = true;
+    blogPosts = await getBlogPosts();
+    renderBlogPostsTable();
+}
+
+function renderBlogPostsTable() {
+    if (!blogPostsTbody) return;
+    if (blogPosts.length === 0) {
+        blogPostsTbody.innerHTML = '<tr><td colspan="3" class="adm-table-empty">Todavía no hay notas cargadas.</td></tr>';
+        return;
+    }
+    blogPostsTbody.innerHTML = blogPosts.map(p => `
+        <tr>
+            <td>${p.title || ''}</td>
+            <td>${p.category || ''}</td>
+            <td>
+                <button type="button" class="adm-btn adm-btn-icon" onclick="editBlogPost('${p.id}')" title="Editar"><i class="fas fa-pen"></i></button>
+                <button type="button" class="adm-btn adm-btn-icon" onclick="deleteBlogPostHandler('${p.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openBlogPostForm(post = null) {
+    editingBlogPostId = post?.id || null;
+    blogPostForm.reset();
+    document.getElementById('bp-title').value       = post?.title || '';
+    document.getElementById('bp-category').value    = post?.category || '';
+    document.getElementById('bp-excerpt').value      = post?.excerpt || '';
+    document.getElementById('bp-body').value         = post?.body || '';
+    document.getElementById('bp-author-name').value  = post?.authorName || '';
+    document.getElementById('bp-author-role').value  = post?.authorRole || '';
+    mountGallery('blogpost-image-gallery');
+    setGalleryUrls(post?.image ? [post.image] : []);
+    blogPostFormWrap.style.display = 'block';
+}
+
+function closeBlogPostForm() {
+    blogPostFormWrap.style.display = 'none';
+    editingBlogPostId = null;
+}
+
+async function handleBlogPostSubmit(e) {
+    e.preventDefault();
+    const title = document.getElementById('bp-title').value.trim();
+    const data = {
+        title,
+        slug:       slugify(title),
+        category:   document.getElementById('bp-category').value.trim(),
+        excerpt:    document.getElementById('bp-excerpt').value.trim(),
+        body:       document.getElementById('bp-body').value.trim(),
+        authorName: document.getElementById('bp-author-name').value.trim(),
+        authorRole: document.getElementById('bp-author-role').value.trim(),
+        image:      getGalleryUrls()[0] || ''
+    };
+    try {
+        if (editingBlogPostId) {
+            await updateBlogPost(editingBlogPostId, data);
+            showToast('Nota actualizada con éxito.', 'success');
+        } else {
+            await createBlogPost(data);
+            showToast('Nota creada con éxito.', 'success');
+        }
+        closeBlogPostForm();
+        blogPostsLoaded = false;
+        await loadBlogPosts();
+    } catch (e) { showToast('Error al guardar la nota: ' + e.message, 'error'); }
+}
+
+window.editBlogPost = id => {
+    const post = blogPosts.find(p => p.id === id);
+    if (post) openBlogPostForm(post);
+};
+
+window.deleteBlogPostHandler = async id => {
+    const post = blogPosts.find(p => p.id === id);
+    if (!post) return;
+    if (!await confirmDialog(`¿Eliminar "${post.title}"?`, { acceptLabel: 'Eliminar' })) return;
+    try {
+        await deleteBlogPost(id);
+        blogPostsLoaded = false;
+        await loadBlogPosts();
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+document.addEventListener('adm:enter-blog', loadBlogPosts);
+document.getElementById('new-blogpost-btn')?.addEventListener('click', () => openBlogPostForm());
+document.getElementById('cancel-blogpost-btn')?.addEventListener('click', closeBlogPostForm);
+blogPostForm?.addEventListener('submit', handleBlogPostSubmit);

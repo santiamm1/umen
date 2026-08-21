@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# URLs lindas para las notas de hoteles: /hoteles/<slug> → hotel-nota.html?slug=<slug>
+RewriteRule ^hoteles/([a-z0-9-]+)/?$ hotel-nota.html?slug=$1 [L,QSA]
+
+# URLs lindas para el blog: /blog/<slug> → blog-post.html?slug=<slug>
+RewriteRule ^blog/([a-z0-9-]+)/?$ blog-post.html?slug=$1 [L,QSA]

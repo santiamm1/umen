@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | UMEN Buenos Negocios Inmobiliarios</title>
+    <link rel="icon" href="assets/Logo/Favicon.png">
+    <link rel="stylesheet" href="css/styles.css?v=3.4">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase CDN -->
+    <script type="module">
+        import { firebaseConfig } from './js/config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth }       from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore }  from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getStorage }    from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+
+        const app = initializeApp(firebaseConfig);
+        window.auth    = getAuth(app);
+        window.db      = getFirestore(app);
+        window.storage = getStorage(app);
+    </script>
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <main>
+        <div class="container">
+            <div class="detail-container">
+                <div class="blog-index-header">
+                    <h1>Blog</h1>
+                    <p>Notas de interés, tendencias y urbanismo del mercado inmobiliario.</p>
+                </div>
+                <div class="items-container" id="blog-list">
+                    <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module" src="js/blog.js"></script>
+    <script type="module">
+        import { loadHeader, loadFooter } from './js/components.js';
+        loadHeader();
+        loadFooter();
+    </script>
+    <script type="module">
+        const btn = document.getElementById('mobile-menu-btn');
+        const nav = document.getElementById('nav-menu');
+        btn?.addEventListener('click', () => {
+            nav.classList.toggle('active');
+            const icon = btn.querySelector('i');
+            if (nav.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+                Object.assign(nav.style, {
+                    display: 'flex', flexDirection: 'column',
+                    position: 'absolute', top: '100%',
+                    left: '0', width: '100%',
+                    backgroundColor: '#111', padding: '20px', zIndex: '999'
+                });
+            } else {
+                icon.className = 'fas fa-bars';
+                nav.style.cssText = '';
+            }
+        });
+    </script>
+</body>
+</html>

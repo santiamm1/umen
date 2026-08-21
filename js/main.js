@@ -1,6 +1,6 @@
 // main.js - Lógica principal premium para la página de inicio (Estilo Toribio Achával)
 
-import { getProperties, getCategories, getProvinces } from './propertyService.js';
+import { getProperties, getCategories, getProvinces, getBlogPosts } from './propertyService.js';
 
 // Elementos DOM — se asignan luego de que el header partial se inyecte
 let header;
@@ -72,6 +72,7 @@ let currentFilters = {
 
     await executeSearch();
     await renderFeaturedRentals();
+    await renderNovedades();
 })();
 
 // Verificar si Firebase está inicializado
@@ -108,9 +109,10 @@ function useDemoData() {
 // Popular select de categorías en el Hero
 function populatePropertyTypes() {
     // Mantiene el select nativo sincronizado (usado por el resto del código)
+    // El valor usa el nombre de la categoría: es lo que Firestore guarda en el campo 'type' de cada propiedad
     propertyTypeSelect.innerHTML = `
         <option value="">Todo tipo de propiedades</option>
-        ${categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
+        ${categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('')}
     `;
 
     // Popula el dropdown visual custom
@@ -118,7 +120,7 @@ function populatePropertyTypes() {
     if (!dropdown) return;
     const options = [
         { value: '', label: 'Todo tipo de propiedades' },
-        ...categories.map(cat => ({ value: cat.id, label: cat.name }))
+        ...categories.map(cat => ({ value: cat.name, label: cat.name }))
     ];
     dropdown.innerHTML = options.map(o =>
         `<li class="custom-select-option${o.value === '' ? ' selected' : ''}"
@@ -237,18 +239,22 @@ function setupSearchBox() {
     });
 
     // Escuchar clic en el botón de búsqueda con lupa
-    searchBtn.addEventListener('click', () => {
-        currentFilters.keyword = quickSearchInput.value.trim().toLowerCase();
-        executeSearch(true); // Hace scroll al resultado
-    });
+    searchBtn.addEventListener('click', goToPropiedadesConFiltros);
 
     // Escuchar tecla Enter en el input
     quickSearchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            currentFilters.keyword = quickSearchInput.value.trim().toLowerCase();
-            executeSearch(true);
-        }
+        if (e.key === 'Enter') goToPropiedadesConFiltros();
     });
+}
+
+// La búsqueda del hero lleva al listado completo de propiedades, no a la sección destacada del home
+function goToPropiedadesConFiltros() {
+    const params = new URLSearchParams();
+    params.set('operation', currentFilters.operation);
+    if (propertyTypeSelect.value) params.set('category', propertyTypeSelect.value);
+    const keyword = quickSearchInput.value.trim();
+    if (keyword) params.set('keyword', keyword);
+    window.location.href = `propiedades.html?${params.toString()}`;
 }
 
 // Configurar links rápidos de la grilla destacados
@@ -328,7 +334,7 @@ async function executeSearch(shouldScroll = false) {
         if (currentFilters.category) {
             apiFilters.category = currentFilters.category;
         }
-        
+
         if (currentFilters.province) {
             apiFilters.province = currentFilters.province;
         }
@@ -337,10 +343,6 @@ async function executeSearch(shouldScroll = false) {
         let results = [];
         if (checkFirebaseConfig() && window.db._databaseId && window.db._databaseId.projectId !== "TU_PROJECT_ID_AQUI") {
             results = await getProperties(apiFilters);
-            
-            if (results.length === 0) {
-                results = getDemoProperties();
-            }
         } else {
             results = getDemoProperties();
         }
@@ -348,12 +350,13 @@ async function executeSearch(shouldScroll = false) {
         // 1. Filtrar en memoria por palabra clave si existe (búsqueda inteligente e intuitiva)
         if (currentFilters.keyword) {
             const kw = currentFilters.keyword.toLowerCase();
-            results = results.filter(p => 
+            results = results.filter(p =>
                 p.title.toLowerCase().includes(kw) ||
                 (p.neighborhood && p.neighborhood.toLowerCase().includes(kw)) ||
                 (p.zone && p.zone.toLowerCase().includes(kw)) ||
                 (p.description && p.description.toLowerCase().includes(kw)) ||
-                (p.type && p.type.toLowerCase().includes(kw))
+                (p.type && p.type.toLowerCase().includes(kw)) ||
+                (kw.includes('buenos aires') && p.zone && isZonaBuenosAires(p.zone))
             );
         }
 
@@ -600,7 +603,47 @@ async function renderFeaturedRentals() {
     if (sortEl) sortEl.addEventListener('change', renderRentalCards);
 }
 
+// Renderizar las últimas 3 notas del blog en el home
+async function renderNovedades() {
+    const container = document.getElementById('novedades-list');
+    if (!container) return;
+
+    let posts = [];
+    try {
+        posts = await getBlogPosts();
+    } catch {
+        posts = [];
+    }
+
+    const latest = posts.slice(0, 3);
+    if (latest.length === 0) {
+        container.innerHTML = `<div class="no-results"><i class="fas fa-search-minus"></i><p>Todavía no hay notas publicadas.</p></div>`;
+        return;
+    }
+
+    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1560184897-ae75f418493e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=65';
+    container.innerHTML = latest.map(post => `
+        <a href="${post.slug ? 'blog/' + post.slug : 'blog-post.html?id=' + post.id}" class="item">
+            <div class="media">
+                <img src="${post.image || FALLBACK_IMG}" alt="${post.title}">
+                <span class="cat">${post.category || 'Novedades'}</span>
+            </div>
+            <div class="item-content">
+                <h4>${post.title}</h4>
+                <p class="item-excerpt">${post.excerpt || ''}</p>
+                <span class="item-more">Leer más <i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+    `).join('');
+}
+
 // Generar propiedades demo estéticas si Firebase está vacío o desconfigurado
+// Las zonas 'Capital Federal' y 'GBA *' son todas parte del área metropolitana de Buenos Aires
+function isZonaBuenosAires(zone) {
+    const z = zone.toLowerCase();
+    return z.startsWith('capital federal') || z.startsWith('gba');
+}
+
 function getDemoProperties() {
     return [
         {

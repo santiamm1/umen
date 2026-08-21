@@ -414,6 +414,154 @@ export async function deleteImage(url) {
     }
 }
 
+// ── Notas de Hoteles (contenido tipo blog, se linkea al catálogo externo de Hoteles en Venta) ──
+export async function getHotelNotes() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'hotelNotes'));
+        const notes = [];
+        querySnapshot.forEach((doc) => notes.push({ id: doc.id, ...doc.data() }));
+        return notes;
+    } catch (error) {
+        console.error('Error getting hotel notes:', error);
+        return [];
+    }
+}
+
+export async function getHotelNote(id) {
+    try {
+        const db = await getDb();
+        const docSnap = await getDoc(doc(db, 'hotelNotes', id));
+        return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+    } catch (error) {
+        console.error('Error getting hotel note:', error);
+        return null;
+    }
+}
+
+export async function getHotelNoteBySlug(slug) {
+    try {
+        const db = await getDb();
+        const q = query(collection(db, 'hotelNotes'), where('slug', '==', slug), limit(1));
+        const querySnapshot = await getDocs(q);
+        let note = null;
+        querySnapshot.forEach((doc) => { note = { id: doc.id, ...doc.data() }; });
+        return note;
+    } catch (error) {
+        console.error('Error getting hotel note by slug:', error);
+        return null;
+    }
+}
+
+export async function createHotelNote(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'hotelNotes'), { ...data, createdAt: new Date() });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error creating hotel note:', error);
+        throw error;
+    }
+}
+
+export async function updateHotelNote(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'hotelNotes', id), data);
+    } catch (error) {
+        console.error('Error updating hotel note:', error);
+        throw error;
+    }
+}
+
+export async function deleteHotelNote(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'hotelNotes', id));
+    } catch (error) {
+        console.error('Error deleting hotel note:', error);
+        throw error;
+    }
+}
+
+// ── Blog (Notas de Interés & Urbanismo) ──
+function sortByCreatedAtDesc(items) {
+    return items.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+        return dateB - dateA;
+    });
+}
+
+export async function getBlogPosts() {
+    try {
+        const db = await getDb();
+        const querySnapshot = await getDocs(collection(db, 'blogPosts'));
+        const posts = [];
+        querySnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
+        return sortByCreatedAtDesc(posts);
+    } catch (error) {
+        console.error('Error getting blog posts:', error);
+        return [];
+    }
+}
+
+export async function getBlogPost(id) {
+    try {
+        const db = await getDb();
+        const docSnap = await getDoc(doc(db, 'blogPosts', id));
+        return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+    } catch (error) {
+        console.error('Error getting blog post:', error);
+        return null;
+    }
+}
+
+export async function getBlogPostBySlug(slug) {
+    try {
+        const db = await getDb();
+        const q = query(collection(db, 'blogPosts'), where('slug', '==', slug), limit(1));
+        const querySnapshot = await getDocs(q);
+        let post = null;
+        querySnapshot.forEach((doc) => { post = { id: doc.id, ...doc.data() }; });
+        return post;
+    } catch (error) {
+        console.error('Error getting blog post by slug:', error);
+        return null;
+    }
+}
+
+export async function createBlogPost(data) {
+    try {
+        const db = await getDb();
+        const docRef = await addDoc(collection(db, 'blogPosts'), { ...data, createdAt: new Date() });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error creating blog post:', error);
+        throw error;
+    }
+}
+
+export async function updateBlogPost(id, data) {
+    try {
+        const db = await getDb();
+        await updateDoc(doc(db, 'blogPosts', id), data);
+    } catch (error) {
+        console.error('Error updating blog post:', error);
+        throw error;
+    }
+}
+
+export async function deleteBlogPost(id) {
+    try {
+        const db = await getDb();
+        await deleteDoc(doc(db, 'blogPosts', id));
+    } catch (error) {
+        console.error('Error deleting blog post:', error);
+        throw error;
+    }
+}
+
 // ── Operaciones ──
 export async function getOperations() {
     try {
