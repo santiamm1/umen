@@ -1,0 +1,24 @@
+{
+  "name": "umen",
+  "version": "1.0.0",
+  "description": "Versión con JavaScript vanilla, HTML y CSS para mayor facilidad de manipulación.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/santiamm1/umen.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/santiamm1/umen/issues"
+  },
+  "homepage": "https://github.com/santiamm1/umen#readme",
+  "type": "module",
+  "dependencies": {
+    "firebase": "^12.18.0"
+  }
+}

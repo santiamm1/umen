@@ -26,31 +26,42 @@
 
     <div id="header-placeholder"></div>
 
-    <main>
+    <!-- Page hero -->
+    <section class="prop-page-hero">
+        <div class="prop-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1800&q=80');"></div>
+        <div class="hero-overlay-content">
+            <div class="hero-inner">
+                <nav class="breadcrumb prop-breadcrumb">
+                    <a href="index.html">Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Noticias</span>
+                </nav>
+                <span class="hero-eyebrow">Notas & Urbanismo · UMEN</span>
+                <h1>Novedades del<br>mercado inmobiliario</h1>
+                <p class="hero-subtitle">Tendencias, urbanismo y análisis de zona para tomar mejores decisiones.</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-layout">
         <div class="container">
-            <div class="detail-container">
-                <div class="blog-index-header">
-                    <h1>Blog</h1>
-                    <p>Notas de interés, tendencias y urbanismo del mercado inmobiliario.</p>
+            <div class="blog-toolbar">
+                <div class="blog-toolbar-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="blog-search" placeholder="Buscar notas...">
                 </div>
-                <div class="blog-toolbar">
-                    <div class="blog-toolbar-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="blog-search" placeholder="Buscar notas...">
-                    </div>
-                    <div class="blog-toolbar-filters">
-                        <select id="blog-category-filter">
-                            <option value="">Todas las categorías</option>
-                        </select>
-                        <select id="blog-sort">
-                            <option value="desc">Más recientes</option>
-                            <option value="asc">Más antiguas</option>
-                        </select>
-                    </div>
+                <div class="blog-toolbar-filters">
+                    <select id="blog-category-filter">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                    <select id="blog-sort">
+                        <option value="desc">Más recientes</option>
+                        <option value="asc">Más antiguas</option>
+                    </select>
                 </div>
-                <div class="items-container" id="blog-list">
-                    <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>
-                </div>
+            </div>
+            <div class="items-container" id="blog-list">
+                <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>
             </div>
         </div>
     </main>
