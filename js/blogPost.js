@@ -66,29 +66,45 @@ async function render(post) {
                 <span class="cat">${post.category || 'Novedades'}</span>
             </div>
 
-            <div class="hotel-nota-article">
-                <h1>${post.title}</h1>
+            <div class="blog-post-grid">
+                <div class="hotel-nota-article">
+                    <h1>${post.title}</h1>
 
-                <div class="blog-post-meta">
-                    <div class="blog-post-avatar">${authorInitial}</div>
-                    <div class="blog-post-meta-text">
-                        <strong>${authorName}</strong>
-                        <span>${authorRole}</span>
+                    <div class="blog-post-meta">
+                        <div class="blog-post-avatar">${authorInitial}</div>
+                        <div class="blog-post-meta-text">
+                            <strong>${authorName}</strong>
+                            <span>${authorRole}</span>
+                        </div>
+                        <div class="blog-post-meta-sep"></div>
+                        <span>${formatDate(post.createdAt)}</span>
+                        <div class="blog-post-meta-sep"></div>
+                        <span>${readTime(post.body)} min de lectura</span>
                     </div>
-                    <div class="blog-post-meta-sep"></div>
-                    <span>${formatDate(post.createdAt)}</span>
-                    <div class="blog-post-meta-sep"></div>
-                    <span>${readTime(post.body)} min de lectura</span>
+
+                    ${post.excerpt ? `<p class="hotel-nota-excerpt">${post.excerpt}</p>` : ''}
+                    <div class="hotel-nota-body">${renderBody(post.body)}</div>
                 </div>
 
-                ${post.excerpt ? `<p class="hotel-nota-excerpt">${post.excerpt}</p>` : ''}
-                <div class="hotel-nota-body">${renderBody(post.body)}</div>
-
-                <div class="blog-post-share">
-                    <span>Compartir:</span>
-                    <a href="${waHref}" target="_blank" rel="noopener" title="Compartir por WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="${mailHref}" title="Compartir por email"><i class="fas fa-envelope"></i></a>
-                </div>
+                <aside class="blog-post-sidebar">
+                    <div class="blog-post-about-card">
+                        <span>Sobre UMEN</span>
+                        <p>Somos una inmobiliaria especializada en propiedades premium, inversiones y hoteles. Acompañamos a nuestros clientes en cada etapa: búsqueda, tasación y cierre del negocio.</p>
+                    </div>
+                    <div class="contact-card">
+                        <h3>¿Te interesa este tema?</h3>
+                        <p>Nuestro equipo de asesores te ayuda a encontrar la mejor opción para vos.</p>
+                        <a href="https://wa.me/5491131444207" class="btn-primary full-width" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Hablar con un asesor</a>
+                        <a href="contacto.html" class="btn-secondary full-width">Contactanos</a>
+                    </div>
+                    <div class="blog-post-share-card">
+                        <span>Compartir nota</span>
+                        <div class="blog-post-share">
+                            <a href="${waHref}" target="_blank" rel="noopener" title="Compartir por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="${mailHref}" title="Compartir por email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </aside>
             </div>
 
             <div id="blog-related"></div>
@@ -117,7 +133,7 @@ async function renderRelated(currentPost) {
             <h3>También te puede interesar</h3>
             <div class="items-container">
                 ${related.map(p => `
-                    <a href="${p.slug ? 'blog/' + p.slug : 'blog-post.html?id=' + p.id}" class="item">
+                    <a href="${p.slug ? 'blog-post.html?slug=' + p.slug : 'blog-post.html?id=' + p.id}" class="item">
                         <div class="media">
                             <img src="${p.image || FALLBACK_IMG}" alt="${p.title}">
                             <span class="cat">${p.category || 'Novedades'}</span>

@@ -24,6 +24,8 @@ export async function loadHeader() {
             'propiedades.html':    'propiedades',
             'property-detail.html':'propiedades',
             'tasaciones.html':     'tasaciones',
+            'blog.html':           'blog',
+            'blog-post.html':      'blog',
             'contacto.html':       'contacto',
         };
         const activePage = pageMap[page] || '';

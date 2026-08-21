@@ -33,6 +33,21 @@
                     <h1>Blog</h1>
                     <p>Notas de interés, tendencias y urbanismo del mercado inmobiliario.</p>
                 </div>
+                <div class="blog-toolbar">
+                    <div class="blog-toolbar-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="blog-search" placeholder="Buscar notas...">
+                    </div>
+                    <div class="blog-toolbar-filters">
+                        <select id="blog-category-filter">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                        <select id="blog-sort">
+                            <option value="desc">Más recientes</option>
+                            <option value="asc">Más antiguas</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="items-container" id="blog-list">
                     <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>
                 </div>

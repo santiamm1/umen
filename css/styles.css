@@ -1777,13 +1777,15 @@ a.item {
 
 .hotels-external-section {
     margin-top: 50px;
+}
+
+.hotels-external-more {
     padding-top: 40px;
     border-top: 1px solid #eee;
 }
 
 .hotel-nota-article {
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 100%;
 }
 
 .hotel-nota-media {
@@ -1793,6 +1795,79 @@ a.item {
     width: 100%;
     height: 420px;
     margin-bottom: 40px;
+}
+
+/* ── Layout nota de blog: contenido + panel lateral ── */
+.blog-post-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 50px;
+    align-items: start;
+}
+
+.blog-post-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.blog-post-sidebar .contact-card {
+    top: 120px;
+}
+
+.blog-post-about-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    padding: 24px 28px;
+    border-radius: 16px;
+}
+
+.blog-post-about-card > span {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.blog-post-about-card p {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.blog-post-share-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    padding: 24px 28px;
+    border-radius: 16px;
+}
+
+.blog-post-share-card > span {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    margin-bottom: 14px;
+}
+
+.blog-post-share-card .blog-post-share {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+@media (max-width: 900px) {
+    .blog-post-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .blog-post-sidebar .contact-card {
+        position: static;
+    }
 }
 
 .hotel-nota-media img {
@@ -1836,9 +1911,87 @@ a.item {
 
 /* ── Blog ──────────────────────────────────────────────────────── */
 .blog-index-header {
-    max-width: 700px;
-    margin: 0 auto 48px;
-    text-align: center;
+    margin: 0 0 32px;
+}
+
+.blog-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.blog-toolbar-search {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0 16px;
+    height: 48px;
+    transition: var(--transition);
+}
+
+.blog-toolbar-search:focus-within {
+    border-color: var(--primary-color);
+}
+
+.blog-toolbar-search i {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.blog-toolbar-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    height: 100%;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text-color);
+}
+
+.blog-toolbar-filters {
+    display: flex;
+    gap: 12px;
+}
+
+.blog-toolbar-filters select {
+    height: 48px;
+    padding: 0 36px 0 16px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E") no-repeat right 16px center;
+    appearance: none;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.blog-toolbar-filters select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+@media (max-width: 600px) {
+    .blog-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .blog-toolbar-filters {
+        flex-direction: column;
+    }
+
+    .blog-toolbar-filters select {
+        width: 100%;
+    }
 }
 
 .blog-index-header h1 {
@@ -1853,8 +2006,7 @@ a.item {
 }
 
 .blog-breadcrumb {
-    max-width: 900px;
-    margin: 0 auto 24px;
+    margin: 0 0 24px;
     color: #888;
     font-size: 0.85rem;
     display: flex;
@@ -1954,8 +2106,7 @@ a.item {
 }
 
 .blog-related-section {
-    max-width: 900px;
-    margin: 60px auto 0;
+    margin: 60px 0 0;
     padding-top: 40px;
     border-top: 1px solid #eee;
 }
@@ -2012,7 +2163,7 @@ a.item {
     margin-bottom: 6px;
 }
 
-.hotels-external-section > p {
+.hotels-external-more > p {
     color: #666;
     margin-bottom: 24px;
 }

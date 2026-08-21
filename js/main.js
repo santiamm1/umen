@@ -623,7 +623,7 @@ async function renderNovedades() {
 
     const FALLBACK_IMG = 'https://images.unsplash.com/photo-1560184897-ae75f418493e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=65';
     container.innerHTML = latest.map(post => `
-        <a href="${post.slug ? 'blog/' + post.slug : 'blog-post.html?id=' + post.id}" class="item">
+        <a href="${post.slug ? 'blog-post.html?slug=' + post.slug : 'blog-post.html?id=' + post.id}" class="item">
             <div class="media">
                 <img src="${post.image || FALLBACK_IMG}" alt="${post.title}">
                 <span class="cat">${post.category || 'Novedades'}</span>
