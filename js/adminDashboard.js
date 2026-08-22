@@ -68,7 +68,7 @@ function confirmDialog(message, { title = '¿Confirmar acción?', acceptLabel = 
 }
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
-const logoutBtn          = document.getElementById('logout-btn');
+const logoutBtn          = document.getElementById('sidebar-logout-btn');
 const propertiesTbody    = document.getElementById('properties-tbody');
 const totalPropertiesEl  = document.getElementById('total-properties');
 const totalVentaEl       = document.getElementById('total-venta');
@@ -774,6 +774,21 @@ function formatDate(v) {
 // ── Mapa de propiedades (Leaflet + OpenStreetMap, gratis) ──────────────────────
 let propertiesMap = null;
 let propertiesMarkers = null;
+let umenMarkerIcon = null;
+function getUmenMarkerIcon() {
+    if (umenMarkerIcon) return umenMarkerIcon;
+    umenMarkerIcon = L.divIcon({
+        className: 'umen-map-marker',
+        html: `<svg width="30" height="42" viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 27 15 27s15-16.5 15-27C30 6.7 23.3 0 15 0z" fill="#F68C18" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="15" cy="15" r="6" fill="#ffffff"/>
+        </svg>`,
+        iconSize: [30, 42],
+        iconAnchor: [15, 42],
+        popupAnchor: [0, -38]
+    });
+    return umenMarkerIcon;
+}
 function renderPropertiesMap() {
     const mapEl = document.getElementById('properties-map');
     if (!mapEl || typeof L === 'undefined') return;
@@ -791,7 +806,7 @@ function renderPropertiesMap() {
     const geoProps = properties.filter(p => p.geoLat && p.geoLng);
     geoProps.forEach(p => {
         const price = p.price ? `${p.currency || 'USD'} ${Number(p.price).toLocaleString('es-AR')}` : 'Consultar precio';
-        L.marker([p.geoLat, p.geoLng])
+        L.marker([p.geoLat, p.geoLng], { icon: getUmenMarkerIcon() })
             .bindPopup(`<strong>${p.title || 'Propiedad'}</strong><br>${capitalize(p.status || '')}<br>${price}`)
             .addTo(propertiesMarkers);
     });

@@ -1291,11 +1291,6 @@
         // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
         lucide.createIcons();
 
-        // Sidebar logout → clicks the main logout button
-        document.getElementById('sidebar-logout-btn').addEventListener('click', () => {
-            document.getElementById('logout-btn').click();
-        });
-
         // Cambia de sección + actualiza título del topbar + estado activo del link (si lo hay)
         const sectionTitleMap = {
             'dashboard': 'Dashboard',

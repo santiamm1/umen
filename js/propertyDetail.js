@@ -265,6 +265,12 @@ function render(property) {
                                 <span>Av. Cabildo 4769 9° Piso, Nuñez</span>
                             </div>
                         </div>
+
+                        <div class="contact-trust">
+                            <div class="contact-trust-item"><i class="fas fa-shield-alt"></i> Asesoramiento profesional matriculado</div>
+                            <div class="contact-trust-item"><i class="fas fa-clock"></i> Respuesta en menos de 24 horas</div>
+                            <div class="contact-trust-item"><i class="fas fa-handshake"></i> Sin compromiso de contratación</div>
+                        </div>
                     </div>
                 </aside>
             </div>

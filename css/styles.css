@@ -844,7 +844,7 @@ header.scrolled .mobile-menu-btn {
 
 .cat-mas {
     grid-column: 1 / -1;
-    height: 160px;
+    height: 400px;
 }
 
 .cat-mas .mask {
@@ -887,6 +887,21 @@ header.scrolled .mobile-menu-btn {
     z-index: 1;
     transition: opacity 0.4s ease;
     opacity: 0.8;
+    pointer-events: none;
+}
+
+/* Cards de #destacado: ya no son un único <a>, así los barrios de adentro
+   pueden ser links reales. Este cubre toda la imagen para que se pueda
+   seguir haciendo click en cualquier parte que no sea un sub-link. */
+.item-bg-link {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.mask .top h3 a {
+    color: inherit;
+    text-decoration: none;
 }
 
 #destacado .item:hover {
@@ -1265,38 +1280,7 @@ a.item {
     flex-shrink: 0;
 }
 
-/* ── Filtros nuevos: pills, checkboxes, texto, select ────────── */
-.filter-pill-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.filter-pill-btn {
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border-color);
-    background: transparent;
-    font-family: var(--font-body);
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #555;
-    cursor: pointer;
-    transition: var(--transition);
-    white-space: nowrap;
-}
-
-.filter-pill-btn:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-}
-
-.filter-pill-btn.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #fff;
-}
-
+/* ── Filtros nuevos: checkboxes, texto, select ─────────────────── */
 .filter-check-group {
     display: flex;
     flex-direction: column;
@@ -2654,11 +2638,9 @@ a.item {
     display: grid;
     grid-template-columns: 2fr 1fr;
     grid-template-rows: 1fr 1fr;
-    gap: 6px;
+    gap: 10px;
     height: 500px;
     margin-bottom: 28px;
-    border-radius: 12px;
-    overflow: hidden;
 }
 
 /* Sin fotos secundarias: imagen principal ocupa todo el ancho */
@@ -2672,6 +2654,8 @@ a.item {
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
 }
 
 .main-image-container img {
@@ -2686,6 +2670,8 @@ a.item {
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
 }
 
 /* Una sola secundaria: ocupa toda la columna derecha */
@@ -2925,6 +2911,31 @@ a.item {
     font-size: 0.8rem;
     color: #888;
     font-weight: 600;
+}
+
+.contact-trust {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid var(--border-color);
+}
+
+.contact-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.contact-trust-item i {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    width: 16px;
+    text-align: center;
 }
 
 /* ------------------- Admin Dashboard Forms & Layout ------------------- */
@@ -3648,19 +3659,6 @@ a.item {
 /* Sidebar fija en propiedades: ocupa el alto disponible del viewport */
 .prop-main .filters-sidebar {
     top: 168px;
-    max-height: calc(100vh - 190px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) transparent;
-}
-
-.prop-main .filters-sidebar::-webkit-scrollbar {
-    width: 4px;
-}
-
-.prop-main .filters-sidebar::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
 }
 
 /* ── Grid de propiedades compacto en /propiedades ────────────── */
@@ -3809,8 +3807,7 @@ a.item {
 }
 
 .property-grid.list-view .card-image {
-    height: 100%;
-    min-height: 170px;
+    height: 170px;
     border-radius: 10px 0 0 10px;
 }
 
@@ -3930,7 +3927,6 @@ a.item {
     .property-grid.list-view .card-image {
         height: 200px;
         border-radius: 10px 10px 0 0;
-        min-height: unset;
     }
 
     .results-controls {
@@ -3984,7 +3980,7 @@ a.item {
 .detail-header-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 24px;
     margin-bottom: 28px;
     flex-wrap: wrap;
@@ -4365,12 +4361,25 @@ a.item {
     display: grid;
     grid-template-columns: 420px 1fr;
     gap: 64px;
-    align-items: start;
+    align-items: stretch;
 }
 
 /* ── Info column ── */
+.contacto-info {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+}
+
 .contacto-intro {
     margin-bottom: 40px;
+}
+
+.contacto-social {
+    margin-top: auto;
 }
 
 .contacto-eyebrow {
@@ -4436,7 +4445,7 @@ a.item {
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: #999;
+    color: #767066;
 }
 
 .contacto-dato-text span,
@@ -4665,7 +4674,8 @@ a.item {
         gap: 48px;
     }
 
-    .contacto-form-wrap {
+    .contacto-form-wrap,
+    .contacto-info {
         padding: 36px;
     }
 }
@@ -4675,7 +4685,8 @@ a.item {
         padding: 60px 0 80px;
     }
 
-    .contacto-form-wrap {
+    .contacto-form-wrap,
+    .contacto-info {
         padding: 28px 20px;
         border-radius: 12px;
     }
@@ -4711,32 +4722,38 @@ a.item {
 }
 
 .tas-stat {
-    text-align: center;
-    padding: 40px 30px;
-    border-radius: 20px;
-    border: 2px solid rgba(255,255,255,0.4);
+    text-align: left;
+    padding: 32px 28px;
+    border-radius: 16px;
+    border: none;
     background: #ffffff;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s;
 }
 
 .tas-stat:hover {
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    transform: translateY(-8px);
-    border-color: #ffffff;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.14);
+    transform: translateY(-6px);
+}
+
+.tas-stat-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
 }
 
 .tas-stat-icon {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 32px;
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(246,140,24,0.1);
-    border-radius: 50%;
+    background: #fff2e2;
+    border-radius: 16px;
     color: var(--primary-color);
-    font-size: 3rem;
+    font-size: 1.7rem;
     transition: var(--transition);
 }
 
@@ -4747,18 +4764,17 @@ a.item {
 
 .tas-stat-num {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: 900;
     color: var(--secondary-color);
-    line-height: 1.2;
-    margin-bottom: 6px;
+    line-height: 1.1;
 }
 
 .tas-stat-label {
-    font-family: var(--font-heading);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--secondary-color);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #777;
     line-height: 1.4;
 }
 
@@ -4772,10 +4788,22 @@ a.item {
     display: grid;
     grid-template-columns: 1fr 520px;
     gap: 72px;
-    align-items: start;
+    align-items: stretch;
 }
 
 /* ── Info column ── */
+.tas-info {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 44px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+}
+
+
 .tas-eyebrow {
     display: inline-block;
     font-size: 11px;
@@ -4784,10 +4812,6 @@ a.item {
     text-transform: uppercase;
     color: var(--primary-color);
     margin-bottom: 12px;
-}
-
-.tas-intro {
-    margin-bottom: 44px;
 }
 
 .tas-intro h2 {
@@ -4999,8 +5023,7 @@ a.item {
 .tas-features {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    margin-bottom: 44px;
+    gap: 34px;
 }
 
 .tas-feature {
@@ -5116,7 +5139,8 @@ a.item {
 
     .tas-intro h2 { font-size: 26px; }
 
-    .tas-form-wrap {
+    .tas-form-wrap,
+    .tas-info {
         padding: 28px 20px;
         border-radius: 12px;
     }

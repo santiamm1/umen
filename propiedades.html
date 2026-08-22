@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Propiedades | UMEN Buenos Negocios Inmobiliarios</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/styles.css?v=3.4">
+    <link rel="stylesheet" href="css/styles.css?v=3.6">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Firebase CDN -->
@@ -65,19 +65,31 @@
                     <!-- Tipo de Propiedad -->
                     <div class="filter-group">
                         <h4 class="filter-group-title">Tipo de Propiedad</h4>
-                        <div class="filter-pill-group" id="filter-type"></div>
+                        <select id="filter-type" class="filter-select">
+                            <option value="">Todos los tipos</option>
+                        </select>
+                    </div>
+
+                    <!-- País -->
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">País</h4>
+                        <div class="filter-check-group" id="filter-country"></div>
                     </div>
 
                     <!-- Ciudad -->
                     <div class="filter-group">
                         <h4 class="filter-group-title">Ciudad</h4>
-                        <div class="filter-check-group" id="filter-city"></div>
+                        <select id="filter-city" class="filter-select">
+                            <option value="">Todas las ciudades</option>
+                        </select>
                     </div>
 
                     <!-- Barrio -->
                     <div class="filter-group">
                         <h4 class="filter-group-title">Barrio</h4>
-                        <div class="filter-check-group" id="filter-neighborhood"></div>
+                        <select id="filter-neighborhood" class="filter-select">
+                            <option value="">Todos los barrios</option>
+                        </select>
                     </div>
 
                     <!-- Precio -->
@@ -114,12 +126,13 @@
                     <!-- Estado -->
                     <div class="filter-group">
                         <h4 class="filter-group-title">Estado</h4>
-                        <div class="filter-pill-group" id="filter-estado">
-                            <button class="filter-pill-btn" data-value="estrenar">A estrenar</button>
-                            <button class="filter-pill-btn" data-value="usado">Usado</button>
-                            <button class="filter-pill-btn" data-value="pozo">En pozo</button>
-                            <button class="filter-pill-btn" data-value="reciclado">Reciclado</button>
-                        </div>
+                        <select id="filter-estado" class="filter-select">
+                            <option value="">Cualquier estado</option>
+                            <option value="estrenar">A estrenar</option>
+                            <option value="usado">Usado</option>
+                            <option value="pozo">En pozo</option>
+                            <option value="reciclado">Reciclado</option>
+                        </select>
                     </div>
 
                     <!-- Antigüedad -->
@@ -206,7 +219,7 @@
 
     <div id="footer-placeholder"></div>
 
-    <script type="module" src="js/propiedades.js?v=4.0"></script>
+    <script type="module" src="js/propiedades.js?v=4.2"></script>
     <script type="module">
         import { loadHeader, loadFooter } from './js/components.js';
         loadHeader();

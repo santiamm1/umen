@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UMEN Inmobiliaria | Propiedades de Lujo</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/styles.css?v=8.0">
+    <link rel="stylesheet" href="css/styles.css?v=8.5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Firebase CDN -->
@@ -86,87 +86,102 @@
         </div>
     </section>
 
+    <!-- Servicios de UMEN -->
+    <section id="servicios">
+        <div class="container">
+            <div class="servicios-header">
+                <span class="servicios-eyebrow">Cómo trabajamos</span>
+                <h2>Nuestro <strong>servicio integral</strong> garantiza tus resultados de punto a punto</h2>
+                <p>Nuestro servicio profesional contempla cada paso, desde la búsqueda y el asesoramiento a la hora de
+                    invertir, como también la posterior administración del inmueble.</p>
+            </div>
+            <div class="servicios-grid">
+                <div class="servicio-item">
+                    <div class="servicio-top">
+                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M9 8h1M9 12h1M9 16h1M4 21h16"/></svg></div>
+                        <span class="servicio-num">01</span>
+                    </div>
+                    <p>Administramos propiedades.</p>
+                </div>
+                <div class="servicio-item">
+                    <div class="servicio-top">
+                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div>
+                        <span class="servicio-num">02</span>
+                    </div>
+                    <p>Gestionamos compra, venta y alquiler de propiedades.</p>
+                </div>
+                <div class="servicio-item">
+                    <div class="servicio-top">
+                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 8l-5 5-3-3-4 4"/></svg></div>
+                        <span class="servicio-num">03</span>
+                    </div>
+                    <p>Asesoramos en inversiones inmobiliarias.</p>
+                </div>
+                <div class="servicio-item">
+                    <div class="servicio-top">
+                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12.5 10h2M17 10h0M8 14h2M12.5 14h2M17 14h0M8 18h2M12.5 18h2M17 18h0"/></svg></div>
+                        <span class="servicio-num">04</span>
+                    </div>
+                    <p>Realizamos tasaciones.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Sección de Categorías Destacadas (3×2 con Hover) -->
     <section id="destacado">
         <div class="container">
             <div class="grid col3">
                 <!-- Departamentos -->
-                <a href="propiedades.html#departamentos" class="item cat-departamentos">
+                <div class="item cat-departamentos">
+                    <a class="item-bg-link" href="propiedades.html?category=Departamento" aria-label="Ver Departamentos"></a>
                     <div class="mask">
-                        <div class="top"><h3>Departamentos</h3></div>
+                        <div class="top"><h3><a href="propiedades.html?category=Departamento">Departamentos</a></h3></div>
                         <div class="grid col2">
                             <div>
-                                <span>Monoambiente</span>
-                                <span>2 Ambientes</span>
-                                <span>3 Ambientes</span>
-                                <span>4+ Ambientes</span>
+                                <a href="propiedades.html?category=Departamento&bedrooms=1">Monoambiente</a>
+                                <a href="propiedades.html?category=Departamento&bedrooms=2">2 Ambientes</a>
+                                <a href="propiedades.html?category=Departamento&bedrooms=3">3 Ambientes</a>
+                                <a href="propiedades.html?category=Departamento&bedrooms=4%2B">4+ Ambientes</a>
                             </div>
                             <div>
-                                <span>Recoleta</span>
-                                <span>Palermo</span>
-                                <span>Belgrano</span>
-                                <span>Caballito</span>
+                                <a href="propiedades.html?category=Departamento&city=Capital%20Federal">Capital Federal</a>
+                                <a href="propiedades.html?category=Departamento&city=Bariloche">Bariloche</a>
                             </div>
                         </div>
                     </div>
-                </a>
+                </div>
 
                 <!-- Oficinas -->
-                <a href="propiedades.html#oficinas" class="item cat-oficinas">
+                <div class="item cat-oficinas">
+                    <a class="item-bg-link" href="propiedades.html?category=Oficina" aria-label="Ver Oficinas"></a>
                     <div class="mask">
-                        <div class="top"><h3>Oficinas</h3></div>
-                        <div class="grid col2">
-                            <div>
-                                <span>CABA</span>
-                                <span>Zona Norte</span>
-                                <span>Microcentro</span>
-                            </div>
-                            <div>
-                                <span>Puerto Madero</span>
-                                <span>Palermo</span>
-                                <span>Catalinas</span>
-                            </div>
+                        <div class="top"><h3><a href="propiedades.html?category=Oficina">Oficinas</a></h3></div>
+                        <div class="grid">
+                            <a href="propiedades.html?category=Oficina&neighborhood=Nuñez">Nuñez</a>
                         </div>
                     </div>
-                </a>
+                </div>
 
                 <!-- Terrenos -->
-                <a href="propiedades.html#terrenos" class="item cat-terrenos">
+                <div class="item cat-terrenos">
+                    <a class="item-bg-link" href="propiedades.html?category=Terreno" aria-label="Ver Terrenos"></a>
                     <div class="mask">
-                        <div class="top"><h3>Terrenos</h3></div>
-                        <div class="grid col2">
-                            <div>
-                                <span>Zona Norte</span>
-                                <span>Zona Sur</span>
-                                <span>Costa Atlántica</span>
-                            </div>
-                            <div>
-                                <span>Pilar</span>
-                                <span>Tigre</span>
-                                <span>Interior</span>
-                            </div>
+                        <div class="top"><h3><a href="propiedades.html?category=Terreno">Terrenos</a></h3></div>
+                        <div class="grid">
+                            <a href="propiedades.html?category=Terreno&neighborhood=Nuñez">Nuñez</a>
+                            <a href="propiedades.html?category=Terreno&neighborhood=San%20Cristóbal">San Cristóbal</a>
                         </div>
                     </div>
-                </a>
+                </div>
 
                 <!-- Casas -->
-                <a href="propiedades.html#casas" class="item cat-casas">
+                <div class="item cat-casas">
+                    <a class="item-bg-link" href="propiedades.html?category=Casa" aria-label="Ver Casas"></a>
                     <div class="mask">
-                        <div class="top"><h3>Casas</h3></div>
-                        <div class="grid col2">
-                            <div>
-                                <span>Recoleta</span>
-                                <span>Belgrano</span>
-                                <span>Palermo</span>
-                            </div>
-                            <div>
-                                <span>Pilar</span>
-                                <span>San Isidro</span>
-                                <span>Tigre</span>
-                            </div>
-                        </div>
+                        <div class="top"><h3><a href="propiedades.html?category=Casa">Casas</a></h3></div>
                     </div>
-                </a>
+                </div>
 
                 <!-- Hoteles -->
                 <a href="https://hotelesenventa.com" target="_blank" rel="noopener noreferrer" class="item cat-hoteles">
@@ -206,48 +221,6 @@
                         </div>
                     </div>
                 </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Servicios de UMEN -->
-    <section id="servicios">
-        <div class="container">
-            <div class="servicios-header">
-                <span class="servicios-eyebrow">Cómo trabajamos</span>
-                <h2>Nuestro <strong>servicio integral</strong> garantiza tus resultados de punto a punto</h2>
-                <p>Nuestro servicio profesional contempla cada paso, desde la búsqueda y el asesoramiento a la hora de
-                    invertir, como también la posterior administración del inmueble.</p>
-            </div>
-            <div class="servicios-grid">
-                <div class="servicio-item">
-                    <div class="servicio-top">
-                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M9 8h1M9 12h1M9 16h1M4 21h16"/></svg></div>
-                        <span class="servicio-num">01</span>
-                    </div>
-                    <p>Administramos propiedades.</p>
-                </div>
-                <div class="servicio-item">
-                    <div class="servicio-top">
-                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div>
-                        <span class="servicio-num">02</span>
-                    </div>
-                    <p>Gestionamos compra, venta y alquiler de propiedades.</p>
-                </div>
-                <div class="servicio-item">
-                    <div class="servicio-top">
-                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 8l-5 5-3-3-4 4"/></svg></div>
-                        <span class="servicio-num">03</span>
-                    </div>
-                    <p>Asesoramos en inversiones inmobiliarias.</p>
-                </div>
-                <div class="servicio-item">
-                    <div class="servicio-top">
-                        <div class="servicio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12.5 10h2M17 10h0M8 14h2M12.5 14h2M17 14h0M8 18h2M12.5 18h2M17 18h0"/></svg></div>
-                        <span class="servicio-num">04</span>
-                    </div>
-                    <p>Realizamos tasaciones.</p>
-                </div>
             </div>
         </div>
     </section>
@@ -328,7 +301,7 @@
                 <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando propiedades...</div>
             </div>
             <div class="content-btn" style="margin-top:48px">
-                <a href="propiedades.html" class="btn">Ver todas las propiedades en alquiler <i class="fas fa-arrow-right" style="margin-left:8px"></i></a>
+                <a href="propiedades.html?operation=alquiler" class="btn">Ver todas las propiedades en alquiler <i class="fas fa-arrow-right" style="margin-left:8px"></i></a>
             </div>
         </div>
     </section>

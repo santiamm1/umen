@@ -1851,3 +1851,9 @@ details.adm-taxo-accordion[open] summary .adm-taxo-chevron { transform: rotate(1
     #print-sheet, #print-sheet * { visibility: visible; }
     #print-sheet { display: block; position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
 }
+
+/* Pin naranja UMEN para el mapa de propiedades (reemplaza el marcador azul default de Leaflet) */
+.umen-map-marker {
+    background: none;
+    border: none;
+}

@@ -1,20 +1,22 @@
 // propiedades.js - Página de listado completo de propiedades UMEN
 
-import { getProperties, getCategories, getCities, getAllNeighborhoods, getHotelNotes } from './propertyService.js';
+import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries, getHotelNotes } from './propertyService.js';
 
 const ITEMS_PER_PAGE = 12;
 
 let categories = [];
 let cities = [];
 let neighborhoodsList = [];
+let countries = [];
 let allResults = [];
 let currentPage = 1;
 
 let currentFilters = {
     operation: 'venta',
     category: null,
-    cities: [],
-    neighborhoods: [],
+    countries: [],
+    city: null,
+    neighborhood: null,
     priceMin: null,
     priceMax: null,
     surfaceMin: null,
@@ -87,29 +89,39 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
     setupMobileMenu();
     setupFilterToggle();
 
+    // Lanzar la carga de propiedades en paralelo con la de categorías/ciudades/barrios
+    // (antes iban en serie: 4 round-trips a Firestore uno tras otro para 11 propiedades)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('operation')) currentFilters.operation = urlParams.get('operation');
+    if (urlParams.get('category')) currentFilters.category = urlParams.get('category');
+
+    propertyList.innerHTML = Array(6).fill(null).map(skeletonCard).join('');
+    updateResultsTitle();
+
+    const firebaseReady = window.db && window.db._databaseId?.projectId !== 'TU_PROJECT_ID_AQUI';
+    const apiFilters = { operation: currentFilters.operation };
+    if (currentFilters.category) apiFilters.category = currentFilters.category;
+    const propertiesPromise = firebaseReady
+        ? getProperties(apiFilters).catch(() => getDemoProperties())
+        : Promise.resolve(getDemoProperties());
+
     if (window.db) {
-        try {
-            categories = await getCategories();
-            if (categories.length === 0) useDefaultCategories();
-        } catch {
-            useDefaultCategories();
-        }
-        try {
-            cities = await getCities();
-            if (cities.length === 0) useDefaultCities();
-        } catch {
-            useDefaultCities();
-        }
-        try {
-            neighborhoodsList = await getAllNeighborhoods();
-            if (neighborhoodsList.length === 0) useDefaultNeighborhoods();
-        } catch {
-            useDefaultNeighborhoods();
-        }
+        const [catsRes, citiesRes, nbsRes, countriesRes] = await Promise.allSettled([
+            getCategories(), getCities(), getAllNeighborhoods(), getCountries()
+        ]);
+        categories = catsRes.status === 'fulfilled' ? catsRes.value : [];
+        if (categories.length === 0) useDefaultCategories();
+        cities = citiesRes.status === 'fulfilled' ? citiesRes.value : [];
+        if (cities.length === 0) useDefaultCities();
+        neighborhoodsList = nbsRes.status === 'fulfilled' ? nbsRes.value : [];
+        if (neighborhoodsList.length === 0) useDefaultNeighborhoods();
+        countries = countriesRes.status === 'fulfilled' ? countriesRes.value : [];
+        if (countries.length === 0) useDefaultCountries();
     } else {
         useDefaultCategories();
         useDefaultCities();
         useDefaultNeighborhoods();
+        useDefaultCountries();
     }
 
     populatePropertyTypes();
@@ -119,9 +131,12 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
     setupNumberFilterBtns();
     setupRangeFilters();
     renderTypePills();
+    renderCountryCheckboxes();
     renderCityCheckboxes();
     renderNeighborhoodCheckboxes();
+    syncSidebarSelectsFromFilters();
     setupPillFilters();
+    setupCountryFilter();
     setupCityFilter();
     setupNeighborhoodFilter();
     setupAgeFilter();
@@ -130,7 +145,8 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
     sortOrder.addEventListener('change', () => { currentPage = 1; applyFiltersAndRender(); });
     clearAllBtn.addEventListener('click', clearAllFilters);
 
-    await fetchAndRender();
+    allResults = await propertiesPromise;
+    applyFiltersAndRender();
 })();
 
 // ── Datos por defecto ─────────────────────────────────────────────────────────
@@ -150,30 +166,39 @@ function useDefaultNeighborhoods() {
         .map(name => ({ id: name, name }));
 }
 
+function useDefaultCountries() {
+    countries = ['Argentina'].map(name => ({ id: name, name }));
+}
+
 // ── Render: pills de tipo / checkboxes de ciudad y barrio ────────────────────
 
 function renderTypePills() {
-    const container = document.getElementById('filter-type');
-    if (!container) return;
-    container.innerHTML = categories.map(c =>
-        `<button class="filter-pill-btn" data-value="${c.name}">${c.name}</button>`
-    ).join('');
+    const select = document.getElementById('filter-type');
+    if (!select) return;
+    select.innerHTML = `<option value="">Todos los tipos</option>` +
+        categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
 }
 
-function renderCityCheckboxes() {
-    const container = document.getElementById('filter-city');
+function renderCountryCheckboxes() {
+    const container = document.getElementById('filter-country');
     if (!container) return;
-    container.innerHTML = cities.map(c =>
+    container.innerHTML = countries.map(c =>
         `<label class="filter-check-label"><input type="checkbox" value="${c.name}"> ${c.name}</label>`
     ).join('');
 }
 
+function renderCityCheckboxes() {
+    const select = document.getElementById('filter-city');
+    if (!select) return;
+    select.innerHTML = `<option value="">Todas las ciudades</option>` +
+        cities.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+}
+
 function renderNeighborhoodCheckboxes() {
-    const container = document.getElementById('filter-neighborhood');
-    if (!container) return;
-    container.innerHTML = neighborhoodsList.map(n =>
-        `<label class="filter-check-label"><input type="checkbox" value="${n.name}"> ${n.name}</label>`
-    ).join('');
+    const select = document.getElementById('filter-neighborhood');
+    if (!select) return;
+    select.innerHTML = `<option value="">Todos los barrios</option>` +
+        neighborhoodsList.map(n => `<option value="${n.name}">${n.name}</option>`).join('');
 }
 
 // ── Setup: tipos de propiedad ─────────────────────────────────────────────────
@@ -275,6 +300,9 @@ function applyFiltersFromUrl() {
     const operation = params.get('operation');
     const category = params.get('category');
     const keyword = params.get('keyword');
+    const neighborhood = params.get('neighborhood');
+    const city = params.get('city');
+    const bedrooms = params.get('bedrooms');
 
     if (operation) {
         currentFilters.operation = operation;
@@ -293,10 +321,30 @@ function applyFiltersFromUrl() {
         }
     }
 
+    if (neighborhood) currentFilters.neighborhood = neighborhood;
+    if (city) currentFilters.city = city;
+
+    if (bedrooms) {
+        currentFilters.bedrooms = bedrooms;
+        const btn = document.querySelector(`#filter-bedrooms .filter-number-btn[data-value="${bedrooms}"]`);
+        if (btn) btn.classList.add('active');
+    }
+
     if (keyword) {
         currentFilters.keyword = keyword.toLowerCase();
         quicksearch.value = keyword;
     }
+}
+
+// Sincroniza los <select> del sidebar con los filtros ya cargados desde la URL
+// (se llama después de poblar sus opciones, si no el .value no pega en nada)
+function syncSidebarSelectsFromFilters() {
+    const map = { 'filter-type': currentFilters.category, 'filter-city': currentFilters.city, 'filter-neighborhood': currentFilters.neighborhood };
+    Object.entries(map).forEach(([id, value]) => {
+        if (!value) return;
+        const sel = document.getElementById(id);
+        if (sel) sel.value = value;
+    });
 }
 
 // ── Setup: barra de búsqueda ──────────────────────────────────────────────────
@@ -334,37 +382,30 @@ function setupNumberFilterBtns() {
     setupBtnGroup('filter-garages',   'garages');
 }
 
-// ── Setup: pills (tipo / estado) ──────────────────────────────────────────────
+// ── Setup: selects de tipo / estado ────────────────────────────────────────────
 
 function setupPillFilters() {
-    setupPillGroup('filter-type',   'category');
-    setupPillGroup('filter-estado', 'estado');
+    setupSelectFilter('filter-type', 'category');
+    setupSelectFilter('filter-estado', 'estado');
 }
 
-function setupPillGroup(containerId, filterKey) {
-    document.querySelectorAll(`#${containerId} .filter-pill-btn`).forEach(btn => {
-        btn.addEventListener('click', () => {
-            const wasActive = btn.classList.contains('active');
-            document.querySelectorAll(`#${containerId} .filter-pill-btn`).forEach(b => b.classList.remove('active'));
-            if (!wasActive) {
-                btn.classList.add('active');
-                currentFilters[filterKey] = btn.dataset.value;
-            } else {
-                currentFilters[filterKey] = null;
-            }
-            currentPage = 1;
-            applyFiltersAndRender();
-        });
+function setupSelectFilter(selectId, filterKey) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    select.addEventListener('change', () => {
+        currentFilters[filterKey] = select.value || null;
+        currentPage = 1;
+        applyFiltersAndRender();
     });
 }
 
 // ── Setup: ciudad (checkboxes múltiples) ──────────────────────────────────────
 
-function setupCityFilter() {
-    document.querySelectorAll('#filter-city input[type="checkbox"]').forEach(cb => {
+function setupCountryFilter() {
+    document.querySelectorAll('#filter-country input[type="checkbox"]').forEach(cb => {
         cb.addEventListener('change', () => {
-            currentFilters.cities = Array.from(
-                document.querySelectorAll('#filter-city input[type="checkbox"]:checked')
+            currentFilters.countries = Array.from(
+                document.querySelectorAll('#filter-country input[type="checkbox"]:checked')
             ).map(c => c.value);
             currentPage = 1;
             applyFiltersAndRender();
@@ -372,17 +413,25 @@ function setupCityFilter() {
     });
 }
 
-// ── Setup: barrio (checkboxes múltiples) ──────────────────────────────────────
+function setupCityFilter() {
+    const select = document.getElementById('filter-city');
+    if (!select) return;
+    select.addEventListener('change', () => {
+        currentFilters.city = select.value || null;
+        currentPage = 1;
+        applyFiltersAndRender();
+    });
+}
+
+// ── Setup: barrio (select) ─────────────────────────────────────────────────────
 
 function setupNeighborhoodFilter() {
-    document.querySelectorAll('#filter-neighborhood input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', () => {
-            currentFilters.neighborhoods = Array.from(
-                document.querySelectorAll('#filter-neighborhood input[type="checkbox"]:checked')
-            ).map(c => c.value);
-            currentPage = 1;
-            applyFiltersAndRender();
-        });
+    const select = document.getElementById('filter-neighborhood');
+    if (!select) return;
+    select.addEventListener('change', () => {
+        currentFilters.neighborhood = select.value || null;
+        currentPage = 1;
+        applyFiltersAndRender();
     });
 }
 
@@ -514,14 +563,19 @@ function applyFiltersAndRender() {
         filtered = filtered.filter(p => p.type === currentFilters.category);
     }
 
-    // Ciudad (multi)
-    if (currentFilters.cities.length > 0) {
-        filtered = filtered.filter(p => p.zone && currentFilters.cities.includes(p.zone));
+    // País (multi)
+    if (currentFilters.countries.length > 0) {
+        filtered = filtered.filter(p => p.pais && currentFilters.countries.includes(p.pais));
     }
 
-    // Barrio (multi)
-    if (currentFilters.neighborhoods.length > 0) {
-        filtered = filtered.filter(p => p.neighborhood && currentFilters.neighborhoods.includes(p.neighborhood));
+    // Ciudad
+    if (currentFilters.city) {
+        filtered = filtered.filter(p => p.zone === currentFilters.city);
+    }
+
+    // Barrio
+    if (currentFilters.neighborhood) {
+        filtered = filtered.filter(p => p.neighborhood === currentFilters.neighborhood);
     }
 
     if (currentFilters.priceMin !== null) filtered = filtered.filter(p => p.price >= currentFilters.priceMin);
@@ -694,7 +748,8 @@ function renderPagination(total) {
     if (!paginationEl) return;
     const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
-    if (totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+    if (totalPages <= 1) { paginationEl.innerHTML = ''; paginationEl.style.display = 'none'; return; }
+    paginationEl.style.display = '';
 
     const pages = buildPageNumbers(currentPage, totalPages);
 
@@ -779,12 +834,16 @@ function renderActiveFilterTags() {
         tags.push(`<span class="filter-tag" onclick="removeFilter('category')">${currentFilters.category} <i class="fas fa-times"></i></span>`);
     }
 
-    if (currentFilters.cities.length > 0) {
-        tags.push(`<span class="filter-tag" onclick="removeFilter('cities')">${currentFilters.cities.join(', ')} <i class="fas fa-times"></i></span>`);
+    if (currentFilters.countries.length > 0) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('countries')">${currentFilters.countries.join(', ')} <i class="fas fa-times"></i></span>`);
     }
 
-    if (currentFilters.neighborhoods.length > 0) {
-        tags.push(`<span class="filter-tag" onclick="removeFilter('neighborhoods')">Barrio: ${currentFilters.neighborhoods.join(', ')} <i class="fas fa-times"></i></span>`);
+    if (currentFilters.city) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('city')">${currentFilters.city} <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.neighborhood) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('neighborhood')">Barrio: ${currentFilters.neighborhood} <i class="fas fa-times"></i></span>`);
     }
 
     if (currentFilters.bathrooms) {
@@ -829,13 +888,19 @@ window.removeFilter = function(key) {
         if (quicksearch) quicksearch.value = '';
     } else if (key === 'category') {
         currentFilters.category = null;
-        document.querySelectorAll('#filter-type .filter-pill-btn').forEach(b => b.classList.remove('active'));
-    } else if (key === 'cities') {
-        currentFilters.cities = [];
-        document.querySelectorAll('#filter-city input[type="checkbox"]').forEach(cb => cb.checked = false);
-    } else if (key === 'neighborhoods') {
-        currentFilters.neighborhoods = [];
-        document.querySelectorAll('#filter-neighborhood input[type="checkbox"]').forEach(cb => cb.checked = false);
+        const sel = document.getElementById('filter-type');
+        if (sel) sel.value = '';
+    } else if (key === 'countries') {
+        currentFilters.countries = [];
+        document.querySelectorAll('#filter-country input[type="checkbox"]').forEach(cb => cb.checked = false);
+    } else if (key === 'city') {
+        currentFilters.city = null;
+        const sel = document.getElementById('filter-city');
+        if (sel) sel.value = '';
+    } else if (key === 'neighborhood') {
+        currentFilters.neighborhood = null;
+        const sel = document.getElementById('filter-neighborhood');
+        if (sel) sel.value = '';
     } else if (key === 'bathrooms') {
         currentFilters.bathrooms = null;
         document.querySelectorAll('#filter-bathrooms .filter-number-btn').forEach(b => b.classList.remove('active'));
@@ -844,7 +909,8 @@ window.removeFilter = function(key) {
         document.querySelectorAll('#filter-garages .filter-number-btn').forEach(b => b.classList.remove('active'));
     } else if (key === 'estado') {
         currentFilters.estado = null;
-        document.querySelectorAll('#filter-estado .filter-pill-btn').forEach(b => b.classList.remove('active'));
+        const sel = document.getElementById('filter-estado');
+        if (sel) sel.value = '';
     } else if (key === 'age') {
         currentFilters.age = null;
         const el = document.getElementById('filter-age');
@@ -858,8 +924,9 @@ function clearAllFilters() {
     currentFilters = {
         operation: currentFilters.operation,
         category: null,
-        cities: [],
-        neighborhoods: [],
+        countries: [],
+        city: null,
+        neighborhood: null,
         priceMin: null,
         priceMax: null,
         surfaceMin: null,
@@ -882,11 +949,13 @@ function clearAllFilters() {
     if (display)  display.textContent = 'Todo tipo de propiedades';
     if (dropdown) dropdown.querySelectorAll('.custom-select-option').forEach(o => o.classList.toggle('selected', o.dataset.value === ''));
 
-    document.querySelectorAll('.filter-number-btn, .filter-pill-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('#filter-city input[type="checkbox"], #filter-neighborhood input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.filter-number-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#filter-country input[type="checkbox"]').forEach(cb => cb.checked = false);
 
-    const ageSelect = document.getElementById('filter-age');
-    if (ageSelect) ageSelect.value = '';
+    ['filter-age', 'filter-type', 'filter-city', 'filter-neighborhood', 'filter-estado'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) sel.value = '';
+    });
 
     currentPage = 1;
     applyFiltersAndRender();

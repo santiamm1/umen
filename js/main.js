@@ -56,13 +56,15 @@ let currentFilters = {
     setupMobileMenu();
     setupScrollReveal();
 
+    // Categorías/provincias (para los filtros) y las 3 secciones de propiedades/blog
+    // son independientes entre sí: se piden todas en paralelo en vez de una tras otra.
     const isFirebaseConfigured = checkFirebaseConfig();
-    if (isFirebaseConfigured) {
-        await loadData();
-    } else {
-        useDemoData();
-    }
+    const dataPromise = isFirebaseConfigured ? loadData() : Promise.resolve(useDemoData());
+    const searchPromise = executeSearch();
+    const rentalsPromise = renderFeaturedRentals();
+    const novedadesPromise = renderNovedades();
 
+    await dataPromise;
     populatePropertyTypes();
     setupCustomSelect();
     setupSearchBox();
@@ -70,9 +72,7 @@ let currentFilters = {
 
     sortOrderSelect.addEventListener('change', () => sortAndRenderProperties());
 
-    await executeSearch();
-    await renderFeaturedRentals();
-    await renderNovedades();
+    await Promise.all([searchPromise, rentalsPromise, novedadesPromise]);
 })();
 
 // Verificar si Firebase está inicializado
@@ -83,8 +83,7 @@ function checkFirebaseConfig() {
 // Cargar datos reales
 async function loadData() {
     try {
-        categories = await getCategories();
-        provinces = await getProvinces();
+        [categories, provinces] = await Promise.all([getCategories(), getProvinces()]);
     } catch (error) {
         console.error('Error al cargar datos de Firebase:', error);
         useDemoData();
