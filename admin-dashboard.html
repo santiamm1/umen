@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=9.43">
+    <link rel="stylesheet" href="css/admin.css?v=9.44">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -191,39 +191,32 @@
                 </div>
                 <!-- Stats -->
                 <div class="adm-stats">
-                    <div class="adm-stat adm-stat-total">
+                    <div class="adm-stat adm-stat-total adm-stat-clickable" id="kpi-total" title="Ver todas las propiedades">
                         <i class="fas fa-city"></i>
                         <div>
                             <strong id="total-properties">0</strong>
                             <span>Total Propiedades</span>
                         </div>
                     </div>
-                    <div class="adm-stat adm-stat-pub highlight">
+                    <div class="adm-stat adm-stat-pub highlight adm-stat-clickable" id="kpi-publicadas" title="Ver publicadas online">
                         <i class="fas fa-globe-americas"></i>
                         <div>
                             <strong id="total-publicadas">0</strong>
                             <span>Publicadas Online</span>
                         </div>
                     </div>
-                    <div class="adm-stat">
+                    <div class="adm-stat adm-stat-clickable" id="kpi-venta" title="Ver propiedades en venta">
                         <i class="fas fa-store-alt"></i>
                         <div>
                             <strong id="total-venta">0</strong>
                             <span>En Venta</span>
                         </div>
                     </div>
-                    <div class="adm-stat">
+                    <div class="adm-stat adm-stat-clickable" id="kpi-alquiler" title="Ver propiedades en alquiler">
                         <i class="fas fa-house-user"></i>
                         <div>
                             <strong id="total-alquiler">0</strong>
                             <span>Alquiler</span>
-                        </div>
-                    </div>
-                    <div class="adm-stat">
-                        <i class="fas fa-handshake"></i>
-                        <div>
-                            <strong id="total-vendidas">0</strong>
-                            <span>Operaciones Exitosas</span>
                         </div>
                     </div>
                 </div>
@@ -1286,7 +1279,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.38"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.39"></script>
     <script>
         // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
         lucide.createIcons();

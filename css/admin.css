@@ -444,6 +444,9 @@ input, button, select, textarea, optgroup, option {
     box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.14);
     border-color: rgba(246, 140, 24, 0.25);
 }
+.adm-stat-clickable {
+    cursor: pointer;
+}
 .adm-stat:hover::before {
     opacity: 1;
 }

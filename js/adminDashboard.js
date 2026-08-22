@@ -249,10 +249,20 @@ function setupEventListeners() {
     document.getElementById('profile-photo-input')?.addEventListener('change', handleProfilePhotoChange);
     document.getElementById('profile-photo-remove-btn')?.addEventListener('click', handleRemoveProfilePhoto);
     
-    document.getElementById('admin-search')?.addEventListener('input', () => {
+    const rerenderProperties = () => {
         currentPage = 1;
         if (kanbanView) renderKanban(); else renderAdminTable();
-    });
+    };
+    document.getElementById('admin-search')?.addEventListener('input', rerenderProperties);
+    document.getElementById('filter-operation')?.addEventListener('change', rerenderProperties);
+    document.getElementById('filter-type')?.addEventListener('change', rerenderProperties);
+    document.getElementById('filter-status')?.addEventListener('change', rerenderProperties);
+
+    // KPIs del dashboard: llevan a Propiedades con el filtro correspondiente ya aplicado
+    document.getElementById('kpi-total')?.addEventListener('click', () => goToPropertiesFiltered({}));
+    document.getElementById('kpi-publicadas')?.addEventListener('click', () => goToPropertiesFiltered({ status: 'publicado' }));
+    document.getElementById('kpi-venta')?.addEventListener('click', () => goToPropertiesFiltered({ operation: 'venta' }));
+    document.getElementById('kpi-alquiler')?.addEventListener('click', () => goToPropertiesFiltered({ operation: 'alquiler' }));
 
     document.getElementById('view-table-btn')?.addEventListener('click', () => setPropertiesView('table'));
     document.getElementById('view-kanban-btn')?.addEventListener('click', () => setPropertiesView('kanban'));
@@ -620,17 +630,50 @@ function populateFilterTypeSelect() {
     filterTypeSelect.value = cur;
 }
 
+// Navega a la sección Propiedades aplicando el filtro del KPI clickeado en el dashboard.
+function goToPropertiesFiltered({ operation = '', status = '' }) {
+    const opSelect = document.getElementById('filter-operation');
+    const typeSelect = document.getElementById('filter-type');
+    const statusSelect = document.getElementById('filter-status');
+    const searchInput = document.getElementById('admin-search');
+    if (opSelect) opSelect.value = operation;
+    if (typeSelect) typeSelect.value = '';
+    if (statusSelect) statusSelect.value = status;
+    if (searchInput) searchInput.value = '';
+    currentPage = 1;
+    if (kanbanView) renderKanban(); else renderAdminTable();
+
+    const link = document.querySelector('.adm-sidebar-link[data-section="propiedades"]');
+    window.goToSection?.('propiedades', link);
+}
+
 // Filtra por el término de búsqueda global (título, barrio, zona o código) — usado por tabla y kanban.
 function getSearchFilteredProperties() {
     const searchTerm = (document.getElementById('admin-search')?.value || '').toLowerCase();
-    if (!searchTerm) return properties;
-    const s = searchTerm;
-    return properties.filter(p =>
-        (p.title || '').toLowerCase().includes(s) ||
-        (p.neighborhood || '').toLowerCase().includes(s) ||
-        (p.zone || '').toLowerCase().includes(s) ||
-        (p.code || '').toLowerCase().includes(s)
-    );
+    const operationFilter = document.getElementById('filter-operation')?.value || '';
+    const typeFilter = document.getElementById('filter-type')?.value || '';
+    const statusFilter = document.getElementById('filter-status')?.value || '';
+
+    let list = properties;
+
+    if (operationFilter) {
+        list = list.filter(p => (p.operation || '').toLowerCase() === operationFilter);
+    }
+    if (typeFilter) {
+        list = list.filter(p => p.type === typeFilter);
+    }
+    if (statusFilter) {
+        list = list.filter(p => (p.status || '').toLowerCase() === statusFilter);
+    }
+    if (searchTerm) {
+        list = list.filter(p =>
+            (p.title || '').toLowerCase().includes(searchTerm) ||
+            (p.neighborhood || '').toLowerCase().includes(searchTerm) ||
+            (p.zone || '').toLowerCase().includes(searchTerm) ||
+            (p.code || '').toLowerCase().includes(searchTerm)
+        );
+    }
+    return list;
 }
 
 // ── Tabla de propiedades ──────────────────────────────────────────────────────
