@@ -96,7 +96,7 @@ function render(property) {
 
             <!-- ── Breadcrumb ─────────────────────────────────── -->
             <div class="detail-breadcrumb">
-                <a href="index.html">Inicio</a>
+                <a href="/">Inicio</a>
                 <i class="fas fa-chevron-right"></i>
                 <a href="propiedades.html?v=3">Propiedades</a>
                 <i class="fas fa-chevron-right"></i>

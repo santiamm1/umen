@@ -56,7 +56,7 @@ async function render(post) {
     container.innerHTML = `
         <div class="detail-container blog-post-wrap">
             <div class="blog-breadcrumb">
-                <a href="index.html">Inicio</a> <i class="fas fa-chevron-right"></i>
+                <a href="/">Inicio</a> <i class="fas fa-chevron-right"></i>
                 <a href="blog.html">Blog</a> <i class="fas fa-chevron-right"></i>
                 <span>${post.category || 'Novedades'}</span>
             </div>

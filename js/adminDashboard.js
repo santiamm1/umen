@@ -283,7 +283,7 @@ function setupEventListeners() {
 }
 
 async function handleLogout() {
-    try { await signOut(window.auth); window.location.href = 'index.html'; }
+    try { await signOut(window.auth); window.location.href = '/'; }
     catch (e) { console.error(e); }
 }
 
