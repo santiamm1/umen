@@ -1,9 +1,13 @@
 // Inyecta partials compartidos (header, footer) en todas las páginas
 
+// Raíz del sitio calculada desde la ubicación real de este archivo (js/components.js),
+// no desde la URL visible de la página. Así funciona igual si el sitio vive en la raíz
+// del dominio, en un subpath (ej. GitHub Pages: usuario.github.io/repo/) o detrás de las
+// URLs "lindas" reescritas por .htaccess (donde la URL visible no coincide con la carpeta real).
+export const siteRoot = new URL('../', import.meta.url);
+
 async function fetchPartial(path) {
-    const depth = window.location.pathname.split('/').filter(Boolean).length;
-    const base = depth > 1 ? '../'.repeat(depth - 1) : '';
-    const res = await fetch(`${base}${path}`);
+    const res = await fetch(new URL(path, siteRoot));
     if (!res.ok) throw new Error(`fetch failed: ${path}`);
     return res.text();
 }
@@ -15,6 +19,12 @@ export async function loadHeader() {
     try {
         const html = await fetchPartial('partials/header.html');
         placeholder.outerHTML = html;
+
+        // El logo usa una ruta absoluta ("/assets/...") en el HTML estático porque las
+        // URLs lindas del blog/hoteles necesitan una raíz fija; la recalculamos acá con
+        // siteRoot para que también funcione en subpaths (GitHub Pages).
+        const logoImg = document.getElementById('header-logo');
+        if (logoImg) logoImg.src = new URL('assets/Logo/Logo.png', siteRoot).href;
 
         // Setear link activo según la página actual
         const page = window.location.pathname.split('/').pop() || 'index.html';
