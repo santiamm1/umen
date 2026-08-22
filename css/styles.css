@@ -122,21 +122,17 @@ header.scrolled .header-topbar {
     font-size: 0.68rem;
 }
 
-.topbar-social {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+/* El sobre y el logo de WhatsApp son glyphs más finos/con más espacio vacío
+   que el pin; se agrandan un poco para que los tres se vean con un peso
+   visual parejo. */
+.topbar-contact .fa-envelope {
+    font-size: 0.8rem;
 }
 
-.topbar-social a {
-    color: rgba(255, 255, 255, 0.35);
+.topbar-contact .fa-whatsapp {
     font-size: 0.85rem;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.topbar-social a:hover {
-    color: var(--primary-color);
+    -webkit-text-stroke: 0.4px currentColor;
+    text-stroke: 0.4px currentColor;
 }
 
 /* WhatsApp CTA button in main nav */
@@ -764,7 +760,7 @@ header.scrolled .mobile-menu-btn {
 /* Category grid highlights */
 #destacado {
     padding: 80px 0;
-    background-color: var(--white);
+    background-color: var(--light-gray);
 }
 
 .grid {
@@ -979,7 +975,7 @@ a.item {
 /* ── Servicios ──────────────────────────────────────────────── */
 #servicios {
     padding: 90px 0;
-    background: var(--light-gray);
+    background: #fff;
     border-top: 1px solid var(--border-color);
 }
 
@@ -4660,11 +4656,14 @@ a.item {
     width: 100%;
     height: 400px;
     overflow: hidden;
+    border-radius: 16px;
+    margin-bottom: 64px;
 }
 
 .mapa-embed iframe {
     display: block;
     filter: grayscale(20%) contrast(1.05);
+    border-radius: 16px;
 }
 
 /* ── Contacto responsive ── */

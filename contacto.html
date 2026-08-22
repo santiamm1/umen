@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto | UMEN Inmobiliaria</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/styles.css?v=3.5">
+    <link rel="stylesheet" href="css/styles.css?v=10.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -157,7 +157,7 @@
             <h2>Encontranos</h2>
             <p>Av. Cabildo 4769, 9° Piso — Nuñez, CABA</p>
         </div>
-        <div class="mapa-embed">
+        <div class="mapa-embed container">
             <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3285.8!2d-58.4609!3d-34.5523!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb59e53a2a6c7%3A0x1!2sAv.%20Cabildo%204769%2C%20Buenos%20Aires!5e0!3m2!1ses!2sar!4v1"
                 width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
@@ -175,15 +175,19 @@
     </script>
 
     <script>
-        document.getElementById('contacto-form').addEventListener('submit', function(e) {
+        document.getElementById('contacto-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const form     = this;
             const btn      = document.getElementById('cf-submit');
             const feedback = document.getElementById('cf-feedback');
             const nombre   = document.getElementById('cf-nombre').value.trim();
+            const apellido = document.getElementById('cf-apellido').value.trim();
             const email    = document.getElementById('cf-email').value.trim();
+            const telefono = document.getElementById('cf-telefono').value.trim();
+            const motivo   = document.getElementById('cf-motivo').value;
             const mensaje  = document.getElementById('cf-mensaje').value.trim();
 
-            if (!nombre || !email || !mensaje) {
+            if (!nombre || !apellido || !email || !mensaje) {
                 feedback.className = 'cf-feedback error';
                 feedback.textContent = 'Por favor completá los campos obligatorios (*)';
                 feedback.style.display = 'block';
@@ -193,14 +197,34 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
-            // Simula envío — reemplazar con fetch/EmailJS/Firebase
-            setTimeout(() => {
+            try {
+                const res = await fetch('php/send-mail.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        form: 'contacto',
+                        nombre: `${nombre} ${apellido}`,
+                        email,
+                        telefono,
+                        mensaje,
+                        extra: motivo ? { Motivo: motivo } : {}
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.error || 'Error al enviar');
+
                 feedback.className = 'cf-feedback success';
                 feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Mensaje enviado! Te contactaremos a la brevedad.';
                 feedback.style.display = 'block';
                 btn.innerHTML = '<span>Mensaje enviado</span> <i class="fas fa-check"></i>';
-                this.reset();
-            }, 1200);
+                form.reset();
+            } catch (err) {
+                feedback.className = 'cf-feedback error';
+                feedback.textContent = err.message || 'No se pudo enviar el mensaje. Intentá de nuevo.';
+                feedback.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<span>Enviar mensaje</span> <i class="fas fa-arrow-right"></i>';
+            }
         });
     </script>
 

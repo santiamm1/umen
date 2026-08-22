@@ -117,7 +117,7 @@ async function render(post) {
 async function renderRelated(currentPost) {
     let all = [];
     try {
-        all = await getBlogPosts();
+        all = await getBlogPosts(3); // solo se muestran 2 relacionadas, con margen por si el post actual está incluido
     } catch {
         all = [];
     }

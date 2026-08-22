@@ -45,7 +45,6 @@ async function getDb() {
 export async function getProperties(filters = {}) {
     try {
         const db = await getDb();
-        console.log('Consultando Firestore con filtros:', filters);
         const colRef = collection(db, 'properties');
         let queryConstraints = [];
 
@@ -66,16 +65,14 @@ export async function getProperties(filters = {}) {
         }
 
         // No agregamos orderBy aquí para evitar errores de índice si el usuario no los tiene configurados
-        queryConstraints.push(limit(100));
+        queryConstraints.push(limit(filters.limit || 100));
 
         const q = query(colRef, ...queryConstraints);
-        
+
         const querySnapshot = await getDocs(q);
-        console.log('Snapshot recibido. Tamaño:', querySnapshot.size);
-        
+
         let properties = [];
         querySnapshot.forEach((doc) => {
-            console.log('Documento encontrado:', doc.id, doc.data());
             properties.push({ id: doc.id, ...doc.data() });
         });
 
@@ -86,7 +83,6 @@ export async function getProperties(filters = {}) {
             return dateB - dateA;
         });
 
-        console.log('Propiedades finales enviadas al dashboard:', properties);
         return properties;
     } catch (error) {
         console.error('Error getting properties:', error);
@@ -493,10 +489,11 @@ function sortByCreatedAtDesc(items) {
     });
 }
 
-export async function getBlogPosts() {
+export async function getBlogPosts(limitCount) {
     try {
         const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'blogPosts'));
+        const colRef = collection(db, 'blogPosts');
+        const querySnapshot = await getDocs(limitCount ? query(colRef, limit(limitCount)) : colRef);
         const posts = [];
         querySnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
         return sortByCreatedAtDesc(posts);

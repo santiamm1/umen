@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tasaciones | UMEN Inmobiliaria</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/styles.css?v=3.5">
+    <link rel="stylesheet" href="css/styles.css?v=10.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -225,14 +225,21 @@
         });
 
         // Form submit
-        document.getElementById('tas-form').addEventListener('submit', function(e) {
+        document.getElementById('tas-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const btn      = document.getElementById('tas-submit');
-            const feedback = document.getElementById('tas-feedback');
-            const nombre   = document.getElementById('tas-nombre').value.trim();
-            const email    = document.getElementById('tas-email').value.trim();
-            const tel      = document.getElementById('tas-tel').value.trim();
-            const ubicacion= document.getElementById('tas-ubicacion').value.trim();
+            const form       = this;
+            const btn        = document.getElementById('tas-submit');
+            const feedback   = document.getElementById('tas-feedback');
+            const nombre     = document.getElementById('tas-nombre').value.trim();
+            const apellido   = document.getElementById('tas-apellido').value.trim();
+            const email      = document.getElementById('tas-email').value.trim();
+            const tel        = document.getElementById('tas-tel').value.trim();
+            const tipo       = document.getElementById('tas-tipo').value;
+            const ubicacion  = document.getElementById('tas-ubicacion').value.trim();
+            const superficie = document.getElementById('tas-superficie').value.trim();
+            const dormitorios= document.getElementById('tas-dormitorios').value;
+            const info       = document.getElementById('tas-info').value.trim();
+            const operacion  = document.querySelector('.tas-op-btn.active')?.dataset.op || 'venta';
 
             if (!nombre || !email || !tel || !ubicacion) {
                 feedback.className = 'cf-feedback error';
@@ -244,14 +251,41 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
-            setTimeout(() => {
+            try {
+                const res = await fetch('php/send-mail.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        form: 'tasacion',
+                        nombre: `${nombre} ${apellido}`,
+                        email,
+                        telefono: tel,
+                        mensaje: info,
+                        extra: {
+                            Operación: operacion,
+                            'Tipo de propiedad': tipo,
+                            Ubicación: ubicacion,
+                            Superficie: superficie ? `${superficie} m²` : '',
+                            Dormitorios: dormitorios
+                        }
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.error || 'Error al enviar');
+
                 feedback.className = 'cf-feedback success';
                 feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Solicitud enviada! Un asesor de UMEN te contactará en breve.';
                 feedback.style.display = 'flex';
                 btn.innerHTML = '<span>Solicitud enviada</span> <i class="fas fa-check"></i>';
-                this.reset();
+                form.reset();
                 document.querySelector('.tas-op-btn').classList.add('active');
-            }, 1200);
+            } catch (err) {
+                feedback.className = 'cf-feedback error';
+                feedback.textContent = err.message || 'No se pudo enviar la solicitud. Intentá de nuevo.';
+                feedback.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = '<span>Solicitar tasación gratuita</span> <i class="fas fa-arrow-right"></i>';
+            }
         });
     </script>
 

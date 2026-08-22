@@ -327,7 +327,8 @@ async function executeSearch(shouldScroll = false) {
         // Ejecutar llamada a Firebase Firestore
         // Pasamos filtros exactos de Firebase: category, operation, province
         const apiFilters = {
-            operation: currentFilters.operation
+            operation: currentFilters.operation,
+            limit: 12 // el home solo muestra 6 destacadas; margen extra por si se filtra por keyword
         };
         
         if (currentFilters.category) {
@@ -373,8 +374,8 @@ async function executeSearch(shouldScroll = false) {
             results = results.filter(p => p.zone && p.zone.toLowerCase().includes(z));
         }
 
-        // Home: solo las 3 más recientes
-        properties = results.slice(0, 3);
+        // Home: solo las 6 más recientes
+        properties = results.slice(0, 6);
 
         // Renderizar y ordenar
         sortAndRenderProperties();
@@ -548,7 +549,7 @@ async function renderFeaturedRentals() {
     let allRentals = [];
     try {
         if (checkFirebaseConfig() && window.db._databaseId && window.db._databaseId.projectId !== "TU_PROJECT_ID_AQUI") {
-            allRentals = await getProperties({ operation: 'alquiler' });
+            allRentals = await getProperties({ operation: 'alquiler', limit: 12 });
         }
         if (allRentals.length === 0) {
             allRentals = getDemoProperties().filter(p => p.operation === 'alquiler');
@@ -609,7 +610,7 @@ async function renderNovedades() {
 
     let posts = [];
     try {
-        posts = await getBlogPosts();
+        posts = await getBlogPosts(6); // el home solo muestra las últimas 3
     } catch {
         posts = [];
     }
