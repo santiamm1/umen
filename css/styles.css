@@ -26,6 +26,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -3378,7 +3379,7 @@ a.item {
     }
 
     .grid.col3 {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     #destacado .item:nth-child(odd):last-child {
@@ -3464,15 +3465,19 @@ a.item {
     }
 
     .hero-stats {
+        flex-wrap: wrap;
         justify-content: center;
+        row-gap: 20px;
+        padding: 24px 20px;
     }
 
     .hero-stat {
-        padding-right: 16px;
+        flex: 1 1 40%;
+        padding-right: 0;
     }
 
     .hero-stat-sep {
-        margin-right: 16px;
+        display: none;
     }
 
     /* Ocultar filtro en mobile — usar propiedades.html */
@@ -3533,18 +3538,26 @@ a.item {
     .grid.col3 {
         grid-template-columns: 1fr;
     }
+
+    /* En una sola columna, span/1-1 de estos items forzaría una 2da columna implícita */
+    .cat-hoteles,
+    .cat-mas {
+        grid-column: auto;
+    }
     
     #destacado .item:nth-child(odd):last-child {
         grid-column: span 1;
     }
     
-    .results-header {
+    .results-header,
+    .alquiler-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
-    
-    #sort-order {
+
+    #sort-order,
+    #rental-sort {
         width: 100%;
     }
     
@@ -4716,7 +4729,7 @@ a.item {
 
 .tas-stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 32px;
 }
 
@@ -5128,8 +5141,27 @@ a.item {
 
 @media (max-width: 768px) {
     .tas-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px;
+    }
+
+    .tas-stat {
+        padding: 20px 16px;
+    }
+
+    .tas-stat-top {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .tas-stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+    }
+
+    .tas-stat-num {
+        font-size: 1.7rem;
     }
 
     #tas-stats { padding: 60px 0; }
