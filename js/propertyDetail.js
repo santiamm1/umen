@@ -223,7 +223,7 @@ function render(property) {
                     </section>` : ''}
 
                     <!-- Mapa -->
-                    <section class="detail-section">
+                    <section class="detail-section detail-section-map">
                         <h2>Ubicación</h2>
                         <div class="detail-map">
                             <iframe

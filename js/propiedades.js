@@ -45,11 +45,12 @@ const paginationEl    = document.getElementById('pagination');
 const filterToggleBtn = document.getElementById('filter-toggle-btn');
 const filtersSidebar  = document.getElementById('filters-sidebar');
 const sidebarOverlay  = document.getElementById('sidebar-overlay');
+const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
 const viewGridBtn     = document.getElementById('view-grid');
 const viewListBtn     = document.getElementById('view-list');
 
 // DOM refs del header (inyectado async — se asignan dentro del IIFE)
-let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
+let header, propertyTypeSelect, searchBtn, quicksearch;
 
 (async () => {
     // Esperar hasta 2.5s a que el header partial sea inyectado
@@ -61,8 +62,6 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
 
     // Capturar refs del header ahora que existe
     header             = document.getElementById('header');
-    mobileMenuBtn      = document.getElementById('mobile-menu-btn');
-    navMenu            = document.getElementById('nav-menu');
     propertyTypeSelect = document.getElementById('property-type');
     searchBtn          = document.getElementById('search-btn');
     quicksearch        = document.getElementById('quicksearch');
@@ -86,7 +85,6 @@ let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
         handleHeaderScroll();
     }
 
-    setupMobileMenu();
     setupFilterToggle();
 
     // Lanzar la carga de propiedades en paralelo con la de categorías/ciudades/barrios
@@ -250,32 +248,16 @@ function setupCustomSelect() {
     document.addEventListener('click', () => customSelect.classList.remove('open'));
 }
 
-// ── Setup: menú móvil ─────────────────────────────────────────────────────────
-
-function setupMobileMenu() {
-    mobileMenuBtn.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        const icon = mobileMenuBtn.querySelector('i');
-        if (navMenu.classList.contains('active')) {
-            icon.className = 'fas fa-times';
-            Object.assign(navMenu.style, {
-                display: 'flex', flexDirection: 'column',
-                position: 'absolute', top: '100%',
-                left: '0', width: '100%',
-                backgroundColor: '#111', padding: '20px',
-                zIndex: '999'
-            });
-        } else {
-            icon.className = 'fas fa-bars';
-            navMenu.style.cssText = '';
-        }
-    });
-}
-
 // ── Setup: toggle sidebar en mobile ──────────────────────────────────────────
 
 function setupFilterToggle() {
     if (!filterToggleBtn || !filtersSidebar) return;
+
+    const closeSidebar = () => {
+        filtersSidebar.classList.remove('open');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+        filterToggleBtn.innerHTML = '<i class="fas fa-sliders-h"></i> Filtros';
+    };
 
     filterToggleBtn.addEventListener('click', () => {
         const isOpen = filtersSidebar.classList.toggle('open');
@@ -285,13 +267,8 @@ function setupFilterToggle() {
         if (sidebarOverlay) sidebarOverlay.classList.toggle('active', isOpen);
     });
 
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', () => {
-            filtersSidebar.classList.remove('open');
-            sidebarOverlay.classList.remove('active');
-            filterToggleBtn.innerHTML = '<i class="fas fa-sliders-h"></i> Filtros';
-        });
-    }
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+    if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
 }
 
 // Lee operation/category/keyword de la URL (llegan del buscador del home) y sincroniza filtros + UI

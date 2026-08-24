@@ -61,6 +61,33 @@ export async function loadHeader() {
             // para ganar espacio vertical en notebooks chicas.
             if (page === 'property-detail.html') setCollapsed(true);
         }
+
+        // Menú mobile: toggle hamburguesa/X + botón de cerrar propio del overlay
+        // (único punto de wiring — antes cada página duplicaba esta lógica y
+        // algunas, como contacto/tasaciones, directamente no la tenían).
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const navMenu = document.getElementById('nav-menu');
+        if (mobileMenuBtn && navMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = navMenu.classList.toggle('active');
+                mobileMenuBtn.querySelector('i').className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+            });
+            document.getElementById('nav-close-btn')?.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
+            });
+        }
+
+        // Buscador de propiedades dentro del menú mobile
+        const mobileSearchForm = document.getElementById('nav-mobile-search');
+        mobileSearchForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const operation = mobileSearchForm.querySelector('input[name="mobile-operation"]:checked')?.value || 'venta';
+            const keyword = document.getElementById('mobile-quicksearch')?.value.trim();
+            const params = new URLSearchParams({ operation });
+            if (keyword) params.set('keyword', keyword);
+            window.location.href = `propiedades.html?${params.toString()}`;
+        });
     } catch (e) {
         console.warn('No se pudo cargar el header compartido:', e);
     }

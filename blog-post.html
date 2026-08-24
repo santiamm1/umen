@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog | UMEN Buenos Negocios Inmobiliarios</title>
     <link rel="icon" href="assets/Logo/Favicon.png">
-    <link rel="stylesheet" href="css/styles.css?v=10.3">
+    <link rel="stylesheet" href="css/styles.css?v=13.8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Firebase CDN -->
@@ -43,26 +43,6 @@
         import { loadHeader, loadFooter } from './js/components.js';
         loadHeader();
         loadFooter();
-    </script>
-    <script type="module">
-        const btn = document.getElementById('mobile-menu-btn');
-        const nav = document.getElementById('nav-menu');
-        btn?.addEventListener('click', () => {
-            nav.classList.toggle('active');
-            const icon = btn.querySelector('i');
-            if (nav.classList.contains('active')) {
-                icon.className = 'fas fa-times';
-                Object.assign(nav.style, {
-                    display: 'flex', flexDirection: 'column',
-                    position: 'absolute', top: '100%',
-                    left: '0', width: '100%',
-                    backgroundColor: '#111', padding: '20px', zIndex: '999'
-                });
-            } else {
-                icon.className = 'fas fa-bars';
-                nav.style.cssText = '';
-            }
-        });
     </script>
 </body>
 </html>

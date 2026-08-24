@@ -25,11 +25,27 @@
                 <i class="fas fa-bars"></i>
             </button>
             <nav id="nav-menu">
+                <button type="button" class="nav-close-btn" id="nav-close-btn" aria-label="Cerrar menú">
+                    <i class="fas fa-times"></i>
+                </button>
                 <a href="/" data-page="index">Inicio</a>
                 <a href="propiedades.html" data-page="propiedades">Propiedades</a>
                 <a href="tasaciones.html" data-page="tasaciones">Tasaciones</a>
                 <a href="blog.html" data-page="blog">Noticias</a>
                 <a href="contacto.html" data-page="contacto">Contacto</a>
+
+                <form class="nav-mobile-search" id="nav-mobile-search">
+                    <div class="nav-mobile-search-toggle">
+                        <input type="radio" id="mobile-venta" name="mobile-operation" value="venta" checked>
+                        <label for="mobile-venta">Venta</label>
+                        <input type="radio" id="mobile-alquiler" name="mobile-operation" value="alquiler">
+                        <label for="mobile-alquiler">Alquiler</label>
+                    </div>
+                    <div class="nav-mobile-search-input">
+                        <input type="text" id="mobile-quicksearch" placeholder="Ubicación, barrio o palabra clave...">
+                        <button type="submit" aria-label="Buscar"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
             </nav>
         </div>
 

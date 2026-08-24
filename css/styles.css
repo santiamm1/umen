@@ -246,6 +246,11 @@ nav a.active::before {
     border-radius: 2px;
 }
 
+.nav-close-btn,
+.nav-mobile-search {
+    display: none;
+}
+
 /* Mobile Menu Toggle */
 .mobile-menu-btn {
     display: none;
@@ -265,6 +270,18 @@ nav a.active::before {
 
 header.scrolled .mobile-menu-btn {
     color: #1a1a1a;
+}
+
+/* El menú mobile abierto pone fondo oscuro (#111) vía JS; los links
+   necesitan texto claro ahí, no el #1a1a1a pensado para fondo blanco. */
+#nav-menu.active a {
+    color: #fff;
+}
+
+#nav-menu.active a:hover,
+#nav-menu.active a.active {
+    color: var(--primary-color) !important;
+    background: transparent;
 }
 
 /* ── Header filter bar ─────────────────────────────────────── */
@@ -684,8 +701,8 @@ header.scrolled .mobile-menu-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    border: 1.5px solid rgba(255, 255, 255, 0.35);
-    color: rgba(255, 255, 255, 0.85);
+    border: 1.5px solid var(--primary-color);
+    color: #fff;
     text-decoration: none;
     padding: 13px 26px;
     border-radius: 8px;
@@ -933,6 +950,9 @@ header.scrolled .mobile-menu-btn {
 .mask .top h3 a {
     color: inherit;
     text-decoration: none;
+    display: inline;
+    font-size: inherit;
+    font-weight: inherit;
 }
 
 #destacado .item:hover {
@@ -1137,10 +1157,6 @@ a.item {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .servicio-item:nth-child(1),
-    .servicio-item:nth-child(2) {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-    }
 }
 
 @media (max-width: 600px) {
@@ -1149,12 +1165,22 @@ a.item {
     }
 
     .servicio-item {
-        border-right: 1px solid rgba(255, 255, 255, 0.25);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+        min-height: 0;
+    }
+
+    .servicio-item p {
+        font-size: 1.2rem;
+        margin-top: 24px;
+    }
+
+    .servicios-header {
+        text-align: left;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .servicios-header h2 {
-        font-size: 1.5rem;
+        font-size: 1.9rem;
     }
 }
 
@@ -1191,9 +1217,21 @@ a.item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     padding-bottom: 16px;
     margin-bottom: 4px;
     border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-close-btn {
+    display: none;
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
 .sidebar-header h3 {
@@ -1782,6 +1820,20 @@ a.item {
     margin-bottom: 50px;
     letter-spacing: -0.5px;
     color: var(--secondary-color);
+}
+
+/* Unifica el tamaño de todos los títulos de sección en mobile: Cómo
+   trabajamos, Propiedades en venta/alquiler, Notas de Interés. */
+@media (max-width: 600px) {
+    #results-title,
+    .alquiler-title,
+    #novedades.ultimas h2 {
+        font-size: 1.9rem;
+    }
+
+    #novedades.ultimas h2 {
+        text-align: left;
+    }
 }
 
 .items-container {
@@ -2413,14 +2465,19 @@ a.item {
 @media (max-width: 900px) {
     .newsletter-inner {
         flex-direction: column;
+        align-items: flex-start;
         gap: 32px;
-        text-align: center;
+        text-align: left;
     }
 
     .newsletter-action {
         flex: none;
         width: 100%;
         max-width: 480px;
+    }
+
+    .newsletter-disclaimer {
+        text-align: left;
     }
 }
 
@@ -3424,7 +3481,13 @@ a.item {
     .items-container {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
+    @media (max-width: 600px) {
+        .items-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .detail-gallery {
         height: 400px;
     }
@@ -3454,6 +3517,121 @@ a.item {
         display: none;
     }
 
+    /* Menú mobile abierto: pantalla completa, links centrados. El botón
+       original del header queda tapado por este overlay (nav es descendiente
+       de header, que ya es su propio contexto de apilamiento), así que el
+       cierre se resuelve con un botón propio adentro del overlay en vez de
+       pelear con ese z-index. */
+    nav#nav-menu.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        padding: 90px 20px 40px;
+        background: #111;
+        z-index: 999;
+        overflow-y: auto;
+    }
+
+    nav#nav-menu.active a {
+        font-size: 1.15rem;
+        padding: 14px 24px;
+    }
+
+    nav#nav-menu.active .nav-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 44px;
+        height: 44px;
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    /* Buscador de propiedades dentro del menú mobile (en desktop el
+       .header-filter-bar ya cumple esta función). */
+    nav#nav-menu.active .nav-mobile-search {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .nav-mobile-search-toggle {
+        display: flex;
+        gap: 8px;
+    }
+
+    .nav-mobile-search-toggle input {
+        display: none;
+    }
+
+    .nav-mobile-search-toggle label {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+
+    /* Mismo patrón que el toggle Venta/Alquiler de desktop: relleno sólido
+       en el seleccionado en vez de solo cambiar el borde, para que se lea
+       claro sobre el fondo oscuro del menú. */
+    .nav-mobile-search-toggle input:checked + label {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #fff;
+    }
+
+    .nav-mobile-search-input {
+        display: flex;
+        gap: 8px;
+    }
+
+    .nav-mobile-search-input input {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 0.9rem;
+    }
+
+    .nav-mobile-search-input input::placeholder {
+        color: rgba(255, 255, 255, 0.65);
+    }
+
+    .nav-mobile-search-input button {
+        width: 44px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary-color);
+        color: #fff;
+        cursor: pointer;
+    }
+
     .mobile-menu-btn {
         display: block;
     }
@@ -3468,8 +3646,8 @@ a.item {
     }
 
     .hero-overlay-content {
-        align-items: center;
-        text-align: center;
+        align-items: flex-start;
+        text-align: left;
         margin-top: 30px;
     }
 
@@ -3477,16 +3655,16 @@ a.item {
         max-width: 100%;
     }
 
-    .hero-eyebrow {
-        border-left: none;
-        padding-left: 0;
-        border-bottom: 2px solid var(--primary-color);
-        padding-bottom: 6px;
+    .hero-overlay-content h1 {
+        font-size: 2.625rem;
+        letter-spacing: -0.8px;
     }
 
-    .hero-overlay-content h1 {
-        font-size: 2.2rem;
-        letter-spacing: -0.8px;
+    /* El <br> manual está pensado para el corte de línea de desktop; en
+       mobile el texto ya envuelve solo y el corte fijo generaba 3 líneas
+       desparejas en vez de 2 balanceadas. */
+    .hero-overlay-content h1 br {
+        display: none;
     }
 
     .hero-subtitle {
@@ -3495,24 +3673,34 @@ a.item {
     }
 
     .hero-actions {
-        justify-content: center;
+        flex-direction: column;
+        align-items: stretch;
         margin-bottom: 32px;
     }
 
-    .hero-stats {
-        flex-wrap: wrap;
+    .hero-btn-primary,
+    .hero-btn-secondary {
         justify-content: center;
-        row-gap: 20px;
-        padding: 24px 20px;
+    }
+
+    /* 3 stats no reparten parejo en 2 columnas (el tercero queda solo,
+       descentrado); en una sola columna cada fila ocupa todo el ancho. */
+    .hero-stats {
+        flex-direction: column;
+        align-items: stretch;
+        row-gap: 16px;
+        padding: 22px 28px;
     }
 
     .hero-stat {
-        flex: 1 1 40%;
-        padding-right: 0;
+        flex: none;
+        width: 100%;
+        justify-content: center;
     }
 
     .hero-stat-sep {
-        display: none;
+        width: 100%;
+        height: 1px;
     }
 
     /* Ocultar filtro en mobile — usar propiedades.html */
@@ -3578,6 +3766,26 @@ a.item {
     .cat-hoteles,
     .cat-mas {
         grid-column: auto;
+    }
+
+    /* 400px de alto pensado para un grid de 3 columnas queda descomunal
+       en una sola columna angosta, con el título perdido abajo del todo. */
+    .item {
+        height: 220px;
+    }
+
+    /* El degradé solo no alcanza contra fotos claras/con mucho detalle:
+       una franja sólida detrás del texto garantiza contraste sin importar
+       la imagen de fondo. */
+    .mask {
+        padding: 18px 20px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.75) 60%, transparent 100%);
+    }
+
+    .mask .top h3 {
+        font-size: 1.4rem;
+        text-transform: uppercase;
+        letter-spacing: -0.3px;
     }
     
     #destacado .item:nth-child(odd):last-child {
@@ -3938,8 +4146,15 @@ a.item {
         display: flex;
     }
 
-    /* Sidebar como panel deslizable desde la izquierda */
-    .filters-sidebar {
+    .sidebar-close-btn {
+        display: block;
+    }
+
+    /* Sidebar como panel deslizable desde la izquierda.
+       #filters-sidebar (ID) para ganarle en especificidad a
+       ".prop-main .filters-sidebar" (top:168px), que si no pisa este top:0
+       y deja un hueco arriba con el panel cortado abajo del viewport. */
+    #filters-sidebar {
         display: none;
         position: fixed;
         top: 0;
@@ -3947,17 +4162,26 @@ a.item {
         height: 100dvh;
         width: 300px;
         overflow-y: auto;
-        z-index: 900;
+        /* Por encima del header (z-index 1000): al estar abierto es un panel
+           de pantalla completa, no debe quedar tapado por el header fijo. */
+        z-index: 1100;
         border-radius: 0 14px 14px 0;
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
     }
 
-    .filters-sidebar.open {
+    #filters-sidebar.open {
         display: block;
     }
 }
 
 @media (max-width: 768px) {
+    /* 300px queda como un cajón angosto con la página visible atrás;
+       en mobile el panel de filtros ocupa toda la pantalla. */
+    #filters-sidebar {
+        width: 100%;
+        border-radius: 0;
+    }
+
     .prop-page-hero {
         padding: 200px 0 40px;
         height: auto;
@@ -4354,6 +4578,37 @@ a.item {
 
     .detail-header-right {
         align-items: flex-start;
+        width: 100%;
+    }
+
+    /* 2.5rem pensado para el ancho de desktop rompe en 3 líneas gigantes
+       en un teléfono. */
+    .detail-title {
+        font-size: 1.8rem;
+    }
+
+    .detail-location {
+        font-size: 0.95rem;
+    }
+
+    .price-value {
+        font-size: 1.7rem;
+    }
+
+    /* El box de precio pasa a alinearse a la izquierda (como el título)
+       en vez de a la derecha, que quedaba desalineado en columna. */
+    .detail-price-box {
+        text-align: left;
+    }
+
+    .detail-share {
+        gap: 10px;
+    }
+
+    .share-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
     }
 
     .detail-stats-bar {
@@ -5221,8 +5476,8 @@ a.item {
 }
 
 /* ------------------- Impresión: ficha de propiedad ------------------- */
-/* Documento para el cliente: sin nav/footer/CTAs, una sola columna, sin
-   cortar secciones a la mitad entre páginas. */
+/* Documento para el cliente en 3 hojas: (1) foto + destacados,
+   (2) ficha técnica + descripción, (3) mapa. */
 @media print {
     header,
     footer,
@@ -5232,8 +5487,8 @@ a.item {
     .gallery-nav-btn,
     .gallery-expand-hint,
     .gallery-counter,
+    .gallery-secondary,
     .detail-sidebar,
-    .detail-map,
     .lightbox-overlay {
         display: none !important;
     }
@@ -5254,10 +5509,17 @@ a.item {
         align-items: flex-start;
     }
 
+    /* Hoja 1: foto principal + destacados */
     .detail-gallery {
         break-inside: avoid;
     }
 
+    .detail-stats-bar {
+        break-after: page;
+        page-break-after: always;
+    }
+
+    /* Hoja 2: ficha técnica + descripción (+ amenities si hay) */
     .detail-section {
         break-inside: avoid;
         page-break-inside: avoid;
@@ -5266,5 +5528,15 @@ a.item {
     .stat-pill,
     .data-row {
         break-inside: avoid;
+    }
+
+    /* Hoja 3: mapa */
+    .detail-section-map {
+        break-before: page;
+        page-break-before: always;
+    }
+
+    .detail-map {
+        height: 500px;
     }
 }

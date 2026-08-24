@@ -4,8 +4,6 @@ import { getProperties, getCategories, getProvinces, getBlogPosts } from './prop
 
 // Elementos DOM — se asignan luego de que el header partial se inyecte
 let header;
-let mobileMenuBtn;
-let navMenu;
 let propertyTypeSelect;
 let searchBtn;
 let quickSearchInput;
@@ -46,14 +44,11 @@ let currentFilters = {
 
     // Asignar refs que dependen del header partial
     header            = document.getElementById('header');
-    mobileMenuBtn     = document.getElementById('mobile-menu-btn');
-    navMenu           = document.getElementById('nav-menu');
     propertyTypeSelect = document.getElementById('property-type');
     searchBtn         = document.getElementById('search-btn');
     quickSearchInput  = document.getElementById('quicksearch');
 
     setupHeaderScroll();
-    setupMobileMenu();
     setupScrollReveal();
 
     // Categorías/provincias (para los filtros) y las 3 secciones de propiedades/blog
@@ -196,28 +191,6 @@ function setupScrollReveal() {
     items.forEach((item, i) => {
         item.style.transitionDelay = `${i * 80}ms`;
         observer.observe(item);
-    });
-}
-
-// Configurar menú móvil
-function setupMobileMenu() {
-    mobileMenuBtn.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        const icon = mobileMenuBtn.querySelector('i');
-        if (navMenu.classList.contains('active')) {
-            icon.className = 'fas fa-times';
-            navMenu.style.display = 'flex';
-            navMenu.style.flexDirection = 'column';
-            navMenu.style.position = 'absolute';
-            navMenu.style.top = '100%';
-            navMenu.style.left = '0';
-            navMenu.style.width = '100%';
-            navMenu.style.backgroundColor = '#111';
-            navMenu.style.padding = '20px';
-        } else {
-            icon.className = 'fas fa-bars';
-            navMenu.style.display = '';
-        }
     });
 }
 
