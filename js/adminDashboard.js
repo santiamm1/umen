@@ -1096,6 +1096,9 @@ function readFormData() {
         antiguedad:      numVal('antiguedad'),
         garage:          numVal('garage'),
         orientacion:     val('orientacion'),
+        pisos:           numVal('pisos'),
+        estadoConservacion: val('estado-conservacion'),
+        disposicionDest: val('disposicion-dest'),
         luminoso:        getRadioValue('luminoso'),
 
         // Superficies
@@ -1197,6 +1200,9 @@ function fillForm(p) {
     setVal('bathrooms', p.bathrooms); setVal('toilette', p.toilette);
     setVal('antiguedad', p.antiguedad); setVal('garage', p.garage);
     setVal('orientacion', p.orientacion);
+    setVal('pisos', p.pisos);
+    setVal('estado-conservacion', p.estadoConservacion);
+    setVal('disposicion-dest', p.disposicionDest);
     setRadioValue('luminoso', p.luminoso);
 
     // Superficies
