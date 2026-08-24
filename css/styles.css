@@ -5219,3 +5219,52 @@ a.item {
 
     .tas-cta-text h2 { font-size: 22px; }
 }
+
+/* ------------------- Impresión: ficha de propiedad ------------------- */
+/* Documento para el cliente: sin nav/footer/CTAs, una sola columna, sin
+   cortar secciones a la mitad entre páginas. */
+@media print {
+    header,
+    footer,
+    .sidebar-overlay,
+    .detail-breadcrumb,
+    .detail-share,
+    .gallery-nav-btn,
+    .gallery-expand-hint,
+    .gallery-counter,
+    .detail-sidebar,
+    .detail-map,
+    .lightbox-overlay {
+        display: none !important;
+    }
+
+    body, main {
+        background: #fff;
+    }
+
+    .detail-container {
+        padding: 20px 0;
+    }
+
+    .detail-grid {
+        display: block;
+    }
+
+    .detail-price-box {
+        align-items: flex-start;
+    }
+
+    .detail-gallery {
+        break-inside: avoid;
+    }
+
+    .detail-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .stat-pill,
+    .data-row {
+        break-inside: avoid;
+    }
+}
