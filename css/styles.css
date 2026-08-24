@@ -279,6 +279,40 @@ header.scrolled .mobile-menu-btn {
     content: none;
 }
 
+.header-filter-bar.collapsed {
+    padding: 4px 0;
+}
+
+.header-filter-bar.collapsed .search-content {
+    display: none;
+}
+
+.filter-bar-toggle {
+    display: none;
+    margin: 6px auto 0;
+    width: 28px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.filter-bar-toggle:hover {
+    color: #666;
+}
+
+.filter-bar-toggle.collapsed i {
+    transform: rotate(180deg);
+}
+
+.page-propiedades .filter-bar-toggle {
+    display: flex;
+}
+
 /* ── Pill flotante ── */
 .header-filter-bar .search-content {
     background: #ffffff;
@@ -2793,6 +2827,7 @@ a.item {
     font-size: 1.05rem;
     color: #444;
     line-height: 1.8;
+    white-space: pre-line;
 }
 
 .amenities-list {
