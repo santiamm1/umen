@@ -44,6 +44,18 @@ export async function loadHeader() {
                 link.classList.add('active');
             }
         });
+
+        // Botón para contraer/expandir la barra de filtros (solo visible vía CSS
+        // en páginas con clase .page-with-filter-toggle en <body>)
+        const filterBarToggleBtn = document.getElementById('filter-bar-toggle');
+        const filterBar = document.querySelector('.header-filter-bar');
+        if (filterBarToggleBtn && filterBar) {
+            filterBarToggleBtn.addEventListener('click', () => {
+                const isCollapsed = filterBar.classList.toggle('collapsed');
+                filterBarToggleBtn.classList.toggle('collapsed', isCollapsed);
+                filterBarToggleBtn.title = isCollapsed ? 'Mostrar filtros' : 'Contraer filtros';
+            });
+        }
     } catch (e) {
         console.warn('No se pudo cargar el header compartido:', e);
     }

@@ -50,7 +50,6 @@ const viewListBtn     = document.getElementById('view-list');
 
 // DOM refs del header (inyectado async — se asignan dentro del IIFE)
 let header, mobileMenuBtn, navMenu, propertyTypeSelect, searchBtn, quicksearch;
-let filterBarToggleBtn, headerFilterBar;
 
 (async () => {
     // Esperar hasta 2.5s a que el header partial sea inyectado
@@ -67,8 +66,6 @@ let filterBarToggleBtn, headerFilterBar;
     propertyTypeSelect = document.getElementById('property-type');
     searchBtn          = document.getElementById('search-btn');
     quicksearch        = document.getElementById('quicksearch');
-    filterBarToggleBtn = document.getElementById('filter-bar-toggle');
-    headerFilterBar    = document.querySelector('.header-filter-bar');
 
     // Esperar hasta 3s a que Firebase inicialice
     attempts = 0;
@@ -91,7 +88,6 @@ let filterBarToggleBtn, headerFilterBar;
 
     setupMobileMenu();
     setupFilterToggle();
-    setupFilterBarToggle();
 
     // Lanzar la carga de propiedades en paralelo con la de categorías/ciudades/barrios
     // (antes iban en serie: 4 round-trips a Firestore uno tras otro para 11 propiedades)
@@ -277,16 +273,6 @@ function setupMobileMenu() {
 }
 
 // ── Setup: toggle sidebar en mobile ──────────────────────────────────────────
-
-function setupFilterBarToggle() {
-    if (!filterBarToggleBtn || !headerFilterBar) return;
-
-    filterBarToggleBtn.addEventListener('click', () => {
-        const isCollapsed = headerFilterBar.classList.toggle('collapsed');
-        filterBarToggleBtn.classList.toggle('collapsed', isCollapsed);
-        filterBarToggleBtn.title = isCollapsed ? 'Mostrar filtros' : 'Contraer filtros';
-    });
-}
 
 function setupFilterToggle() {
     if (!filterToggleBtn || !filtersSidebar) return;

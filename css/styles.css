@@ -309,7 +309,7 @@ header.scrolled .mobile-menu-btn {
     transform: rotate(180deg);
 }
 
-.page-propiedades .filter-bar-toggle {
+.page-with-filter-toggle .filter-bar-toggle {
     display: flex;
 }
 
