@@ -115,8 +115,8 @@ function render(property) {
                 <div class="detail-header-right">
                     <div class="detail-price-box">
                         <span class="price-label">Valor de ${opLabel}</span>
-                        <span class="price-value">USD ${property.price.toLocaleString()}</span>
-                        ${pricePerM2 ? `<span class="price-sqm">${pricePerM2.toLocaleString()} USD/m²</span>` : ''}
+                        <span class="price-value">${property.currency || 'USD'} ${property.price.toLocaleString()}</span>
+                        ${pricePerM2 ? `<span class="price-sqm">${pricePerM2.toLocaleString()} ${property.currency || 'USD'}/m²</span>` : ''}
                     </div>
                     <div class="detail-share">
                         <a href="${waUrl}" target="_blank" class="share-btn share-wa" title="WhatsApp">
@@ -202,7 +202,7 @@ function render(property) {
                             ${property.year         ? dataRow('Año de construcción', property.year) : ''}
                             ${property.condition    ? dataRow('Estado', property.condition) : ''}
                             ${property.estadoConservacion ? dataRow('Estado de conservación', property.estadoConservacion) : ''}
-                            ${pricePerM2            ? dataRow('Precio por m²', 'USD ' + pricePerM2.toLocaleString()) : ''}
+                            ${pricePerM2            ? dataRow('Precio por m²', (property.currency || 'USD') + ' ' + pricePerM2.toLocaleString()) : ''}
                         </div>
                     </section>
 
