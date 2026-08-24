@@ -50,11 +50,16 @@ export async function loadHeader() {
         const filterBarToggleBtn = document.getElementById('filter-bar-toggle');
         const filterBar = document.querySelector('.header-filter-bar');
         if (filterBarToggleBtn && filterBar) {
-            filterBarToggleBtn.addEventListener('click', () => {
-                const isCollapsed = filterBar.classList.toggle('collapsed');
+            const setCollapsed = (isCollapsed) => {
+                filterBar.classList.toggle('collapsed', isCollapsed);
                 filterBarToggleBtn.classList.toggle('collapsed', isCollapsed);
                 filterBarToggleBtn.title = isCollapsed ? 'Mostrar filtros' : 'Contraer filtros';
-            });
+            };
+            filterBarToggleBtn.addEventListener('click', () => setCollapsed(!filterBar.classList.contains('collapsed')));
+
+            // En el detalle de propiedad ya se eligió qué ver: arranca colapsada
+            // para ganar espacio vertical en notebooks chicas.
+            if (page === 'property-detail.html') setCollapsed(true);
         }
     } catch (e) {
         console.warn('No se pudo cargar el header compartido:', e);

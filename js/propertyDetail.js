@@ -177,6 +177,7 @@ function render(property) {
                 ${property.bedrooms ? statPill('fas fa-door-open',      property.bedrooms,           'Ambientes')   : ''}
                 ${property.bathrooms? statPill('fas fa-bath',           property.bathrooms,          'Baños')       : ''}
                 ${property.garage   ? statPill('fas fa-car',            property.garage,             'Cocheras')    : ''}
+                ${property.pisos    ? statPill('fas fa-building',       'Piso ' + property.pisos,    'Piso')        : ''}
                 ${property.year     ? statPill('fas fa-calendar-alt',   property.year,               'Año')         : ''}
             </div>
 
@@ -196,8 +197,11 @@ function render(property) {
                             ${property.bedrooms     ? dataRow('Ambientes', property.bedrooms) : ''}
                             ${property.bathrooms    ? dataRow('Baños', property.bathrooms) : ''}
                             ${property.garage       ? dataRow('Cocheras', property.garage) : ''}
+                            ${property.pisos        ? dataRow('Piso', property.pisos) : ''}
+                            ${property.disposicionDest ? dataRow('Disposición', property.disposicionDest) : ''}
                             ${property.year         ? dataRow('Año de construcción', property.year) : ''}
                             ${property.condition    ? dataRow('Estado', property.condition) : ''}
+                            ${property.estadoConservacion ? dataRow('Estado de conservación', property.estadoConservacion) : ''}
                             ${pricePerM2            ? dataRow('Precio por m²', 'USD ' + pricePerM2.toLocaleString()) : ''}
                         </div>
                     </section>
