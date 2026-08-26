@@ -702,6 +702,7 @@ function renderPage(filtered) {
                 <div class="card-image">
                     <img src="${img}" alt="${p.title}" loading="lazy">
                     <div class="card-badge">${badgeLabel}</div>
+                    ${p.tag ? `<div class="card-tag">${p.tag}</div>` : ''}
                 </div>
                 <div class="card-content">
                     <div class="card-price">${p.currency === 'ARS' ? '$' : (p.currency || 'USD')} ${p.price.toLocaleString()}${p.operation === 'alquiler' ? ' <span class="card-price-period">/mes</span>' : ''}</div>

@@ -1558,6 +1558,23 @@ a.item {
     letter-spacing: 0.5px;
 }
 
+.card-tag {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    max-width: 60%;
+    background: var(--secondary-color);
+    color: var(--white);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: right;
+}
+
 .card-content {
     padding: 24px;
 }
@@ -2780,6 +2797,11 @@ a.item {
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 12px;
+}
+
+.detail-badge-tag {
+    background: var(--secondary-color);
+    margin-left: 8px;
 }
 
 .detail-title {

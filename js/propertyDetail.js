@@ -126,6 +126,7 @@ function render(property) {
             <div class="detail-header-row">
                 <div class="detail-header-info">
                     <span class="detail-badge">${opLabel}</span>
+                    ${property.tag ? `<span class="detail-badge detail-badge-tag">${property.tag}</span>` : ''}
                     <h1 class="detail-title">${property.title}</h1>
                     <p class="detail-location">
                         <i class="fas fa-map-marker-alt"></i> ${location}

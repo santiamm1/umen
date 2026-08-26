@@ -1114,6 +1114,7 @@ function readFormData() {
         provincia:       val('provincia'),
         pais:            val('pais'),
         branch:          val('branch'),
+        tag:             val('tag'),
         description:     val('description'),
         observaciones:   val('observaciones'),
 
@@ -1226,6 +1227,7 @@ function fillForm(p) {
     setVal('localidad', p.localidad);
     setVal('provincia', p.provincia); setVal('pais', p.pais || 'Argentina');
     setVal('branch', p.branch);
+    setVal('tag', p.tag);
     setVal('description', p.description); setVal('observaciones', p.observaciones);
 
     // Destacados

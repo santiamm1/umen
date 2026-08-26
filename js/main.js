@@ -483,6 +483,7 @@ function renderProperties() {
                 <div class="card-image">
                     <img src="${coverImg}" alt="${property.title}">
                     <div class="card-badge">${property.operation}</div>
+                    ${property.tag ? `<div class="card-tag">${property.tag}</div>` : ''}
                 </div>
                 <div class="card-content">
                     <div class="card-price">USD ${property.price.toLocaleString()}</div>
