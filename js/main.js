@@ -483,10 +483,10 @@ function renderProperties() {
                 <div class="card-image">
                     <img src="${coverImg}" alt="${property.title}">
                     <div class="card-badge">${property.operation}</div>
-                    ${property.tag ? `<div class="card-tag">${property.tag}</div>` : ''}
                 </div>
                 <div class="card-content">
                     <div class="card-price">USD ${property.price.toLocaleString()}</div>
+                    ${property.tag ? `<span class="card-tag-label">${property.tag}</span>` : ''}
                     <h3 class="card-title">${property.title}</h3>
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i> ${property.neighborhood ? property.neighborhood : 'Sin barrio'}, ${property.zone ? property.zone : 'Capital Federal'}
@@ -558,6 +558,7 @@ async function renderFeaturedRentals() {
                     </div>
                     <div class="card-content">
                         <div class="card-price">USD ${property.price.toLocaleString()} <span class="card-price-period">/mes</span></div>
+                        ${property.tag ? `<span class="card-tag-label">${property.tag}</span>` : ''}
                         <h3 class="card-title">${property.title}</h3>
                         <div class="card-location">
                             <i class="fas fa-map-marker-alt"></i> ${property.neighborhood || 'Sin barrio'}, ${property.zone || 'Capital Federal'}

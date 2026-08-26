@@ -1558,21 +1558,18 @@ a.item {
     letter-spacing: 0.5px;
 }
 
-.card-tag {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    max-width: 60%;
-    background: var(--secondary-color);
-    color: var(--white);
-    padding: 6px 14px;
-    border-radius: 6px;
+.card-tag-label {
+    display: inline-block;
+    background: #fff4e8;
+    color: var(--primary-color);
+    padding: 4px 10px;
+    border-radius: 20px;
     font-family: var(--font-heading);
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: right;
+    letter-spacing: 0.4px;
+    margin-bottom: 8px;
 }
 
 .card-content {
