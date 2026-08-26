@@ -1,0 +1,9 @@
+#!/bin/bash
+# Keeps js/version.js in sync with the commit count, so the admin panel always
+# shows a version number that bumps automatically on every commit.
+# ponytail: commit count as version — no separate counter file to drift out of sync.
+count=$(git rev-list --count HEAD 2>/dev/null || echo 0)
+version=$((count + 1))
+echo "// Auto-generado por .githooks/pre-commit — no editar a mano.
+export const APP_VERSION = 'v1.0.${version}';" > js/version.js
+git add js/version.js

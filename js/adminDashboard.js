@@ -17,6 +17,9 @@ import {
     getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost
 } from './propertyService.js?v=2';
 import { initImageGallery, setGalleryUrls, getGalleryUrls, uploadFile } from './cloudinaryUpload.js?v=2';
+import { APP_VERSION } from './version.js';
+
+document.getElementById('adm-sidebar-version').textContent = APP_VERSION;
 
 window.showToast = function(message, type = 'success') {
     const container = document.getElementById('toast-container');
@@ -236,6 +239,20 @@ function setupEventListeners() {
     logoutBtn?.addEventListener('click', handleLogout);
     newPropertyBtn?.addEventListener('click', openNewPropertyModal);
     propertyForm?.addEventListener('submit', handleFormSubmit);
+    // Los campos requeridos pueden vivir en un tab oculto (display:none) — el navegador
+    // no puede enfocarlos para mostrar el mensaje de validación nativo, y el submit
+    // queda "colgado" sin feedback. Cambiamos al tab del campo inválido y avisamos con un toast.
+    let invalidToastShown = false;
+    propertyForm?.addEventListener('invalid', e => {
+        const panel = e.target.closest('.adm-tab-panel');
+        if (panel && !panel.classList.contains('active')) switchTab(panel.id);
+        if (!invalidToastShown) {
+            invalidToastShown = true;
+            const fieldName = e.target.labels?.[0]?.textContent?.replace('*', '').trim() || e.target.name || e.target.id;
+            showToast(`No se pudo guardar: el campo "${fieldName}" tiene datos inválidos.`, 'error');
+            setTimeout(() => { invalidToastShown = false; }, 0);
+        }
+    }, true);
     document.getElementById('save-draft-btn')?.addEventListener('click', handleSaveDraft);
     document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', closeModal));
 
@@ -1076,7 +1093,7 @@ function readFormData() {
         currency:        val('currency'),
         consultarPrecio: document.getElementById('consultar-precio')?.checked || false,
         type:            val('type'),
-        operation:       val('operation'),
+        operation:       val('operation').toLowerCase(),
         neighborhood:    val('neighborhood'),
         localidad:       val('localidad'),
         zone:            val('zone'),
@@ -1390,13 +1407,13 @@ window.handleDeleteProperty = async id => {
 
 // Guarda lo cargado hasta el momento como borrador, sin exigir los campos obligatorios del form.
 async function handleSaveDraft() {
-    const data = readFormData();
-    if (!data.title.trim()) { showToast('Ingresá al menos un título para guardar el borrador.', 'error'); return; }
-    data.status = 'borrador';
-    if (!data.distribucion?.length) delete data.distribucion;
-    if (!data.extras?.length) delete data.extras;
-    if (!data.amenities?.length) delete data.amenities;
     try {
+        const data = readFormData();
+        if (!data.title.trim()) { showToast('Ingresá al menos un título para guardar el borrador.', 'error'); return; }
+        data.status = 'borrador';
+        if (!data.distribucion?.length) delete data.distribucion;
+        if (!data.extras?.length) delete data.extras;
+        if (!data.amenities?.length) delete data.amenities;
         if (editingId) {
             await updateProperty(editingId, data);
         } else {
@@ -1410,12 +1427,12 @@ async function handleSaveDraft() {
 
 async function handleFormSubmit(e) {
     e.preventDefault();
-    const data = readFormData();
-    // Remove empty arrays
-    if (!data.distribucion?.length) delete data.distribucion;
-    if (!data.extras?.length) delete data.extras;
-    if (!data.amenities?.length) delete data.amenities;
     try {
+        const data = readFormData();
+        // Remove empty arrays
+        if (!data.distribucion?.length) delete data.distribucion;
+        if (!data.extras?.length) delete data.extras;
+        if (!data.amenities?.length) delete data.amenities;
         if (editingId) {
             await updateProperty(editingId, data);
             showToast('Propiedad actualizada con éxito.', 'success');

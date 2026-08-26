@@ -124,6 +124,7 @@ input, button, select, textarea, optgroup, option {
 .adm-wrapper.adm-sidebar-collapsed .adm-sidebar-logout { justify-content: center; padding: 12px 0; }
 .adm-wrapper.adm-sidebar-collapsed .adm-sidebar-link:hover { transform: none; }
 .adm-wrapper.adm-sidebar-collapsed .adm-user-profile { justify-content: center; padding: 12px 0; }
+.adm-wrapper.adm-sidebar-collapsed .adm-sidebar-version { display: none; }
 
 /* User Profile */
 .adm-user-profile {
@@ -289,6 +290,15 @@ input, button, select, textarea, optgroup, option {
     color: #ef4444;
 }
 .adm-sidebar-logout i, .adm-sidebar-logout svg { width: 16px; height: 16px; flex-shrink: 0; font-size: 0.9rem; }
+
+.adm-sidebar-version {
+    padding: 8px 12px 14px;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: rgba(255,255,255,0.3);
+}
 
 .adm-main {
     flex: 1;

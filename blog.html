@@ -45,23 +45,49 @@
 
     <main class="main-layout">
         <div class="container">
-            <div class="blog-toolbar">
-                <div class="blog-toolbar-search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="blog-search" placeholder="Buscar notas...">
+            <div class="results-layout">
+
+                <!-- Sidebar del blog -->
+                <aside class="filters-sidebar blog-sidebar">
+                    <div class="sidebar-header">
+                        <h3>Explorar</h3>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Categorías</h4>
+                        <div class="blog-sidebar-categories" id="blog-sidebar-categories">
+                            <button type="button" class="blog-sidebar-cat active" data-value="">Todas</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Notas recientes</h4>
+                        <div class="blog-sidebar-recent" id="blog-sidebar-recent"></div>
+                    </div>
+                </aside>
+
+                <!-- Contenido principal -->
+                <div class="results-main blog-main">
+                    <div class="blog-toolbar">
+                        <div class="blog-toolbar-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="blog-search" placeholder="Buscar notas...">
+                        </div>
+                        <div class="blog-toolbar-filters">
+                            <select id="blog-category-filter">
+                                <option value="">Todas las categorías</option>
+                            </select>
+                            <select id="blog-sort">
+                                <option value="desc">Más recientes</option>
+                                <option value="asc">Más antiguas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="items-container" id="blog-list">
+                        <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>
+                    </div>
                 </div>
-                <div class="blog-toolbar-filters">
-                    <select id="blog-category-filter">
-                        <option value="">Todas las categorías</option>
-                    </select>
-                    <select id="blog-sort">
-                        <option value="desc">Más recientes</option>
-                        <option value="asc">Más antiguas</option>
-                    </select>
-                </div>
-            </div>
-            <div class="items-container" id="blog-list">
-                <div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>
+
             </div>
         </div>
     </main>

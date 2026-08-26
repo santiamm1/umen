@@ -6,6 +6,8 @@ const container = document.getElementById('blog-list');
 const searchInput = document.getElementById('blog-search');
 const categoryFilter = document.getElementById('blog-category-filter');
 const sortSelect = document.getElementById('blog-sort');
+const sidebarCategories = document.getElementById('blog-sidebar-categories');
+const sidebarRecent = document.getElementById('blog-sidebar-recent');
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1560184897-ae75f418493e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=65';
 
 let allPosts = [];
@@ -30,10 +32,32 @@ let allPosts = [];
 
     const categories = [...new Set(allPosts.map(p => p.category).filter(Boolean))].sort();
     categoryFilter.insertAdjacentHTML('beforeend', categories.map(c => `<option value="${c}">${c}</option>`).join(''));
+    sidebarCategories.insertAdjacentHTML('beforeend', categories.map(c =>
+        `<button type="button" class="blog-sidebar-cat" data-value="${c}">${c}</button>`
+    ).join(''));
+
+    const recentPosts = [...allPosts].sort((a, b) => postDate(b) - postDate(a)).slice(0, 3);
+    sidebarRecent.innerHTML = recentPosts.map(post => `
+        <a href="${post.slug ? 'blog-post.html?slug=' + post.slug : 'blog-post.html?id=' + post.id}" class="blog-sidebar-recent-item">
+            <img src="${post.image || FALLBACK_IMG}" alt="${post.title}">
+            <span>${post.title}</span>
+        </a>
+    `).join('');
+
+    sidebarCategories.addEventListener('click', e => {
+        const btn = e.target.closest('.blog-sidebar-cat');
+        if (!btn) return;
+        categoryFilter.value = btn.dataset.value;
+        sidebarCategories.querySelectorAll('.blog-sidebar-cat').forEach(b => b.classList.toggle('active', b === btn));
+        render();
+    });
 
     render();
     searchInput.addEventListener('input', render);
-    categoryFilter.addEventListener('change', render);
+    categoryFilter.addEventListener('change', () => {
+        sidebarCategories.querySelectorAll('.blog-sidebar-cat').forEach(b => b.classList.toggle('active', b.dataset.value === categoryFilter.value));
+        render();
+    });
     sortSelect.addEventListener('change', render);
 })();
 
