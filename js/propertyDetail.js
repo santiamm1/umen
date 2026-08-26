@@ -16,6 +16,25 @@ let currentGalleryIdx = 0;
 // No usar DOMContentLoaded — puede perderse si Firebase CDN tarda más que el módulo local.
 
 (async () => {
+    // Esperar hasta 2.5s a que el header partial sea inyectado
+    let headerAttempts = 0;
+    while (!document.getElementById('header') && headerAttempts < 50) {
+        await new Promise(r => setTimeout(r, 50));
+        headerAttempts++;
+    }
+    const header = document.getElementById('header');
+    if (header) {
+        const handleHeaderScroll = () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        };
+        window.addEventListener('scroll', handleHeaderScroll);
+        handleHeaderScroll();
+    }
+
     // Esperar hasta 3s a que Firebase inicialice (el inline module puede llegar después)
     let attempts = 0;
     while (!window.db && attempts < 30) {

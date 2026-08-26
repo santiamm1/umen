@@ -283,8 +283,9 @@ function applyFiltersFromUrl() {
 
     if (operation) {
         currentFilters.operation = operation;
-        const radio = document.querySelector(`input[name="operation"][value="${operation}"]`);
-        if (radio) radio.checked = true;
+        document.querySelectorAll(`input[name="operation"][value="${operation}"]`).forEach(radio => {
+            radio.checked = true;
+        });
     }
 
     if (category) {

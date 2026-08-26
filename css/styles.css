@@ -346,11 +346,13 @@ header.scrolled .mobile-menu-btn {
 }
 
 /* ── Toggle Venta / Alquiler ── */
-.header-filter-bar .radio-group-2 input[type="radio"] {
+.header-filter-bar .radio-group-2 input[type="radio"],
+.filters-sidebar .radio-group-2 input[type="radio"] {
     display: none;
 }
 
-.header-filter-bar .radio-group-2 {
+.header-filter-bar .radio-group-2,
+.filters-sidebar .radio-group-2 {
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -363,7 +365,8 @@ header.scrolled .mobile-menu-btn {
     min-width: 148px;
 }
 
-.header-filter-bar .radio-group-2 label {
+.header-filter-bar .radio-group-2 label,
+.filters-sidebar .radio-group-2 label {
     flex: 1;
     height: 100%;
     display: flex;
@@ -382,10 +385,17 @@ header.scrolled .mobile-menu-btn {
     white-space: nowrap;
 }
 
-.header-filter-bar .radio-group-2 input[type="radio"]:checked + label {
+.header-filter-bar .radio-group-2 input[type="radio"]:checked + label,
+.filters-sidebar .radio-group-2 input[type="radio"]:checked + label {
     background-color: var(--primary-color);
     color: #fff;
     font-weight: 700;
+}
+
+.filters-sidebar .radio-group-2 {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
 }
 
 /* ── Select tipo de propiedad ── */
@@ -857,19 +867,19 @@ header.scrolled .mobile-menu-btn {
 }
 
 .cat-departamentos {
-    background-image: url('https://images.unsplash.com/photo-1647358806279-e5229f1d3296?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=65');
+    background-image: url('../assets/Home/Umen-Home-Cat Departamentos.jpg');
 }
 .cat-oficinas {
-    background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=65');
+    background-image: url('../assets/Home/Umen-Home-Cat Oficinas.jpg');
 }
 .cat-terrenos {
-    background-image: url('https://images.unsplash.com/photo-1576323850036-a0bd04a68d81?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=65');
+    background-image: url('../assets/Home/Umen-Home-Cat Terrenos.webp');
 }
 .cat-casas {
-    background-image: url('https://images.unsplash.com/photo-1633354747567-e0682586f082?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=65');
+    background-image: url('../assets/Home/Umen-Home-Cat Casas.webp');
 }
 .cat-hoteles {
-    background-image: url('https://images.unsplash.com/photo-1778768901416-439784e397a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=65');
+    background-image: url('../assets/Home/Umen-Home-Cat Hoteles.jpg');
     grid-column: span 2;
 }
 
@@ -1035,9 +1045,9 @@ a.item {
 }
 
 .servicios-header {
-    text-align: center;
+    text-align: left;
     max-width: 680px;
-    margin: 0 auto 56px;
+    margin: 0 0 56px;
 }
 
 .servicios-eyebrow {
@@ -1072,6 +1082,14 @@ a.item {
     font-size: 0.98rem;
     color: var(--text-color);
     line-height: 1.75;
+}
+
+.section-subtitle {
+    font-size: 0.98rem;
+    color: var(--text-color);
+    line-height: 1.75;
+    margin: 0 0 24px;
+    max-width: 560px;
 }
 
 .servicios-grid {
@@ -1196,7 +1214,7 @@ a.item {
     display: grid;
     grid-template-columns: 260px 1fr;
     gap: 36px;
-    align-items: start;
+    align-items: stretch;
 }
 
 .results-main {
@@ -1582,7 +1600,8 @@ a.item {
 }
 
 .card-features {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     padding-top: 18px;
     border-top: 1px solid var(--border-color);
@@ -1627,16 +1646,16 @@ a.item {
 
 /* ── Banner Hoteles ─────────────────────────────────────────── */
 #hoteles-banner {
-    background-image: url('https://images.unsplash.com/photo-1679413060129-9b2d9b9b3938?ixlib=rb-4.0.3&auto=format&fit=crop&w=1800&q=65');
+    background-image: url('../assets/Home/Umen-Home-Banner-Hoteles.jpg');
     background-size: cover;
-    background-position: center 40%;
+    background-position: center 65%;
 }
 
 .hoteles-overlay {
     background: linear-gradient(to right,
-        rgba(0, 0, 0, 0.88) 0%,
-        rgba(0, 0, 0, 0.72) 55%,
-        rgba(0, 0, 0, 0.35) 100%);
+        rgba(0, 0, 0, 0.76) 0%,
+        rgba(0, 0, 0, 0.6) 55%,
+        rgba(0, 0, 0, 0.25) 100%);
     padding: 100px 0;
 }
 
@@ -1816,8 +1835,8 @@ a.item {
     font-family: var(--font-heading);
     font-size: 2.2rem;
     font-weight: 800;
-    text-align: center;
-    margin-bottom: 50px;
+    text-align: left;
+    margin-bottom: 8px;
     letter-spacing: -0.5px;
     color: var(--secondary-color);
 }
@@ -3946,6 +3965,7 @@ a.item {
 .prop-main .property-card .card-features {
     padding-top: 12px;
     gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
 }
 
 .prop-main .property-card .feature-item {
@@ -4940,7 +4960,7 @@ a.item {
 
 .mapa-header {
     padding: 64px 40px 32px;
-    text-align: center;
+    text-align: left;
 }
 
 .mapa-header h2 {
