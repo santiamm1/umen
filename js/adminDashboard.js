@@ -205,8 +205,10 @@ function setVal(id, v) {
     if (el) el.value = (v == null) ? '' : v;
 }
 function numVal(id) {
-    const n = Number(val(id));
-    return (isNaN(n) || n === 0) ? null : n;
+    const raw = val(id).trim();
+    if (raw === '') return null;
+    const n = Number(raw);
+    return isNaN(n) ? null : n;
 }
 function getCheckboxValues(name) {
     return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(cb => cb.value);
@@ -1132,9 +1134,9 @@ function readFormData() {
         primerPiso:      numVal('primer-piso'),
 
         // Ambientes
-        cantDormitorios:    Number(val('cant-dormitorios')) || null,
+        cantDormitorios:    numVal('cant-dormitorios'),
         detalleDormitorios: val('detalle-dormitorios'),
-        cantBanos:          Number(val('cant-banos')) || null,
+        cantBanos:          numVal('cant-banos'),
         detalleBanos:       val('detalle-banos'),
         tipoCocina:         val('tipo-cocina'),
         lavadero:           val('lavadero'),
@@ -1149,7 +1151,7 @@ function readFormData() {
         piscina:            getRadioValue('piscina'),
 
         // Servicios
-        expensas:         Number(val('expensas')) || null,
+        expensas:         numVal('expensas'),
         noExpensas:       getRadioValue('no-expensas'),
         aysa:             getRadioValue('aysa'),
         calefaccion:      val('calefaccion'),
@@ -1161,15 +1163,15 @@ function readFormData() {
         extras:           getCheckboxValues('extras'),
 
         // Edificio
-        pisosEdificio:    Number(val('pisos-edificio')) || null,
-        deptosPorPiso:    Number(val('deptos-por-piso')) || null,
+        pisosEdificio:    numVal('pisos-edificio'),
+        deptosPorPiso:    numVal('deptos-por-piso'),
         ascensor:         val('ascensor'),
         tipoEdilicio:     val('tipo-edilicio'),
         amenities:        getCheckboxValues('amenities'),
 
         // Comercial
         banosGenerales:   getRadioValue('banos-generales'),
-        cantHabitaciones: Number(val('cant-habitaciones')) || null,
+        cantHabitaciones: numVal('cant-habitaciones'),
         estadoOcupacion:  val('estado-ocupacion'),
         estadoConstruccion: val('estado-construccion'),
         entrega:          val('entrega'),
@@ -1355,12 +1357,20 @@ window.printPropertySheet = id => {
         ['Estado', capitalize(p.status)],
         ['Tipo', p.type],
         ['Ubicación', ubicacion],
-        ['Superficie', p.surface ? `${p.surface} m²` : ''],
-        ['Dormitorios', p.dormitorios || p.bedrooms],
-        ['Baños', p.cantBanos || p.bathrooms],
-        ['Antigüedad', p.antiguedad ? `${p.antiguedad} años` : ''],
+        ['Superficie', p.surface != null ? `${p.surface} m²` : ''],
+        ['M² cubiertos', p.supCubiertaDest != null ? `${p.supCubiertaDest} m²` : ''],
+        ['Ambientes', p.bedrooms],
+        ['Dormitorios', p.dormitorios ?? p.bedrooms],
+        ['Baños', p.bathrooms ?? p.cantBanos],
+        ['Toilette', p.toilette],
+        ['Antigüedad', p.antiguedad != null ? `${p.antiguedad} años` : ''],
         ['Cocheras', p.garage],
-    ].filter(([, v]) => v);
+        ['Piso', p.pisos],
+        ['Orientación', p.orientacion],
+        ['Disposición', p.disposicionDest],
+        ['Estado de conservación', p.estadoConservacion],
+        ['Luminoso', p.luminoso === 'si' ? 'Sí' : p.luminoso === 'no' ? 'No' : ''],
+    ].filter(([, v]) => v != null && v !== '');
 
     document.getElementById('print-sheet').innerHTML = `
         <div class="print-header">

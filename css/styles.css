@@ -1571,6 +1571,13 @@ a.item {
     margin-bottom: 10px;
 }
 
+.card-price-period {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #888;
+}
+
 .card-title {
     font-family: var(--font-heading);
     font-size: 1.02rem;
@@ -2816,6 +2823,13 @@ a.item {
     font-size: 2.2rem;
     font-weight: 900;
     color: var(--primary-color);
+}
+
+.price-period {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
 }
 
 /* Elegant details gallery */

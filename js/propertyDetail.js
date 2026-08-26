@@ -134,7 +134,7 @@ function render(property) {
                 <div class="detail-header-right">
                     <div class="detail-price-box">
                         <span class="price-label">Valor de ${opLabel}</span>
-                        <span class="price-value">${currencyLabel(property.currency)} ${property.price.toLocaleString()}</span>
+                        <span class="price-value">${currencyLabel(property.currency)} ${property.price.toLocaleString()}${property.operation === 'alquiler' ? ' <span class="price-period">/mes</span>' : ''}</span>
                         ${pricePerM2 ? `<span class="price-sqm">${pricePerM2.toLocaleString()} ${currencyLabel(property.currency)}/m²</span>` : ''}
                     </div>
                     <div class="detail-share">
@@ -196,8 +196,10 @@ function render(property) {
                 ${property.bedrooms ? statPill('fas fa-door-open',      property.bedrooms,           'Ambientes')   : ''}
                 ${property.bathrooms? statPill('fas fa-bath',           property.bathrooms,          'Baños')       : ''}
                 ${property.garage   ? statPill('fas fa-car',            property.garage,             'Cocheras')    : ''}
+                ${property.toilette ? statPill('fas fa-toilet',         property.toilette,           'Toilette')    : ''}
                 ${property.pisos    ? statPill('fas fa-building',       'Piso ' + property.pisos,    'Piso')        : ''}
                 ${property.year     ? statPill('fas fa-calendar-alt',   property.year,               'Año')         : ''}
+                ${property.estadoConservacion ? statPill('fas fa-certificate', property.estadoConservacion, 'Estado') : ''}
             </div>
 
             <!-- ── Grid: contenido + sidebar ─────────────────── -->
@@ -216,6 +218,7 @@ function render(property) {
                             ${property.bedrooms     ? dataRow('Ambientes', property.bedrooms) : ''}
                             ${property.bathrooms    ? dataRow('Baños', property.bathrooms) : ''}
                             ${property.garage       ? dataRow('Cocheras', property.garage) : ''}
+                            ${property.toilette     ? dataRow('Toilette', property.toilette) : ''}
                             ${property.pisos        ? dataRow('Piso', property.pisos) : ''}
                             ${property.disposicionDest ? dataRow('Disposición', property.disposicionDest) : ''}
                             ${property.year         ? dataRow('Año de construcción', property.year) : ''}

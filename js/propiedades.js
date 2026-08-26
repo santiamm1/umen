@@ -704,7 +704,7 @@ function renderPage(filtered) {
                     <div class="card-badge">${badgeLabel}</div>
                 </div>
                 <div class="card-content">
-                    <div class="card-price">${p.currency === 'ARS' ? '$' : (p.currency || 'USD')} ${p.price.toLocaleString()}</div>
+                    <div class="card-price">${p.currency === 'ARS' ? '$' : (p.currency || 'USD')} ${p.price.toLocaleString()}${p.operation === 'alquiler' ? ' <span class="card-price-period">/mes</span>' : ''}</div>
                     <h3 class="card-title">${p.title}</h3>
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i> ${location}

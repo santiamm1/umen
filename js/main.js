@@ -556,7 +556,7 @@ async function renderFeaturedRentals() {
                         <div class="card-badge">${property.operation}</div>
                     </div>
                     <div class="card-content">
-                        <div class="card-price">USD ${property.price.toLocaleString()} <span style="font-size:0.75rem;font-weight:500;color:#888">/mes</span></div>
+                        <div class="card-price">USD ${property.price.toLocaleString()} <span class="card-price-period">/mes</span></div>
                         <h3 class="card-title">${property.title}</h3>
                         <div class="card-location">
                             <i class="fas fa-map-marker-alt"></i> ${property.neighborhood || 'Sin barrio'}, ${property.zone || 'Capital Federal'}
