@@ -51,9 +51,9 @@ export async function getProperties(filters = {}) {
         if (filters.category) {
             queryConstraints.push(where('type', '==', filters.category));
         }
-        if (filters.operation) {
-            queryConstraints.push(where('operation', '==', filters.operation));
-        }
+        // No filtramos 'operation' en la query: Firestore hace match exacto (case-sensitive)
+        // y propiedades cargadas antes de normalizar el campo pueden tener "Alquiler"/"Venta"
+        // en vez de minúsculas. Se filtra abajo, en memoria, sin distinguir mayúsculas.
         if (filters.province) {
             queryConstraints.push(where('province', '==', filters.province));
         }
@@ -64,8 +64,10 @@ export async function getProperties(filters = {}) {
             queryConstraints.push(where('price', '<=', parseInt(filters.maxPrice)));
         }
 
-        // No agregamos orderBy aquí para evitar errores de índice si el usuario no los tiene configurados
-        queryConstraints.push(limit(filters.limit || 100));
+        // No agregamos orderBy aquí para evitar errores de índice si el usuario no los tiene configurados.
+        // Si vamos a filtrar por operation en memoria, pedimos de más para no truncar antes de filtrar.
+        const requestedLimit = filters.limit || 100;
+        queryConstraints.push(limit(filters.operation ? Math.max(requestedLimit * 4, 100) : requestedLimit));
 
         const q = query(colRef, ...queryConstraints);
 
@@ -76,12 +78,19 @@ export async function getProperties(filters = {}) {
             properties.push({ id: doc.id, ...doc.data() });
         });
 
+        if (filters.operation) {
+            const wanted = filters.operation.toLowerCase();
+            properties = properties.filter(p => (p.operation || '').toLowerCase() === wanted);
+        }
+
         // Ordenar en memoria por fecha de creación (descendente)
         properties.sort((a, b) => {
             const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0));
             const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0));
             return dateB - dateA;
         });
+
+        if (filters.operation) properties = properties.slice(0, requestedLimit);
 
         return properties;
     } catch (error) {

@@ -1,6 +1,6 @@
 // propertyDetail.js - Detalle de propiedad premium UMEN
 
-import { getProperty } from './propertyService.js';
+import { getProperty } from './propertyService.js?v=3';
 
 const container = document.getElementById('property-detail');
 const urlParams  = new URLSearchParams(window.location.search);

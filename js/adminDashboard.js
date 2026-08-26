@@ -15,11 +15,12 @@ import {
     getAdminProfile, saveAdminProfile,
     getHotelNotes, createHotelNote, updateHotelNote, deleteHotelNote,
     getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost
-} from './propertyService.js?v=2';
+} from './propertyService.js?v=3';
 import { initImageGallery, setGalleryUrls, getGalleryUrls, uploadFile } from './cloudinaryUpload.js?v=2';
 import { APP_VERSION } from './version.js';
 
-document.getElementById('adm-sidebar-version').textContent = APP_VERSION;
+const sidebarVersionEl = document.getElementById('adm-sidebar-version');
+if (sidebarVersionEl) sidebarVersionEl.textContent = APP_VERSION;
 
 window.showToast = function(message, type = 'success') {
     const container = document.getElementById('toast-container');

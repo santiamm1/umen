@@ -1,6 +1,6 @@
 // propiedades.js - Página de listado completo de propiedades UMEN
 
-import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries, getHotelNotes } from './propertyService.js';
+import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries, getHotelNotes } from './propertyService.js?v=3';
 
 const ITEMS_PER_PAGE = 12;
 

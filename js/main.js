@@ -1,6 +1,6 @@
 // main.js - Lógica principal premium para la página de inicio (Estilo Toribio Achával)
 
-import { getProperties, getCategories, getProvinces, getBlogPosts } from './propertyService.js';
+import { getProperties, getCategories, getProvinces, getBlogPosts } from './propertyService.js?v=3';
 
 // Elementos DOM — se asignan luego de que el header partial se inyecte
 let header;

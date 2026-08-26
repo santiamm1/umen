@@ -1,6 +1,6 @@
 // blog.js - Listado del blog (Notas de Interés & Urbanismo)
 
-import { getBlogPosts } from './propertyService.js';
+import { getBlogPosts } from './propertyService.js?v=3';
 
 const container = document.getElementById('blog-list');
 const searchInput = document.getElementById('blog-search');
