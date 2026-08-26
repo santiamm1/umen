@@ -1102,6 +1102,36 @@
                         </div>
 
                         <div class="adm-form-section">
+                            <div class="adm-form-section-title"><i class="fas fa-plug"></i> Servicios básicos</div>
+                            <div class="adm-form-grid">
+                                <div class="adm-form-group">
+                                    <label>Agua corriente</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="agua-corriente" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="agua-corriente" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="agua-corriente" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Electricidad</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="electricidad" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="electricidad" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="electricidad" value="" checked> —</label>
+                                    </div>
+                                </div>
+                                <div class="adm-form-group">
+                                    <label>Gas natural</label>
+                                    <div class="adm-bool-group">
+                                        <label class="adm-bool-pill"><input type="radio" name="gas-natural" value="si"> Sí</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="gas-natural" value="no"> No</label>
+                                        <label class="adm-bool-pill no"><input type="radio" name="gas-natural" value="" checked> —</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="adm-form-section">
                             <div class="adm-form-section-title"><i class="fas fa-fire-alt"></i> Climatización</div>
                             <div class="adm-form-grid">
                                 <div class="adm-form-group">
@@ -1305,7 +1335,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.45"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.47"></script>
     <script>
         // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
         lucide.createIcons();

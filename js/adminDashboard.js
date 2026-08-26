@@ -356,6 +356,17 @@ async function loadAdminData() {
     }
 }
 
+// Refresco liviano tras crear/editar/duplicar/eliminar una propiedad: solo trae
+// las propiedades de nuevo. loadAdminData() además re-pide taxonomías (9 lecturas
+// a Firestore), clima y perfil — innecesario y es lo que hacía sentir lento el guardado.
+async function refreshProperties() {
+    properties = await getProperties();
+    renderAdminTable();
+    setPropertiesView(kanbanView ? 'kanban' : 'table');
+    updateStats();
+    renderPropertiesMap();
+}
+
 // ── Clima y Bienvenida ──────────────────────────────────────────────────────
 async function fetchWeather() {
     try {
@@ -1154,6 +1165,9 @@ function readFormData() {
         expensas:         numVal('expensas'),
         noExpensas:       getRadioValue('no-expensas'),
         aysa:             getRadioValue('aysa'),
+        aguaCorriente:    getRadioValue('agua-corriente'),
+        electricidad:     getRadioValue('electricidad'),
+        gasNatural:       getRadioValue('gas-natural'),
         calefaccion:      val('calefaccion'),
         aireAcondicionado:val('aire-acondicionado'),
         aguaCaliente:     val('agua-caliente'),
@@ -1245,6 +1259,8 @@ function fillForm(p) {
     // Servicios
     setVal('expensas', p.expensas);
     setRadioValue('no-expensas', p.noExpensas); setRadioValue('aysa', p.aysa);
+    setRadioValue('agua-corriente', p.aguaCorriente); setRadioValue('electricidad', p.electricidad);
+    setRadioValue('gas-natural', p.gasNatural);
     setVal('calefaccion', p.calefaccion); setVal('aire-acondicionado', p.aireAcondicionado);
     setVal('agua-caliente', p.aguaCaliente); setVal('tipo-piso', p.tipoPiso);
     setVal('ventilacion', p.ventilacion);
@@ -1336,7 +1352,7 @@ window.handleDuplicateProperty = async id => {
     try {
         await createProperty(data);
         showToast('Propiedad duplicada como borrador.', 'success');
-        loadAdminData();
+        refreshProperties();
     } catch (e) { showToast('Error al duplicar: ' + e.message, 'error'); }
 };
 
@@ -1370,6 +1386,9 @@ window.printPropertySheet = id => {
         ['Disposición', p.disposicionDest],
         ['Estado de conservación', p.estadoConservacion],
         ['Luminoso', p.luminoso === 'si' ? 'Sí' : p.luminoso === 'no' ? 'No' : ''],
+        ['Agua corriente', p.aguaCorriente === 'si' ? 'Sí' : p.aguaCorriente === 'no' ? 'No' : ''],
+        ['Electricidad', p.electricidad === 'si' ? 'Sí' : p.electricidad === 'no' ? 'No' : ''],
+        ['Gas natural', p.gasNatural === 'si' ? 'Sí' : p.gasNatural === 'no' ? 'No' : ''],
     ].filter(([, v]) => v != null && v !== '');
 
     document.getElementById('print-sheet').innerHTML = `
@@ -1412,7 +1431,7 @@ window.handleDeleteProperty = async id => {
     try {
         await deleteProperty(id);
         showToast('Propiedad eliminada.', 'success');
-        loadAdminData();
+        refreshProperties();
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
@@ -1432,7 +1451,7 @@ async function handleSaveDraft() {
         }
         showToast('Borrador guardado.', 'success');
         closeModal();
-        loadAdminData();
+        refreshProperties();
     } catch (e) { showToast('Error al guardar el borrador: ' + e.message, 'error'); }
 }
 
@@ -1452,7 +1471,7 @@ async function handleFormSubmit(e) {
             showToast('Propiedad creada con éxito.', 'success');
         }
         closeModal();
-        loadAdminData();
+        refreshProperties();
     } catch (e) { showToast('Error al guardar: ' + e.message, 'error'); }
 }
 

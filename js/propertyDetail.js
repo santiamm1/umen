@@ -224,6 +224,9 @@ function render(property) {
                             ${property.year         ? dataRow('Año de construcción', property.year) : ''}
                             ${property.condition    ? dataRow('Estado', property.condition) : ''}
                             ${property.estadoConservacion ? dataRow('Estado de conservación', property.estadoConservacion) : ''}
+                            ${property.aguaCorriente ? dataRow('Agua corriente', property.aguaCorriente === 'si' ? 'Sí' : 'No') : ''}
+                            ${property.electricidad  ? dataRow('Electricidad', property.electricidad === 'si' ? 'Sí' : 'No') : ''}
+                            ${property.gasNatural    ? dataRow('Gas natural', property.gasNatural === 'si' ? 'Sí' : 'No') : ''}
                             ${pricePerM2            ? dataRow('Precio por m²', currencyLabel(property.currency) + ' ' + pricePerM2.toLocaleString()) : ''}
                         </div>
                     </section>
