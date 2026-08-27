@@ -106,7 +106,8 @@ function render(property) {
     const typeLabel = getTypeLabel(property.type);
     const location  = [property.neighborhood, property.zone].filter(Boolean).join(', ');
     const mapQuery  = encodeURIComponent([property.neighborhood, property.zone, 'Argentina'].filter(Boolean).join(', '));
-    const waMsg     = encodeURIComponent(`Hola UMEN, vi la propiedad "${property.title}" y me gustaría recibir más información.`);
+    const codeLabel = property.code ? ` (Cód. ${property.code})` : '';
+    const waMsg     = encodeURIComponent(`Hola UMEN, vi la propiedad "${property.title}"${codeLabel} y me gustaría recibir más información.`);
     const waUrl     = `https://wa.me/5491131444207?text=${waMsg}`;
     const pricePerM2 = property.surface > 0 ? Math.round(property.price / property.surface) : null;
 
@@ -130,6 +131,7 @@ function render(property) {
                     <h1 class="detail-title">${property.title}</h1>
                     <p class="detail-location">
                         <i class="fas fa-map-marker-alt"></i> ${location}
+                        ${property.code ? `<span class="detail-code">Cód. ${property.code}</span>` : ''}
                     </p>
                 </div>
                 <div class="detail-header-right">
