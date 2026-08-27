@@ -869,8 +869,8 @@ function renderPropertiesMap() {
 
     if (!propertiesMap) {
         propertiesMap = L.map(mapEl).setView([-34.6037, -58.3816], 12); // Buenos Aires
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
             maxZoom: 19
         }).addTo(propertiesMap);
         propertiesMarkers = L.layerGroup().addTo(propertiesMap);
@@ -1121,6 +1121,7 @@ function readFormData() {
         // Destacados
         surface:         numVal('surface'),
         supCubiertaDest: numVal('sup-cubierta-dest'),
+        supVendibleDest: numVal('sup-vendible-dest'),
         bedrooms:        numVal('bedrooms'),
         dormitorios:     numVal('dormitorios'),
         bathrooms:       numVal('bathrooms'),
@@ -1232,6 +1233,7 @@ function fillForm(p) {
 
     // Destacados
     setVal('surface', p.surface); setVal('sup-cubierta-dest', p.supCubiertaDest);
+    setVal('sup-vendible-dest', p.supVendibleDest);
     setVal('bedrooms', p.bedrooms); setVal('dormitorios', p.dormitorios);
     setVal('bathrooms', p.bathrooms); setVal('toilette', p.toilette);
     setVal('antiguedad', p.antiguedad); setVal('garage', p.garage);
@@ -1377,6 +1379,7 @@ window.printPropertySheet = id => {
         ['Ubicación', ubicacion],
         ['Superficie', p.surface != null ? `${p.surface} m²` : ''],
         ['M² cubiertos', p.supCubiertaDest != null ? `${p.supCubiertaDest} m²` : ''],
+        ['M² vendibles', p.supVendibleDest != null ? `${p.supVendibleDest} m²` : ''],
         ['Ambientes', p.bedrooms],
         ['Dormitorios', p.dormitorios ?? p.bedrooms],
         ['Baños', p.bathrooms ?? p.cantBanos],
