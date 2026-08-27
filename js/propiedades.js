@@ -528,6 +528,7 @@ function applyFiltersAndRender() {
         const kw = currentFilters.keyword;
         filtered = filtered.filter(p =>
             p.title.toLowerCase().includes(kw) ||
+            (p.code && p.code.toLowerCase().includes(kw)) ||
             (p.neighborhood && p.neighborhood.toLowerCase().includes(kw)) ||
             (p.zone && p.zone.toLowerCase().includes(kw)) ||
             (p.description && p.description.toLowerCase().includes(kw)) ||

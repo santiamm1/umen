@@ -35,6 +35,24 @@ let currentGalleryIdx = 0;
         handleHeaderScroll();
     }
 
+    // El buscador del header no está wireado en esta página (solo en el home) — lo mandamos al listado
+    const searchBtn = document.getElementById('search-btn');
+    const quickSearch = document.getElementById('quicksearch');
+    const goToPropiedadesConFiltros = () => {
+        const params = new URLSearchParams();
+        const operation = document.querySelector('input[name="operation"]:checked')?.value || 'venta';
+        params.set('operation', operation);
+        const category = document.getElementById('property-type')?.value;
+        if (category) params.set('category', category);
+        const keyword = quickSearch?.value.trim();
+        if (keyword) params.set('keyword', keyword);
+        window.location.href = `propiedades.html?${params.toString()}`;
+    };
+    searchBtn?.addEventListener('click', goToPropiedadesConFiltros);
+    quickSearch?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') goToPropiedadesConFiltros();
+    });
+
     // Esperar hasta 3s a que Firebase inicialice (el inline module puede llegar después)
     let attempts = 0;
     while (!window.db && attempts < 30) {
