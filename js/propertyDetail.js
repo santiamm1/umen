@@ -194,6 +194,7 @@ function render(property) {
             <!-- ── Barra de stats rápidos ─────────────────────── -->
             <div class="detail-stats-bar">
                 ${property.surface  ? statPill('fas fa-ruler-combined', property.surface + ' m²',  'Superficie')  : ''}
+                ${property.supVendibleDest ? statPill('fas fa-ruler-combined', property.supVendibleDest + ' m²', 'M² vendibles') : ''}
                 ${property.bedrooms ? statPill('fas fa-door-open',      property.bedrooms,           'Ambientes')   : ''}
                 ${property.bathrooms? statPill('fas fa-bath',           property.bathrooms,          'Baños')       : ''}
                 ${property.garage   ? statPill('fas fa-car',            property.garage,             'Cocheras')    : ''}
@@ -216,6 +217,7 @@ function render(property) {
                             ${property.neighborhood ? dataRow('Barrio', property.neighborhood) : ''}
                             ${property.zone         ? dataRow('Zona / Partido', property.zone) : ''}
                             ${property.surface      ? dataRow('Superficie', property.surface + ' m²') : ''}
+                            ${property.supVendibleDest ? dataRow('M² vendibles', property.supVendibleDest + ' m²') : ''}
                             ${property.bedrooms     ? dataRow('Ambientes', property.bedrooms) : ''}
                             ${property.bathrooms    ? dataRow('Baños', property.bathrooms) : ''}
                             ${property.garage       ? dataRow('Cocheras', property.garage) : ''}
