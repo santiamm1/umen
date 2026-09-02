@@ -1882,15 +1882,6 @@ a.item {
     gap: 25px;
 }
 
-.hotels-external-section {
-    margin-top: 50px;
-}
-
-.hotels-external-more {
-    padding-top: 40px;
-    border-top: 1px solid #eee;
-}
-
 .hotel-nota-article {
     max-width: 100%;
 }
@@ -2327,17 +2318,6 @@ a.item {
     font-weight: 800;
     font-size: 1.15rem;
     flex-grow: 1;
-}
-
-.hotels-external-section h3 {
-    font-family: var(--font-heading);
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-}
-
-.hotels-external-more > p {
-    color: #666;
-    margin-bottom: 24px;
 }
 
 .items-container .item {

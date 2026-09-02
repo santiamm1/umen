@@ -1,6 +1,6 @@
 // propiedades.js - Página de listado completo de propiedades UMEN
 
-import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries, getHotelNotes } from './propertyService.js?v=3';
+import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries } from './propertyService.js?v=3';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -621,49 +621,15 @@ function applyFiltersAndRender() {
     renderActiveFilterTags();
     renderPage(filtered);
     renderPagination(filtered.length);
-    renderHotelsExternalSection();
+    renderHotelsBanner();
 }
 
-// El catálogo completo de hoteles vive en Hoteles en Venta; acá solo mostramos accesos a notas por región
-// cargadas desde el admin (sección "Notas de Hoteles"). Cada nota abre en hotel-nota.html.
-let hotelNotesCache = null;
-
-async function renderHotelsExternalSection() {
-    const section = document.getElementById('hotels-external-section');
-    const list = document.getElementById('hotels-external-list');
-    if (!section || !list) return;
-
-    if (currentFilters.category !== 'Hotel') {
-        section.style.display = 'none';
-        list.innerHTML = '';
-        return;
-    }
-
-    section.style.display = '';
-
-    if (hotelNotesCache === null) {
-        list.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin"></i> Cargando notas...</div>';
-        hotelNotesCache = await getHotelNotes();
-    }
-
-    if (hotelNotesCache.length === 0) {
-        list.innerHTML = '';
-        return;
-    }
-
-    list.innerHTML = hotelNotesCache.map(n => `
-        <a href="${n.slug ? 'hoteles/' + n.slug : 'hotel-nota.html?id=' + n.id}" class="item">
-            <div class="media">
-                <img src="${n.image || 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=65'}" alt="${n.title}">
-                <span class="cat">${n.region || ''}</span>
-            </div>
-            <div class="item-content">
-                <h4>${n.title}</h4>
-                <p class="item-excerpt">${n.excerpt || ''}</p>
-                <span class="item-more">Leer más <i class="fas fa-arrow-right"></i></span>
-            </div>
-        </a>
-    `).join('');
+// El catálogo completo de hoteles vive en Hoteles en Venta; cada propiedad de esta
+// categoría redirige a su ficha allá (ver p.externalUrl en renderPage).
+function renderHotelsBanner() {
+    const banner = document.getElementById('hotels-banner');
+    if (!banner) return;
+    banner.style.display = currentFilters.category === 'Hotel' ? '' : 'none';
 }
 
 function updateResultsTitle() {
@@ -698,8 +664,13 @@ function renderPage(filtered) {
         const img = p.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1073&q=80';
         const location = [p.neighborhood, p.zone].filter(Boolean).join(', ') || 'Sin ubicación';
         const badgeLabel = p.operation === 'venta' ? 'Venta' : 'Alquiler';
+        // Los hoteles viven en Hoteles en Venta: la card redirige a la ficha original allá.
+        const isExternalHotel = p.type === 'Hotel' && p.externalUrl;
+        const linkAttrs = isExternalHotel
+            ? `href="${p.externalUrl}" target="_blank" rel="noopener noreferrer"`
+            : `href="property-detail.html?v=3&id=${p.id}"`;
         return `
-            <a class="property-card" href="property-detail.html?v=3&id=${p.id}">
+            <a class="property-card" ${linkAttrs}>
                 <div class="card-image">
                     <img src="${img}" alt="${p.title}" loading="lazy">
                     <div class="card-badge">${badgeLabel}</div>

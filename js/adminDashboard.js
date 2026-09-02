@@ -1114,6 +1114,7 @@ function readFormData() {
         provincia:       val('provincia'),
         pais:            val('pais'),
         branch:          val('branch'),
+        externalUrl:     val('external-url'),
         tag:             val('tag'),
         description:     val('description'),
         observaciones:   val('observaciones'),
@@ -1209,6 +1210,7 @@ function fillForm(p) {
     setVal('prop-code', p.code || '');
     setVal('title', p.title);
     setVal('price', p.price);
+    setVal('external-url', p.externalUrl || '');
     if (document.getElementById('consultar-precio'))
         document.getElementById('consultar-precio').checked = !!p.consultarPrecio;
     populateFormSelects();
