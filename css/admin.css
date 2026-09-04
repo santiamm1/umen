@@ -750,7 +750,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     border: 1px solid var(--adm-border);
     background: var(--adm-white);
     border-radius: 12px;
-    padding: 0 16px;
+    padding: 0 40px 0 16px;
     font-size: 0.9rem;
     font-weight: 500;
     font-family: inherit;
@@ -758,9 +758,29 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     transition: all 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
 }
 .adm-filters select:hover {
     border-color: #cbd5e1;
+    background-color: var(--adm-bg);
+}
+.adm-filters select:focus {
+    outline: none;
+    border-color: var(--adm-primary);
+    box-shadow: 0 0 0 4px rgba(246, 140, 24, 0.12);
+}
+/* Cuando el filtro tiene un valor elegido (no la opción placeholder) se resalta */
+.adm-filters select:not(:has(option[value=""]:checked)) {
+    border-color: var(--adm-primary);
+    background-color: rgba(246, 140, 24, 0.06);
+    color: var(--adm-primary);
+    font-weight: 700;
 }
 
 /* ── Tabla ───────────────────────────────────────────────────── */
@@ -1203,6 +1223,63 @@ select.adm-input {
     transition: all 0.2s ease;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
+
+/* Barra de estadísticas del formulario de blog (palabras, lectura, SEO) */
+.adm-blog-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: -6px 0 4px; }
+.adm-blog-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: #F1F5F9;
+    color: var(--adm-muted);
+}
+.adm-blog-stat i { font-size: 0.72rem; }
+.adm-blog-stat.ok { background: #DCFCE7; color: #15803D; }
+.adm-blog-stat.warn { background: #FEF3C7; color: #B45309; }
+.adm-blog-stat.bad { background: #FEE2E2; color: #B91C1C; }
+
+/* Editor de texto enriquecido (blog) */
+.adm-rte-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    background: #F8F9FA;
+}
+.adm-rte-toolbar .adm-btn-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.adm-rte-sep { width: 1px; height: 20px; background: rgba(0, 0, 0, 0.1); margin: 0 2px; }
+.adm-rte-editable {
+    min-height: 220px;
+    max-height: 480px;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 12px 12px;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    color: var(--adm-text);
+    background: #F8F9FA;
+    outline: none;
+}
+.adm-rte-editable:focus { background: var(--adm-white); border-color: rgba(0, 0, 0, 0.15); }
+.adm-rte-editable:empty::before { content: attr(data-placeholder); color: var(--adm-muted); }
+.adm-rte-editable p { margin: 0 0 12px; }
+.adm-rte-editable h2 { font-size: 1.2rem; margin: 16px 0 8px; }
+.adm-rte-editable blockquote { margin: 12px 0; padding-left: 14px; border-left: 3px solid var(--adm-primary); color: var(--adm-muted); }
+.adm-rte-editable img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
+.adm-rte-editable ul, .adm-rte-editable ol { padding-left: 22px; margin: 0 0 12px; }
 
 /* Custom dropdown style */
 .adm-form-group select, select.adm-input {

@@ -13,7 +13,6 @@ import {
     getProvinces, createProvince, updateProvince, deleteProvince,
     getLocalities, createLocality, updateLocality, deleteLocality,
     getAdminProfile, saveAdminProfile,
-    getHotelNotes, createHotelNote, updateHotelNote, deleteHotelNote,
     getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost
 } from './propertyService.js?v=3';
 import { initImageGallery, setGalleryUrls, getGalleryUrls, uploadFile } from './cloudinaryUpload.js?v=2';
@@ -340,7 +339,11 @@ async function loadAdminData() {
         
         properties = await propertiesPromise;
         clearTimeout(timeout);
-        
+        // Recalculan los conteos "(N)" de cada opción ahora que properties ya cargó
+        populateFilterTypeSelect();
+        populateFilterOperationSelect();
+        populateFilterStatusSelect();
+
         renderAdminTable();
         setPropertiesView(kanbanView ? 'kanban' : 'table');
         updateStats();
@@ -361,6 +364,9 @@ async function loadAdminData() {
 // a Firestore), clima y perfil — innecesario y es lo que hacía sentir lento el guardado.
 async function refreshProperties() {
     properties = await getProperties({ limit: 5000 });
+    populateFilterTypeSelect();
+    populateFilterOperationSelect();
+    populateFilterStatusSelect();
     renderAdminTable();
     setPropertiesView(kanbanView ? 'kanban' : 'table');
     updateStats();
@@ -656,9 +662,39 @@ function ensureOptionExists(select, value) {
 function populateFilterTypeSelect() {
     if (!filterTypeSelect) return;
     const cur = filterTypeSelect.value;
+    const counts = {};
+    properties.forEach(p => { if (p.type) counts[p.type] = (counts[p.type] || 0) + 1; });
     filterTypeSelect.innerHTML = '<option value="">Tipo</option>'
-        + categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        + categories.map(c => `<option value="${c.name}">${c.name} (${counts[c.name] || 0})</option>`).join('');
     filterTypeSelect.value = cur;
+}
+function populateFilterOperationSelect() {
+    const select = document.getElementById('filter-operation');
+    if (!select) return;
+    const cur = select.value;
+    const counts = {};
+    properties.forEach(p => {
+        const v = (p.operation || '').toLowerCase();
+        if (v) counts[v] = (counts[v] || 0) + 1;
+    });
+    const options = [['venta', 'Venta'], ['alquiler', 'Alquiler']];
+    select.innerHTML = '<option value="">Operación</option>'
+        + options.map(([v, label]) => `<option value="${v}">${label} (${counts[v] || 0})</option>`).join('');
+    select.value = cur;
+}
+function populateFilterStatusSelect() {
+    const select = document.getElementById('filter-status');
+    if (!select) return;
+    const cur = select.value;
+    const counts = {};
+    properties.forEach(p => {
+        const v = (p.status || '').toLowerCase();
+        if (v) counts[v] = (counts[v] || 0) + 1;
+    });
+    const options = [['publicado', 'Publicado'], ['pendiente', 'Pendiente'], ['borrador', 'Borrador'], ['pausa', 'Pausa'], ['vendido', 'Vendido']];
+    select.innerHTML = '<option value="">Estado</option>'
+        + options.map(([v, label]) => `<option value="${v}">${label} (${counts[v] || 0})</option>`).join('');
+    select.value = cur;
 }
 
 // Navega a la sección Propiedades aplicando el filtro del KPI clickeado en el dashboard.
@@ -1329,15 +1365,15 @@ function resetBooleans() {
 
 // ── Modal actions ─────────────────────────────────────────────────────────────
 // El módulo de galería de Cloudinary usa IDs internos fijos: solo puede haber un contenedor montado
-// a la vez (propiedad, Notas de Hoteles o Blog), por eso se monta bajo demanda y se limpian los otros dos.
-const GALLERY_CONTAINER_IDS = ['cld-gallery-container', 'hotelnote-image-gallery', 'blogpost-image-gallery'];
+// a la vez (propiedad o Blog), por eso se monta bajo demanda y se limpia el otro.
+const GALLERY_CONTAINER_IDS = ['cld-gallery-container', 'blogpost-image-gallery'];
 
-function mountGallery(containerId) {
+function mountGallery(containerId, options) {
     GALLERY_CONTAINER_IDS.filter(id => id !== containerId).forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = '';
     });
-    initImageGallery(containerId);
+    initImageGallery(containerId, options);
 }
 
 function mountPropertyGallery() {
@@ -1506,59 +1542,6 @@ async function handleFormSubmit(e) {
     } catch (e) { showToast('Error al guardar: ' + e.message, 'error'); }
 }
 
-// ── Notas de Hoteles ─────────────────────────────────────────────────────────
-// Contenido tipo blog por región (el catálogo completo de hoteles vive en Hoteles en Venta).
-let hotelNotes = [];
-let editingHotelNoteId = null;
-let hotelNotesLoaded = false;
-
-const hotelNoteFormWrap = document.getElementById('hotelnote-form-wrap');
-const hotelNoteForm     = document.getElementById('hotelnote-form');
-const hotelNotesTbody   = document.getElementById('hotelnotes-table-body');
-
-async function loadHotelNotes() {
-    if (hotelNotesLoaded) return;
-    hotelNotesLoaded = true;
-    hotelNotes = await getHotelNotes();
-    renderHotelNotesTable();
-}
-
-function renderHotelNotesTable() {
-    if (!hotelNotesTbody) return;
-    if (hotelNotes.length === 0) {
-        hotelNotesTbody.innerHTML = '<tr><td colspan="3" class="adm-table-empty">Todavía no hay notas cargadas.</td></tr>';
-        return;
-    }
-    hotelNotesTbody.innerHTML = hotelNotes.map(n => `
-        <tr>
-            <td>${n.title || ''}</td>
-            <td>${n.region || ''}</td>
-            <td>
-                <button type="button" class="adm-btn adm-btn-icon" onclick="editHotelNote('${n.id}')" title="Editar"><i class="fas fa-pen"></i></button>
-                <button type="button" class="adm-btn adm-btn-icon" onclick="deleteHotelNoteHandler('${n.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function openHotelNoteForm(note = null) {
-    editingHotelNoteId = note?.id || null;
-    hotelNoteForm.reset();
-    document.getElementById('hn-title').value        = note?.title || '';
-    document.getElementById('hn-region').value        = note?.region || '';
-    document.getElementById('hn-excerpt').value       = note?.excerpt || '';
-    document.getElementById('hn-body').value          = note?.body || '';
-    document.getElementById('hn-external-url').value  = note?.externalUrl || '';
-    mountGallery('hotelnote-image-gallery');
-    setGalleryUrls(note?.image ? [note.image] : []);
-    hotelNoteFormWrap.style.display = 'block';
-}
-
-function closeHotelNoteForm() {
-    hotelNoteFormWrap.style.display = 'none';
-    editingHotelNoteId = null;
-}
-
 // Convierte el título en un slug para la URL pública (hoteles/<slug>)
 function slugify(text) {
     return text
@@ -1567,53 +1550,6 @@ function slugify(text) {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
 }
-
-async function handleHotelNoteSubmit(e) {
-    e.preventDefault();
-    const title = document.getElementById('hn-title').value.trim();
-    const data = {
-        title,
-        slug:        slugify(title),
-        region:      document.getElementById('hn-region').value.trim(),
-        excerpt:     document.getElementById('hn-excerpt').value.trim(),
-        body:        document.getElementById('hn-body').value.trim(),
-        externalUrl: document.getElementById('hn-external-url').value.trim(),
-        image:       getGalleryUrls()[0] || ''
-    };
-    try {
-        if (editingHotelNoteId) {
-            await updateHotelNote(editingHotelNoteId, data);
-            showToast('Nota actualizada con éxito.', 'success');
-        } else {
-            await createHotelNote(data);
-            showToast('Nota creada con éxito.', 'success');
-        }
-        closeHotelNoteForm();
-        hotelNotesLoaded = false;
-        await loadHotelNotes();
-    } catch (e) { showToast('Error al guardar la nota: ' + e.message, 'error'); }
-}
-
-window.editHotelNote = id => {
-    const note = hotelNotes.find(n => n.id === id);
-    if (note) openHotelNoteForm(note);
-};
-
-window.deleteHotelNoteHandler = async id => {
-    const note = hotelNotes.find(n => n.id === id);
-    if (!note) return;
-    if (!await confirmDialog(`¿Eliminar "${note.title}"?`, { acceptLabel: 'Eliminar' })) return;
-    try {
-        await deleteHotelNote(id);
-        hotelNotesLoaded = false;
-        await loadHotelNotes();
-    } catch (e) { showToast('Error: ' + e.message, 'error'); }
-};
-
-document.addEventListener('adm:enter-hotelnotes', loadHotelNotes);
-document.getElementById('new-hotelnote-btn')?.addEventListener('click', () => openHotelNoteForm());
-document.getElementById('cancel-hotelnote-btn')?.addEventListener('click', closeHotelNoteForm);
-hotelNoteForm?.addEventListener('submit', handleHotelNoteSubmit);
 
 // ── Blog ─────────────────────────────────────────────────────────────────────
 let blogPosts = [];
@@ -1631,37 +1567,137 @@ async function loadBlogPosts() {
     renderBlogPostsTable();
 }
 
+// Palabras leídas + puntaje SEO simple: título 30-60 caracteres, meta descripción
+// 70-160, resumen cargado, imagen de portada y al menos 300 palabras. Se usa tanto
+// en la barra en vivo del formulario como en la columna SEO del listado.
+function scoreBlogPost({ title = '', seoTitle = '', excerpt = '', seoDescription = '', body = '', hasImage = false }) {
+    const effectiveTitle = seoTitle || title;
+    const effectiveDescription = seoDescription || excerpt;
+    const bodyText = body.replace(/<[^>]+>/g, ' ').trim();
+    const words = bodyText ? bodyText.split(/\s+/).length : 0;
+    const readMin = Math.max(1, Math.round(words / 200));
+
+    const checks = [
+        effectiveTitle.length >= 30 && effectiveTitle.length <= 60,
+        effectiveDescription.length >= 70 && effectiveDescription.length <= 160,
+        !!excerpt,
+        hasImage,
+        words >= 300
+    ];
+    const passed = checks.filter(Boolean).length;
+    const level = passed >= 4 ? 'ok' : passed >= 2 ? 'warn' : 'bad';
+    const label = passed >= 4 ? 'Bueno' : passed >= 2 ? 'Regular' : 'Débil';
+    return { words, readMin, passed, level, label };
+}
+
 function renderBlogPostsTable() {
     if (!blogPostsTbody) return;
     if (blogPosts.length === 0) {
-        blogPostsTbody.innerHTML = '<tr><td colspan="3" class="adm-table-empty">Todavía no hay notas cargadas.</td></tr>';
+        blogPostsTbody.innerHTML = '<tr><td colspan="5" class="adm-table-empty">Todavía no hay notas cargadas.</td></tr>';
         return;
     }
-    blogPostsTbody.innerHTML = blogPosts.map(p => `
+    blogPostsTbody.innerHTML = blogPosts.map(p => {
+        const score = scoreBlogPost({
+            title: p.title || '', seoTitle: p.seoTitle || '', excerpt: p.excerpt || '',
+            seoDescription: p.seoDescription || '', body: p.body || '', hasImage: !!p.image
+        });
+        return `
         <tr>
             <td>${p.title || ''}</td>
+            <td>
+                <span class="adm-blog-stat" title="${score.readMin} min de lectura">
+                    <i class="fas fa-align-left"></i> ${score.words}
+                </span>
+            </td>
+            <td>
+                <span class="adm-blog-stat ${score.level}" title="${score.words} palabras · ${score.readMin} min de lectura">
+                    <i class="fas fa-bullseye"></i> ${score.label} (${score.passed}/5)
+                </span>
+            </td>
             <td>${p.category || ''}</td>
             <td>
                 <button type="button" class="adm-btn adm-btn-icon" onclick="editBlogPost('${p.id}')" title="Editar"><i class="fas fa-pen"></i></button>
                 <button type="button" class="adm-btn adm-btn-icon" onclick="deleteBlogPostHandler('${p.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function openBlogPostForm(post = null) {
     editingBlogPostId = post?.id || null;
     blogPostForm.reset();
-    document.getElementById('bp-title').value       = post?.title || '';
-    document.getElementById('bp-category').value    = post?.category || '';
-    document.getElementById('bp-excerpt').value      = post?.excerpt || '';
-    document.getElementById('bp-body').value         = post?.body || '';
-    document.getElementById('bp-author-name').value  = post?.authorName || '';
-    document.getElementById('bp-author-role').value  = post?.authorRole || '';
-    mountGallery('blogpost-image-gallery');
+    document.getElementById('bp-title').value           = post?.title || '';
+    document.getElementById('bp-category').value        = post?.category || '';
+    document.getElementById('bp-excerpt').value          = post?.excerpt || '';
+    document.getElementById('bp-body-editable').innerHTML = post?.body || '';
+    document.getElementById('bp-author-name').value      = post?.authorName || '';
+    document.getElementById('bp-author-role').value      = post?.authorRole || '';
+    document.getElementById('bp-seo-title').value        = post?.seoTitle || '';
+    document.getElementById('bp-seo-description').value  = post?.seoDescription || '';
+    mountGallery('blogpost-image-gallery', { onChange: updateBlogStats });
     setGalleryUrls(post?.image ? [post.image] : []);
     blogPostFormWrap.style.display = 'block';
+    updateBlogStats();
 }
+
+// ── Barra de estadísticas (palabras, lectura, SEO) ──────────────────────────────
+function updateBlogStats() {
+    const bar = document.getElementById('bp-stats-bar');
+    if (!bar) return;
+
+    const score = scoreBlogPost({
+        title: document.getElementById('bp-title').value.trim(),
+        seoTitle: document.getElementById('bp-seo-title').value.trim(),
+        excerpt: document.getElementById('bp-excerpt').value.trim(),
+        seoDescription: document.getElementById('bp-seo-description').value.trim(),
+        body: document.getElementById('bp-body-editable').textContent || '',
+        hasImage: getGalleryUrls().length > 0
+    });
+
+    bar.innerHTML = `
+        <span class="adm-blog-stat"><i class="fas fa-align-left"></i> ${score.words} palabras</span>
+        <span class="adm-blog-stat"><i class="fas fa-clock"></i> ${score.readMin} min de lectura</span>
+        <span class="adm-blog-stat ${score.level}" title="Título 30-60 caracteres, meta descripción 70-160, resumen, imagen de portada y al menos 300 palabras">
+            <i class="fas fa-bullseye"></i> SEO: ${score.label} (${score.passed}/5)
+        </span>
+    `;
+}
+
+['bp-title', 'bp-excerpt', 'bp-seo-title', 'bp-seo-description'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateBlogStats);
+});
+document.getElementById('bp-body-editable')?.addEventListener('input', updateBlogStats);
+
+// ── Editor de texto enriquecido (barra de herramientas del contenido del blog) ──
+const bpBodyEditable = document.getElementById('bp-body-editable');
+document.querySelectorAll('.adm-rte-toolbar [data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        bpBodyEditable.focus();
+        document.execCommand(btn.dataset.cmd, false, btn.dataset.value || undefined);
+    });
+});
+document.getElementById('bp-rte-link')?.addEventListener('click', () => {
+    const url = prompt('URL del link:');
+    if (url) { bpBodyEditable.focus(); document.execCommand('createLink', false, url); }
+});
+document.getElementById('bp-rte-image')?.addEventListener('click', () => {
+    document.getElementById('bp-rte-image-input')?.click();
+});
+document.getElementById('bp-rte-image-input')?.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+        showToast('Subiendo imagen…');
+        const result = await uploadFile(file);
+        bpBodyEditable.focus();
+        document.execCommand('insertImage', false, result.secure_url);
+        showToast('Imagen insertada.', 'success');
+    } catch (err) {
+        showToast('Error al subir la imagen: ' + err.message, 'error');
+    }
+});
 
 function closeBlogPostForm() {
     blogPostFormWrap.style.display = 'none';
@@ -1673,13 +1709,15 @@ async function handleBlogPostSubmit(e) {
     const title = document.getElementById('bp-title').value.trim();
     const data = {
         title,
-        slug:       slugify(title),
-        category:   document.getElementById('bp-category').value.trim(),
-        excerpt:    document.getElementById('bp-excerpt').value.trim(),
-        body:       document.getElementById('bp-body').value.trim(),
-        authorName: document.getElementById('bp-author-name').value.trim(),
-        authorRole: document.getElementById('bp-author-role').value.trim(),
-        image:      getGalleryUrls()[0] || ''
+        slug:            slugify(title),
+        category:        document.getElementById('bp-category').value.trim(),
+        excerpt:         document.getElementById('bp-excerpt').value.trim(),
+        body:            document.getElementById('bp-body-editable').innerHTML.trim(),
+        authorName:      document.getElementById('bp-author-name').value.trim(),
+        authorRole:      document.getElementById('bp-author-role').value.trim(),
+        seoTitle:        document.getElementById('bp-seo-title').value.trim(),
+        seoDescription:  document.getElementById('bp-seo-description').value.trim(),
+        image:           getGalleryUrls()[0] || ''
     };
     try {
         if (editingBlogPostId) {
@@ -1714,4 +1752,5 @@ window.deleteBlogPostHandler = async id => {
 document.addEventListener('adm:enter-blog', loadBlogPosts);
 document.getElementById('new-blogpost-btn')?.addEventListener('click', () => openBlogPostForm());
 document.getElementById('cancel-blogpost-btn')?.addEventListener('click', closeBlogPostForm);
+document.getElementById('back-blogpost-btn')?.addEventListener('click', closeBlogPostForm);
 blogPostForm?.addEventListener('submit', handleBlogPostSubmit);

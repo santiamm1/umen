@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=9.44">
+    <link rel="stylesheet" href="css/admin.css?v=9.47">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -52,10 +52,6 @@
                 <a href="#" class="adm-sidebar-link" data-section="propiedades" title="Propiedades">
                     <i data-lucide="building-2"></i>
                     <span>Propiedades</span>
-                </a>
-                <a href="#" class="adm-sidebar-link" data-section="hotelnotes" title="Notas de Hoteles">
-                    <i data-lucide="newspaper"></i>
-                    <span>Notas de Hoteles</span>
                 </a>
                 <a href="#" class="adm-sidebar-link" data-section="blog" title="Blog">
                     <i data-lucide="book-open"></i>
@@ -301,70 +297,6 @@
 
         <!-- ======================= SECTIONS: GESTIÓN DE DATOS ======================= -->
         
-        <!-- Tipo de Propiedad -->
-        <!-- Notas de Hoteles -->
-        <div id="section-hotelnotes" class="adm-section" style="display:none;">
-            <div class="adm-card">
-                <div class="adm-card-header">
-                    <div>
-                        <h2><i class="fas fa-newspaper" style="color:var(--adm-primary)"></i> Notas de Hoteles</h2>
-                        <p>Contenido tipo blog por región que se muestra al filtrar "Hotel" en Propiedades. El catálogo completo de hoteles vive en Hoteles en Venta.</p>
-                    </div>
-                    <button type="button" class="adm-btn adm-btn-primary" id="new-hotelnote-btn"><i class="fas fa-plus"></i> Nueva nota</button>
-                </div>
-
-                <div id="hotelnote-form-wrap" style="display:none; padding: 24px; border-bottom: 1px solid var(--adm-border, #eee);">
-                    <form id="hotelnote-form">
-                        <div class="adm-form-grid">
-                            <div class="adm-form-group">
-                                <label for="hn-title">Título *</label>
-                                <input type="text" id="hn-title" placeholder='Ej: Hoteles en venta en Mendoza' required>
-                            </div>
-                            <div class="adm-form-group">
-                                <label for="hn-region">Región *</label>
-                                <input type="text" id="hn-region" placeholder='Ej: Mendoza' required>
-                            </div>
-                            <div class="adm-form-group" style="grid-column: 1 / -1;">
-                                <label for="hn-excerpt">Resumen (se ve en la tarjeta)</label>
-                                <input type="text" id="hn-excerpt" placeholder="Bajada corta para la tarjeta">
-                            </div>
-                            <div class="adm-form-group" style="grid-column: 1 / -1;">
-                                <label for="hn-body">Contenido</label>
-                                <textarea id="hn-body" rows="6" placeholder="Texto tipo blog para la nota individual"></textarea>
-                            </div>
-                            <div class="adm-form-group">
-                                <label for="hn-external-url">Link al filtro en Hoteles en Venta *</label>
-                                <input type="url" id="hn-external-url" placeholder="https://www.hotelesenventa.com/..." required>
-                            </div>
-                        </div>
-                        <div class="adm-form-group" style="margin-top: 12px;">
-                            <label>Imagen</label>
-                            <div id="hotelnote-image-gallery"></div>
-                        </div>
-                        <div style="display:flex; gap:10px; margin-top: 16px;">
-                            <button type="submit" class="adm-btn adm-btn-primary">Guardar</button>
-                            <button type="button" class="adm-btn" id="cancel-hotelnote-btn">Cancelar</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="adm-table-wrap">
-                    <table class="adm-table">
-                        <thead>
-                            <tr>
-                                <th>Título</th>
-                                <th>Región</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="hotelnotes-table-body">
-                            <tr><td colspan="3" class="adm-table-empty">Cargando notas...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
         <!-- Blog -->
         <div id="section-blog" class="adm-section" style="display:none;">
             <div class="adm-card">
@@ -377,6 +309,7 @@
                 </div>
 
                 <div id="blogpost-form-wrap" style="display:none; padding: 24px; border-bottom: 1px solid var(--adm-border, #eee);">
+                    <button type="button" class="adm-btn" id="back-blogpost-btn" style="margin-bottom:16px"><i class="fas fa-arrow-left"></i> Volver al listado</button>
                     <form id="blogpost-form">
                         <div class="adm-form-grid">
                             <div class="adm-form-group">
@@ -394,13 +327,30 @@
                                     <option value="Consejos">Consejos</option>
                                 </select>
                             </div>
+                            <div id="bp-stats-bar" class="adm-blog-stats" style="grid-column: 1 / -1;"></div>
                             <div class="adm-form-group" style="grid-column: 1 / -1;">
                                 <label for="bp-excerpt">Resumen (se ve en la tarjeta)</label>
                                 <input type="text" id="bp-excerpt" placeholder="Bajada corta para la tarjeta">
                             </div>
                             <div class="adm-form-group" style="grid-column: 1 / -1;">
-                                <label for="bp-body">Contenido</label>
-                                <textarea id="bp-body" rows="8" placeholder="Texto de la nota"></textarea>
+                                <label for="bp-body-editable">Contenido</label>
+                                <div class="adm-rte-toolbar">
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="bold" title="Negrita"><i class="fas fa-bold"></i></button>
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="italic" title="Cursiva"><i class="fas fa-italic"></i></button>
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="underline" title="Subrayado"><i class="fas fa-underline"></i></button>
+                                    <span class="adm-rte-sep"></span>
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="formatBlock" data-value="H2" title="Subtítulo">H2</button>
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="formatBlock" data-value="P" title="Párrafo">P</button>
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="formatBlock" data-value="BLOCKQUOTE" title="Cita"><i class="fas fa-quote-left"></i></button>
+                                    <span class="adm-rte-sep"></span>
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="insertUnorderedList" title="Lista"><i class="fas fa-list-ul"></i></button>
+                                    <button type="button" class="adm-btn adm-btn-icon" data-cmd="insertOrderedList" title="Lista numerada"><i class="fas fa-list-ol"></i></button>
+                                    <span class="adm-rte-sep"></span>
+                                    <button type="button" class="adm-btn adm-btn-icon" id="bp-rte-link" title="Insertar link"><i class="fas fa-link"></i></button>
+                                    <button type="button" class="adm-btn adm-btn-icon" id="bp-rte-image" title="Insertar imagen"><i class="fas fa-image"></i></button>
+                                </div>
+                                <div id="bp-body-editable" class="adm-rte-editable" contenteditable="true" data-placeholder="Texto de la nota"></div>
+                                <input type="file" id="bp-rte-image-input" accept="image/*" style="display:none">
                             </div>
                             <div class="adm-form-group">
                                 <label for="bp-author-name">Autor</label>
@@ -415,6 +365,23 @@
                             <label>Imagen de portada</label>
                             <div id="blogpost-image-gallery"></div>
                         </div>
+
+                        <div class="adm-card-header" style="padding: 0; margin-top: 24px; border-top: 1px solid var(--adm-border, #eee); padding-top: 16px;">
+                            <div>
+                                <h3 style="margin:0">SEO</h3>
+                                <p style="margin:4px 0 0">Cómo se ve esta nota en Google y al compartirla. Si se deja vacío, usa el título y el resumen.</p>
+                            </div>
+                        </div>
+                        <div class="adm-form-grid" style="margin-top: 12px;">
+                            <div class="adm-form-group" style="grid-column: 1 / -1;">
+                                <label for="bp-seo-title">Título SEO</label>
+                                <input type="text" id="bp-seo-title" placeholder="Título para buscadores (ideal hasta 60 caracteres)" maxlength="70">
+                            </div>
+                            <div class="adm-form-group" style="grid-column: 1 / -1;">
+                                <label for="bp-seo-description">Meta descripción</label>
+                                <textarea id="bp-seo-description" rows="2" placeholder="Descripción para buscadores (ideal hasta 160 caracteres)" maxlength="180"></textarea>
+                            </div>
+                        </div>
                         <div style="display:flex; gap:10px; margin-top: 16px;">
                             <button type="submit" class="adm-btn adm-btn-primary">Guardar</button>
                             <button type="button" class="adm-btn" id="cancel-blogpost-btn">Cancelar</button>
@@ -427,12 +394,14 @@
                         <thead>
                             <tr>
                                 <th>Título</th>
+                                <th>Palabras</th>
+                                <th>SEO</th>
                                 <th>Categoría</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="blogposts-table-body">
-                            <tr><td colspan="3" class="adm-table-empty">Cargando notas...</td></tr>
+                            <tr><td colspan="5" class="adm-table-empty">Cargando notas...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1352,7 +1321,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.55"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.63"></script>
     <script>
         // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
         lucide.createIcons();
@@ -1361,7 +1330,6 @@
         const sectionTitleMap = {
             'dashboard': 'Dashboard',
             'propiedades': 'Propiedades',
-            'hotelnotes': 'Notas de Hoteles',
             'blog': 'Blog',
             'category': 'Tipos de Propiedad',
             'operation': 'Tipos de Operación',
@@ -1380,7 +1348,7 @@
             }
 
             // El botón "Nueva propiedad" y los filtros de propiedades solo tienen sentido
-            // en Dashboard y Propiedades — en el resto de las secciones (Notas de Hoteles, taxonomías, etc.) sobran.
+            // en Dashboard y Propiedades — en el resto de las secciones (taxonomías, etc.) sobran.
             const showPropertyTools = target === 'dashboard' || target === 'propiedades';
             document.getElementById('new-property-btn')?.style.setProperty('display', showPropertyTools ? '' : 'none');
             const filtersBar = document.querySelector('.adm-filters');
@@ -1392,7 +1360,6 @@
 
             document.getElementById('adm-sidebar').classList.remove('adm-sidebar-open');
             if (target === 'profile') document.dispatchEvent(new CustomEvent('adm:enter-profile'));
-            if (target === 'hotelnotes') document.dispatchEvent(new CustomEvent('adm:enter-hotelnotes'));
             if (target === 'blog') document.dispatchEvent(new CustomEvent('adm:enter-blog'));
         };
 

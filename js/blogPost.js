@@ -29,13 +29,16 @@ function formatDate(createdAt) {
 }
 
 function readTime(body) {
-    const words = (body || '').trim().split(/\s+/).filter(Boolean).length;
+    const words = (body || '').replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
     return Math.max(1, Math.round(words / 200));
 }
 
-// Normaliza "\n" literales (pegados desde texto plano) además de saltos de línea reales
+// El editor enriquecido del admin guarda HTML directo. Las notas viejas se guardaron
+// como texto plano con "\n" — si no parece HTML, la envolvemos en <p> como antes.
 function renderBody(body) {
-    return (body || '')
+    const text = body || '';
+    if (/<[a-z][\s\S]*>/i.test(text)) return text;
+    return text
         .replace(/\\n/g, '\n')
         .split(/\n+/)
         .map(p => p.trim())
@@ -44,12 +47,27 @@ function renderBody(body) {
         .join('');
 }
 
+function setMeta(selector, attr, value) {
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+}
+
 async function render(post) {
-    document.title = `${post.title} | UMEN Buenos Negocios Inmobiliarios`;
+    const seoTitle = post.seoTitle || `${post.title} | UMEN Buenos Negocios Inmobiliarios`;
+    const seoDescription = post.seoDescription || post.excerpt || '';
+    const shareUrl = window.location.href;
+
+    document.title = seoTitle;
+    setMeta('meta[name="description"]', 'content', seoDescription);
+    setMeta('link[rel="canonical"]', 'href', shareUrl);
+    setMeta('meta[property="og:title"]', 'content', seoTitle);
+    setMeta('meta[property="og:description"]', 'content', seoDescription);
+    setMeta('meta[property="og:image"]', 'content', post.image || FALLBACK_IMG);
+    setMeta('meta[property="og:url"]', 'content', shareUrl);
+
     const authorName = post.authorName || 'Equipo UMEN';
     const authorRole = post.authorRole || 'Asesores Inmobiliarios';
     const authorInitial = authorName.trim().charAt(0).toUpperCase();
-    const shareUrl = window.location.href;
     const waHref = `https://wa.me/?text=${encodeURIComponent(post.title + ' - ' + shareUrl)}`;
     const mailHref = `mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(shareUrl)}`;
 
