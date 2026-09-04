@@ -139,10 +139,17 @@ async function ensureTaxonomy(db, collectionName, name) {
 
 async function main() {
     console.log(COMMIT ? 'MODO COMMIT: se va a escribir en Firestore.\n' : 'MODO DRY RUN (no se escribe nada). Pasá --commit para importar de verdad.\n');
-    console.log(`Trayendo ${LIMIT} hotel(es) de ${SITE}...\n`);
+    console.log(`Trayendo hasta ${LIMIT} hotel(es) de ${SITE}...\n`);
 
-    const listRes = await fetch(`${SITE}/wp-json/wp/v2/hotel?per_page=${LIMIT}`);
-    const list = await listRes.json();
+    // La REST API de WordPress no acepta per_page > 100, así que paginamos.
+    const list = [];
+    for (let page = 1; list.length < LIMIT; page++) {
+        const perPage = Math.min(100, LIMIT - list.length);
+        const listRes = await fetch(`${SITE}/wp-json/wp/v2/hotel?per_page=${perPage}&page=${page}`);
+        const batch = await listRes.json();
+        if (!Array.isArray(batch) || batch.length === 0) break;
+        list.push(...batch);
+    }
 
     const results = [];
     for (const item of list) {
@@ -165,8 +172,10 @@ async function main() {
         return;
     }
 
-    const email = process.env.ADMIN_EMAIL || await createInterface({ input: process.stdin, output: process.stdout }).question('Email admin: ');
-    const password = process.env.ADMIN_PASSWORD || await createInterface({ input: process.stdin, output: process.stdout }).question('Password: ');
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const email = process.env.ADMIN_EMAIL || await rl.question('Email admin: ');
+    const password = process.env.ADMIN_PASSWORD || await rl.question('Password: ');
+    rl.close();
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
