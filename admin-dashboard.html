@@ -246,7 +246,10 @@
 
                 <!-- Mapa -->
                 <div class="adm-chart-card" style="margin-top:20px">
-                    <h4>Mapa de Propiedades</h4>
+                    <h4 style="display:flex;align-items:center;justify-content:space-between">
+                        Mapa de Propiedades
+                        <span id="map-coverage" style="font-size:13px;font-weight:normal;color:#64748b"></span>
+                    </h4>
                     <div id="properties-map" style="height:420px;border-radius:8px;margin-top:12px"></div>
                 </div>
             </div>
@@ -1349,7 +1352,7 @@
         </div>
     </div>
     <!-- Se ha movido el taxo-modal a una sección -->
-    <script type="module" src="js/adminDashboard.js?v=9.49"></script>
+    <script type="module" src="js/adminDashboard.js?v=9.55"></script>
     <script>
         // Renderiza los íconos SVG de la barra lateral (data-lucide="...")
         lucide.createIcons();

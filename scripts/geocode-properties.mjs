@@ -40,24 +40,37 @@ async function main() {
     const targets = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(p => !p.geoLat || !p.geoLng)
-        .map(p => ({
-            id: p.id,
-            title: p.title || p.id,
-            address: [p.neighborhood, p.zone, 'Argentina'].filter(Boolean).join(', ')
-        }))
-        .filter(t => t.address !== 'Argentina'); // sin barrio ni zona no hay nada que geocodificar
+        .map(p => {
+            // De más específica a más genérica: "provincia" a veces trae etiquetas
+            // internas del sitio viejo (ej "Cost Atlantica", "Patagonia") que no son
+            // un lugar real para el geocodificador, así que probamos sin ella también.
+            const candidates = [
+                [p.neighborhood, p.zone, p.provincia, 'Argentina'],
+                [p.neighborhood, p.zone, 'Argentina'],
+                [p.zone, 'Argentina']
+            ]
+                .map(parts => parts.filter(Boolean).join(', '))
+                .filter(addr => addr !== 'Argentina');
+            return { id: p.id, title: p.title || p.id, candidates: [...new Set(candidates)] };
+        })
+        .filter(t => t.candidates.length > 0); // sin barrio ni zona no hay nada que geocodificar
 
     console.log(`${targets.length} propiedades sin geoLat/geoLng.\n`);
 
     for (const t of targets) {
-        const r = await geocode(t.address);
+        let r = null;
+        let usedAddress = '';
+        for (const address of t.candidates) {
+            r = await geocode(address);
+            await new Promise(res => setTimeout(res, 1100)); // Nominatim: máx. 1 req/seg
+            if (r) { usedAddress = address; break; }
+        }
         if (r) {
             await updateDoc(doc(db, 'properties', t.id), { geoLat: r.lat, geoLng: r.lng });
-            console.log(`OK  ${t.title} -> [${r.lat}, ${r.lng}] (${r.displayName})`);
+            console.log(`OK  ${t.title} -> [${r.lat}, ${r.lng}] (${usedAddress})`);
         } else {
-            console.log(`SIN RESULTADO  ${t.title} (${t.address})`);
+            console.log(`SIN RESULTADO  ${t.title} (${t.candidates.join(' | ')})`);
         }
-        await new Promise(res => setTimeout(res, 1100)); // Nominatim: máx. 1 req/seg
     }
     console.log('\nListo.');
 }

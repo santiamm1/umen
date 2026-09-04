@@ -878,10 +878,22 @@ function renderPropertiesMap() {
 
     propertiesMarkers.clearLayers();
     const geoProps = properties.filter(p => p.geoLat && p.geoLng);
+
+    const coverageEl = document.getElementById('map-coverage');
+    if (coverageEl) {
+        const missing = properties.length - geoProps.length;
+        coverageEl.textContent = `${geoProps.length} de ${properties.length} con ubicación`;
+        coverageEl.style.color = missing > 0 ? '#dc2626' : '#64748b';
+    }
     geoProps.forEach(p => {
         const price = p.price ? `${p.currency || 'USD'} ${Number(p.price).toLocaleString('es-AR')}` : 'Consultar precio';
         L.marker([p.geoLat, p.geoLng], { icon: getUmenMarkerIcon() })
-            .bindPopup(`<strong>${p.title || 'Propiedad'}</strong><br>${capitalize(p.status || '')}<br>${price}`)
+            .bindPopup(`
+                <strong>${p.title || 'Propiedad'}</strong><br>
+                ${p.code ? `Cód: ${p.code}<br>` : ''}
+                ${capitalize(p.status || '')}<br>${price}<br>
+                <a href="#" onclick="editProperty('${p.id}'); return false;">Ver ficha →</a>
+            `)
             .addTo(propertiesMarkers);
     });
 
@@ -1045,8 +1057,9 @@ function updateStats() {
                 const t = p.type || 'Otro';
                 typesCount[t] = (typesCount[t] || 0) + 1;
             });
-            const labels = Object.keys(typesCount);
-            const data = Object.values(typesCount);
+            const sortedTypes = Object.entries(typesCount).sort((a, b) => b[1] - a[1]);
+            const labels = sortedTypes.map(([t]) => t);
+            const data = sortedTypes.map(([, c]) => c);
 
             if (typeChart) {
                 typeChart.data.labels = labels;
@@ -1060,7 +1073,7 @@ function updateStats() {
                         datasets: [{
                             label: 'Cantidad',
                             data: data,
-                            backgroundColor: ['#F68C18', '#171717', '#F59E0B', '#404040', '#fb923c', '#737373', '#fcd34d', '#a3a3a3'],
+                            backgroundColor: labels.map((_, i) => ['#F68C18', '#171717', '#F59E0B', '#404040', '#fb923c', '#737373', '#fcd34d', '#a3a3a3'][i % 8]),
                             borderWidth: 0,
                             borderRadius: 6,
                             barPercentage: 0.6,
@@ -1068,20 +1081,31 @@ function updateStats() {
                         }]
                     },
                     options: {
+                        indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                             legend: { display: false },
                             tooltip: tooltipOptions,
-                            datalabels: datalabelsConfig
+                            datalabels: {
+                                color: '#171717',
+                                anchor: 'end',
+                                align: 'right',
+                                font: { weight: 'bold', size: 13 },
+                                formatter: (value) => value || ''
+                            }
+                        },
+                        layout: {
+                            padding: { right: 24 }
                         },
                         scales: {
                             x: {
+                                beginAtZero: true,
+                                grace: '10%',
+                                ticks: { precision: 0 },
                                 grid: { display: false }
                             },
                             y: {
-                                beginAtZero: true,
-                                ticks: { precision: 0 },
                                 grid: { display: false }
                             }
                         }
