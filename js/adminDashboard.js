@@ -335,7 +335,7 @@ async function loadAdminData() {
         }
 
         // Cargamos todas las propiedades y las listas de taxonomía EN PARALELO
-        const propertiesPromise = getProperties();
+        const propertiesPromise = getProperties({ limit: 5000 });
         await loadAllTaxonomies();
         
         properties = await propertiesPromise;
@@ -360,7 +360,7 @@ async function loadAdminData() {
 // las propiedades de nuevo. loadAdminData() además re-pide taxonomías (9 lecturas
 // a Firestore), clima y perfil — innecesario y es lo que hacía sentir lento el guardado.
 async function refreshProperties() {
-    properties = await getProperties();
+    properties = await getProperties({ limit: 5000 });
     renderAdminTable();
     setPropertiesView(kanbanView ? 'kanban' : 'table');
     updateStats();

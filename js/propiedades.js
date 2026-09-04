@@ -97,7 +97,7 @@ let header, propertyTypeSelect, searchBtn, quicksearch;
     updateResultsTitle();
 
     const firebaseReady = window.db && window.db._databaseId?.projectId !== 'TU_PROJECT_ID_AQUI';
-    const apiFilters = { operation: currentFilters.operation };
+    const apiFilters = { operation: currentFilters.operation, limit: 5000 };
     if (currentFilters.category) apiFilters.category = currentFilters.category;
     const propertiesPromise = firebaseReady
         ? getProperties(apiFilters).catch(() => getDemoProperties())
@@ -504,7 +504,7 @@ async function fetchAndRender() {
         const firebaseReady = window.db && window.db._databaseId?.projectId !== 'TU_PROJECT_ID_AQUI';
 
         if (firebaseReady) {
-            const apiFilters = { operation: currentFilters.operation };
+            const apiFilters = { operation: currentFilters.operation, limit: 5000 };
             if (currentFilters.category) apiFilters.category = currentFilters.category;
             results = await getProperties(apiFilters);
         } else {
