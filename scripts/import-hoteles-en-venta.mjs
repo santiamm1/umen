@@ -114,7 +114,7 @@ async function scrapeOne(item) {
         currency: 'USD',
         type: 'Hotel',
         operation: extractOperation(html),
-        pais: 'Argentina',
+        pais: taxonomyFromClassList(item.class_list, 'pais-') || 'Argentina',
         provincia: taxonomyFromClassList(item.class_list, 'provincia-'),
         zone: taxonomyFromClassList(item.class_list, 'ciudad-'),
         neighborhood: '',
