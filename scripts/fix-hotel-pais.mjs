@@ -11,7 +11,7 @@
 import { createInterface } from 'node:readline/promises';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, updateDoc, doc, addDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDw30av8qmGjZg9-xeOvPp4o5MILHPDYoI",
@@ -73,14 +73,31 @@ async function main() {
         }
     });
 
-    if (toFix.length === 0) {
-        console.log('Nada para corregir, todos los países ya coinciden.');
-        return;
+    if (toFix.length > 0) {
+        console.log(`${toFix.length} propiedades con país incorrecto:\n`);
+        for (const p of toFix) {
+            console.log(` - ${p.title} (${p.code}): "${p.from}" -> "${p.to}"`);
+        }
+    } else {
+        console.log('Las propiedades ya tienen el país correcto.');
     }
 
-    console.log(`${toFix.length} propiedades con país incorrecto:\n`);
-    for (const p of toFix) {
-        console.log(` - ${p.title} (${p.code}): "${p.from}" -> "${p.to}"`);
+    // "countries" es la colección aparte que alimenta el filtro de país en la web;
+    // puede faltarle países aunque las propiedades ya estén bien, así que se chequea
+    // siempre (no solo cuando hay propiedades para corregir).
+    const existingCountries = new Set(
+        (await getDocs(collection(db, 'countries'))).docs.map(d => (d.data().name || '').toLowerCase())
+    );
+    const allPaises = new Set([...paisByCode.values()]);
+    const missingCountries = [...allPaises].filter(name => !existingCountries.has(name.toLowerCase()));
+
+    if (missingCountries.length > 0) {
+        console.log(`\n${missingCountries.length} país(es) faltan en la colección "countries" (filtro de la web): ${missingCountries.join(', ')}`);
+    }
+
+    if (toFix.length === 0 && missingCountries.length === 0) {
+        console.log('\nNada para hacer.');
+        return;
     }
 
     if (!COMMIT) {
@@ -97,6 +114,11 @@ async function main() {
     console.log('\nIniciando sesión...');
     await signInWithEmailAndPassword(auth, email, password);
     console.log('Sesión OK.\n');
+
+    for (const name of missingCountries) {
+        await addDoc(collection(db, 'countries'), { name });
+        console.log(` + agregado "${name}" a la colección "countries"`);
+    }
 
     for (const p of toFix) {
         await updateDoc(doc(db, 'properties', p.id), { pais: p.to, updatedAt: new Date() });

@@ -193,6 +193,7 @@ async function main() {
         }
 
         console.log(`\n${doc.title}`);
+        await ensureTaxonomy(db, 'countries', doc.pais);
         await ensureTaxonomy(db, 'provinces', doc.provincia);
         await ensureTaxonomy(db, 'cities', doc.zone);
 
