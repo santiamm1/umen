@@ -67,7 +67,8 @@ export async function getProperties(filters = {}) {
         // No agregamos orderBy aquí para evitar errores de índice si el usuario no los tiene configurados.
         // Si vamos a filtrar por operation en memoria, pedimos de más para no truncar antes de filtrar.
         const requestedLimit = filters.limit || 100;
-        queryConstraints.push(limit(filters.operation ? Math.max(requestedLimit * 4, 100) : requestedLimit));
+        const FIRESTORE_MAX_LIMIT = 10000;
+        queryConstraints.push(limit(filters.operation ? Math.min(Math.max(requestedLimit * 4, 100), FIRESTORE_MAX_LIMIT) : requestedLimit));
 
         const q = query(colRef, ...queryConstraints);
 
