@@ -890,7 +890,7 @@ function getUmenMarkerIcon() {
     umenMarkerIcon = L.divIcon({
         className: 'umen-map-marker',
         html: `<svg width="30" height="42" viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 27 15 27s15-16.5 15-27C30 6.7 23.3 0 15 0z" fill="#F68C18" stroke="#ffffff" stroke-width="1.5"/>
+            <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 27 15 27s15-16.5 15-27C30 6.7 23.3 0 15 0z" fill="#ff7300" stroke="#ffffff" stroke-width="1.5"/>
             <circle cx="15" cy="15" r="6" fill="#ffffff"/>
         </svg>`,
         iconSize: [30, 42],
@@ -1037,7 +1037,7 @@ function updateStats() {
                         labels: ['Publicadas', 'Pendientes', 'Pausa', 'Borrador', 'Vendido'],
                         datasets: [{
                             data: [pubCount, pendCount, pausaCount, borrCount, vendCount],
-                            backgroundColor: ['#F68C18', '#64748b', '#dc2626', '#eab308', '#171717'],
+                            backgroundColor: ['#ff7300', '#64748b', '#dc2626', '#eab308', '#171717'],
                             borderWidth: 0,
                             hoverOffset: 4
                         }]
@@ -1067,7 +1067,7 @@ function updateStats() {
                         labels: ['Venta', 'Alquiler'],
                         datasets: [{
                             data: [ventaCount, alquilerCount],
-                            backgroundColor: ['#171717', '#F68C18'],
+                            backgroundColor: ['#171717', '#ff7300'],
                             borderWidth: 0,
                             hoverOffset: 4
                         }]
@@ -1109,7 +1109,7 @@ function updateStats() {
                         datasets: [{
                             label: 'Cantidad',
                             data: data,
-                            backgroundColor: labels.map((_, i) => ['#F68C18', '#171717', '#F59E0B', '#404040', '#fb923c', '#737373', '#fcd34d', '#a3a3a3'][i % 8]),
+                            backgroundColor: labels.map((_, i) => ['#ff7300', '#171717', '#ff7300', '#404040', '#ff7300', '#737373', '#fcd34d', '#a3a3a3'][i % 8]),
                             borderWidth: 0,
                             borderRadius: 6,
                             barPercentage: 0.6,

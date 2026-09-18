@@ -33,6 +33,7 @@ export async function loadHeader() {
             '':                    'index',
             'propiedades.html':    'propiedades',
             'property-detail.html':'propiedades',
+            'nosotros.html':       'nosotros',
             'tasaciones.html':     'tasaciones',
             'blog.html':           'blog',
             'blog-post.html':      'blog',
@@ -104,3 +105,23 @@ export async function loadFooter() {
         console.warn('No se pudo cargar el footer compartido:', e);
     }
 }
+
+// KPIs de UMEN (Propiedades, Clientes) repetidos en varias páginas.
+// Fuente única acá: cambiar el valor una vez actualiza todas las instancias.
+const KPIS = {
+    properties: '500+',
+    clients: '7.000+',
+};
+
+document.querySelectorAll('[data-kpi]').forEach(el => {
+    el.textContent = KPIS[el.dataset.kpi] ?? el.textContent;
+});
+
+// UMEN opera desde el 1/5/1993. Años de trayectoria calculados en vivo así
+// nadie tiene que acordarse de actualizar un número "20 años" a mano cada año.
+const UMEN_FOUNDING_DATE = new Date(1993, 4, 1);
+
+document.querySelectorAll('[data-years-exp]').forEach(el => {
+    const years = Math.floor((Date.now() - UMEN_FOUNDING_DATE) / (365.25 * 24 * 60 * 60 * 1000));
+    el.textContent = years;
+});

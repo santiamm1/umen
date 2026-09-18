@@ -58,6 +58,7 @@ let currentFilters = {
     const searchPromise = executeSearch();
     const rentalsPromise = renderFeaturedRentals();
     const novedadesPromise = renderNovedades();
+    const categoriesTilePromise = isFirebaseConfigured ? renderMasPropiedadesCategories() : Promise.resolve();
 
     await dataPromise;
     populatePropertyTypes();
@@ -67,8 +68,34 @@ let currentFilters = {
 
     sortOrderSelect.addEventListener('change', () => sortAndRenderProperties());
 
-    await Promise.all([searchPromise, rentalsPromise, novedadesPromise]);
+    await Promise.all([searchPromise, rentalsPromise, novedadesPromise, categoriesTilePromise]);
 })();
+
+// Tile "Más Propiedades": solo muestra las categorías que efectivamente
+// tienen propiedades cargadas (ej. si "Casas" existe como categoría pero
+// no tiene ninguna propiedad, no aparece).
+async function renderMasPropiedadesCategories() {
+    const container = document.getElementById('cat-mas-subcats');
+    if (!container) return;
+
+    try {
+        const [cats, allProperties] = await Promise.all([
+            getCategories(),
+            getProperties({ limit: 5000 })
+        ]);
+
+        const counts = {};
+        allProperties.forEach(p => { if (p.type) counts[p.type] = (counts[p.type] || 0) + 1; });
+
+        const withStock = cats.filter(c => c.name !== 'Hotel' && counts[c.name] > 0);
+
+        container.innerHTML = withStock
+            .map(c => `<a class="destacado-pill" href="propiedades.html?category=${encodeURIComponent(c.name)}">${c.name}</a>`)
+            .join('');
+    } catch (error) {
+        console.error('Error al cargar categorías con stock:', error);
+    }
+}
 
 // Verificar si Firebase está inicializado
 function checkFirebaseConfig() {
@@ -178,7 +205,7 @@ function setupHeaderScroll() {
 
 // Animar entrada de las tarjetas de categorías al hacer scroll
 function setupScrollReveal() {
-    const items = document.querySelectorAll('#destacado .item');
+    const items = document.querySelectorAll('#destacado .destacado-grid > *');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -513,69 +540,50 @@ window.viewProperty = function(id) {
     window.location.href = `property-detail.html?id=${id}`;
 };
 
-// Renderizar propiedades en alquiler en la sección secundaria
+// Renderizar los últimos 6 hoteles cargados (propiedades de categoría Hotel)
 async function renderFeaturedRentals() {
     const container = document.getElementById('rental-list');
-    const countEl = document.getElementById('rental-count');
-    const sortEl = document.getElementById('rental-sort');
     if (!container) return;
 
-    let allRentals = [];
+    let hotels = [];
     try {
-        if (checkFirebaseConfig() && window.db._databaseId && window.db._databaseId.projectId !== "TU_PROJECT_ID_AQUI") {
-            allRentals = await getProperties({ operation: 'alquiler', limit: 12 });
-        }
-        if (allRentals.length === 0) {
-            allRentals = getDemoProperties().filter(p => p.operation === 'alquiler');
-        }
+        hotels = await getProperties({ category: 'Hotel', limit: 6 });
     } catch {
-        allRentals = getDemoProperties().filter(p => p.operation === 'alquiler');
+        hotels = [];
     }
 
-    function renderRentalCards() {
-        const sortVal = sortEl ? sortEl.value : 'newest';
-        let sorted = [...allRentals];
-        if (sortVal === 'price-asc') sorted.sort((a, b) => a.price - b.price);
-        else if (sortVal === 'price-desc') sorted.sort((a, b) => b.price - a.price);
-
-        const featured = sorted.slice(0, 3);
-        if (countEl) countEl.textContent = `${allRentals.length} propiedades encontradas`;
-
-        if (featured.length === 0) {
-            container.innerHTML = `<div class="no-results"><i class="fas fa-search-minus"></i><p>No hay propiedades en alquiler disponibles.</p></div>`;
-            return;
-        }
-
-        container.innerHTML = featured.map(property => {
-            const coverImg = property.images && property.images[0]
-                ? property.images[0]
-                : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-            return `
-                <a class="property-card" href="property-detail.html?v=3&id=${property.id}">
-                    <div class="card-image">
-                        <img src="${coverImg}" alt="${property.title}">
-                        <div class="card-badge">${property.operation}</div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-price">USD ${property.price.toLocaleString()} <span class="card-price-period">/mes</span></div>
-                        ${property.tag ? `<span class="card-tag-label">${property.tag}</span>` : ''}
-                        <h3 class="card-title">${property.title}</h3>
-                        <div class="card-location">
-                            <i class="fas fa-map-marker-alt"></i> ${property.neighborhood || 'Sin barrio'}, ${property.zone || 'Capital Federal'}
-                        </div>
-                        <div class="card-features">
-                            <div class="feature-item"><i class="fas fa-ruler-combined"></i> ${property.surface || 0}m²</div>
-                            <div class="feature-item"><i class="fas fa-bed"></i> ${property.bedrooms || 0} Amb.</div>
-                            <div class="feature-item"><i class="fas fa-bath"></i> ${property.bathrooms || 1} Baños</div>
-                        </div>
-                    </div>
-                </a>
-            `;
-        }).join('');
+    if (hotels.length === 0) {
+        container.innerHTML = `<div class="no-results"><i class="fas fa-search-minus"></i><p>Todavía no hay hoteles cargados.</p></div>`;
+        return;
     }
 
-    renderRentalCards();
-    if (sortEl) sortEl.addEventListener('change', renderRentalCards);
+    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+    container.innerHTML = hotels.slice(0, 6).map(property => {
+        const coverImg = property.images && property.images[0]
+            ? property.images[0]
+            : FALLBACK_IMG;
+        return `
+            <a class="property-card" href="property-detail.html?v=3&id=${property.id}">
+                <div class="card-image">
+                    <img src="${coverImg}" alt="${property.title}">
+                    <div class="card-badge">${property.operation}</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-price">USD ${property.price.toLocaleString()}</div>
+                    ${property.tag ? `<span class="card-tag-label">${property.tag}</span>` : ''}
+                    <h3 class="card-title">${property.title}</h3>
+                    <div class="card-location">
+                        <i class="fas fa-map-marker-alt"></i> ${property.neighborhood || 'Sin barrio'}, ${property.zone || 'Capital Federal'}
+                    </div>
+                    <div class="card-features">
+                        <div class="feature-item"><i class="fas fa-ruler-combined"></i> ${property.surface || 0}m²</div>
+                        <div class="feature-item"><i class="fas fa-bed"></i> ${property.bedrooms || 0} Amb.</div>
+                        <div class="feature-item"><i class="fas fa-bath"></i> ${property.bathrooms || 1} Baños</div>
+                    </div>
+                </div>
+            </a>
+        `;
+    }).join('');
 }
 
 // Renderizar las últimas 3 notas del blog en el home

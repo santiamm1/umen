@@ -1,7 +1,7 @@
 :root {
     /* ── Structural Precision Palette ── */
-    --adm-primary: #F68C18; /* Signature UMEN Orange */
-    --adm-primary-hover: #E07A10;
+    --adm-primary: #ff7300; /* Signature UMEN Orange */
+    --adm-primary-hover: #e96100;
     --adm-dark: #121212; 
     --adm-dark-sidebar: #0B0F19; /* Obsidian Black for sidebar */
     --adm-sidebar-text: #8C98A4;
@@ -257,7 +257,7 @@ input, button, select, textarea, optgroup, option {
 .adm-sidebar-link:hover i, .adm-sidebar-link:hover svg { color: var(--adm-primary); }
 
 .adm-sidebar-link.active {
-    background: linear-gradient(90deg, rgba(246, 140, 24, 0.15), transparent);
+    background: linear-gradient(90deg, rgba(255, 115, 0, 0.15), transparent);
     color: var(--adm-white);
     font-weight: 400;
     border-left: 3px solid var(--adm-primary);
@@ -343,8 +343,8 @@ input, button, select, textarea, optgroup, option {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, rgba(246, 140, 24, 0.05) 0%, transparent 100%);
-    border: 1px solid rgba(246, 140, 24, 0.1);
+    background: linear-gradient(135deg, rgba(255, 115, 0, 0.05) 0%, transparent 100%);
+    border: 1px solid rgba(255, 115, 0, 0.1);
     border-radius: var(--adm-radius);
     padding: 24px 32px;
     margin-bottom: 24px;
@@ -379,7 +379,7 @@ input, button, select, textarea, optgroup, option {
 
 .adm-weather-widget i {
     font-size: 2rem;
-    color: #F59E0B;
+    color: #ff7300;
 }
 
 .adm-weather-info {
@@ -452,7 +452,7 @@ input, button, select, textarea, optgroup, option {
 .adm-stat:hover {
     transform: translateY(-3px);
     box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.14);
-    border-color: rgba(246, 140, 24, 0.25);
+    border-color: rgba(255, 115, 0, 0.25);
 }
 .adm-stat-clickable {
     cursor: pointer;
@@ -469,21 +469,21 @@ input, button, select, textarea, optgroup, option {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(246, 140, 24, 0.1);
+    background: rgba(255, 115, 0, 0.1);
     color: var(--adm-primary);
     font-size: 1.35rem;
     transition: all 0.3s ease;
 }
 
 .adm-stat.highlight {
-    background: linear-gradient(155deg, rgba(246, 140, 24, 0.06) 0%, var(--adm-white) 55%);
-    border-color: rgba(246, 140, 24, 0.3);
+    background: linear-gradient(155deg, rgba(255, 115, 0, 0.06) 0%, var(--adm-white) 55%);
+    border-color: rgba(255, 115, 0, 0.3);
 }
 
 .adm-stat.highlight i {
     background: linear-gradient(135deg, var(--adm-primary) 0%, var(--adm-primary-hover) 100%);
     color: var(--adm-white);
-    box-shadow: 0 4px 12px rgba(246, 140, 24, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 115, 0, 0.3);
 }
 
 .adm-stat div {
@@ -606,7 +606,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     max-height: calc(100vh - 260px);
     transition: background 0.15s ease;
 }
-.adm-kanban-col.drag-over { background: rgba(246, 140, 24, 0.08); border-color: rgba(246, 140, 24, 0.3); }
+.adm-kanban-col.drag-over { background: rgba(255, 115, 0, 0.08); border-color: rgba(255, 115, 0, 0.3); }
 .adm-kanban-col-header {
     display: flex;
     align-items: center;
@@ -682,11 +682,11 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 .adm-btn-primary { 
     background: linear-gradient(135deg, var(--adm-primary) 0%, var(--adm-primary-hover) 100%);
     color: var(--adm-white); 
-    box-shadow: 0 4px 12px rgba(246, 140, 24, 0.25);
+    box-shadow: 0 4px 12px rgba(255, 115, 0, 0.25);
 }
 .adm-btn-primary:hover { 
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(246, 140, 24, 0.35);
+    box-shadow: 0 6px 16px rgba(255, 115, 0, 0.35);
 }
 
 .adm-btn-secondary { background: var(--adm-bg); color: var(--adm-text); border: 1px solid transparent; }
@@ -697,7 +697,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     color: var(--adm-primary);
     border: 1.5px dashed var(--adm-primary);
 }
-.adm-btn-ghost:hover { background: rgba(246, 140, 24, 0.08); }
+.adm-btn-ghost:hover { background: rgba(255, 115, 0, 0.08); }
 
 .adm-btn-icon {
     padding: 9px 11px;
@@ -729,7 +729,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 }
 .adm-search:focus-within {
     border-color: var(--adm-primary);
-    box-shadow: 0 0 0 4px rgba(246, 140, 24, 0.12);
+    box-shadow: 0 0 0 4px rgba(255, 115, 0, 0.12);
 }
 
 .adm-search i { color: var(--adm-muted); font-size: 0.95rem; }
@@ -773,12 +773,12 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 .adm-filters select:focus {
     outline: none;
     border-color: var(--adm-primary);
-    box-shadow: 0 0 0 4px rgba(246, 140, 24, 0.12);
+    box-shadow: 0 0 0 4px rgba(255, 115, 0, 0.12);
 }
 /* Cuando el filtro tiene un valor elegido (no la opción placeholder) se resalta */
 .adm-filters select:not(:has(option[value=""]:checked)) {
     border-color: var(--adm-primary);
-    background-color: rgba(246, 140, 24, 0.06);
+    background-color: rgba(255, 115, 0, 0.06);
     color: var(--adm-primary);
     font-weight: 700;
 }
@@ -856,7 +856,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     border-radius: 50%;
 }
 .adm-status-dot.publicado::before { background-color: #10B981; } /* Verde - común para publicado */
-.adm-status-dot.pendiente::before { background-color: #F59E0B; } /* Naranja suave/Amarillo */
+.adm-status-dot.pendiente::before { background-color: #ff7300; } /* Naranja suave/Amarillo */
 .adm-status-dot.borrador::before  { background-color: #737373; } /* Gris medio */
 .adm-status-dot.pausa::before     { background-color: #EF4444; } /* Rojo */
 .adm-status-dot.vendido::before   { background-color: #171717; } /* Negro (o gris muy oscuro) */
@@ -949,7 +949,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 .adm-taxo-add:focus-within {
     border-color: var(--adm-primary);
     background: var(--adm-white);
-    box-shadow: 0 0 0 4px rgba(246, 140, 24, 0.12);
+    box-shadow: 0 0 0 4px rgba(255, 115, 0, 0.12);
 }
 .adm-taxo-add input {
     flex: 1;
@@ -969,7 +969,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     font-size: 1rem;
     transition: all 0.2s;
 }
-.adm-taxo-add button:hover { background: rgba(246, 140, 24, 0.1); }
+.adm-taxo-add button:hover { background: rgba(255, 115, 0, 0.1); }
 
 .adm-taxo-list {
     display: grid;
@@ -1015,7 +1015,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     flex: 1;
     margin-right: 8px;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(246, 140, 24, 0.1);
+    box-shadow: 0 0 0 2px rgba(255, 115, 0, 0.1);
 }
 
 .adm-taxo-actions {
@@ -1306,7 +1306,7 @@ select.adm-input:hover {
 select.adm-input:focus {
     border-color: var(--adm-primary);
     background: var(--adm-white);
-    box-shadow: 0 0 0 4px rgba(246, 140, 24, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 0 0 4px rgba(255, 115, 0, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .adm-form-group textarea { resize: vertical; }
@@ -1342,7 +1342,7 @@ select.adm-input:focus {
     background: var(--adm-primary);
     color: var(--adm-white);
     border-color: var(--adm-primary);
-    box-shadow: 0 4px 12px rgba(246, 140, 24, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 115, 0, 0.3);
 }
 .adm-pagination-btn:disabled {
     opacity: 0.5;
@@ -1443,8 +1443,8 @@ select.adm-input:focus {
 
 /* ── Info banner dentro de un tab ─────────────────────────────── */
 .adm-tab-info {
-    background: rgba(246,140,24,0.07);
-    border: 1px solid rgba(246,140,24,0.18);
+    background: rgba(255, 115, 0,0.07);
+    border: 1px solid rgba(255, 115, 0,0.18);
     border-radius: 8px;
     padding: 10px 14px;
     margin-bottom: 18px;
@@ -1635,7 +1635,7 @@ select.adm-input:focus {
     color: var(--adm-primary-hover);
 }
 .adm-check-chip:has(input:checked) {
-    background: rgba(246, 140, 24, 0.12);
+    background: rgba(255, 115, 0, 0.12);
     border-color: var(--adm-primary);
     color: var(--adm-primary-hover);
 }
@@ -1698,7 +1698,7 @@ select.adm-input:focus {
     border-radius: 50px;
     font-size: 0.68rem;
     font-weight: 700;
-    background: rgba(246, 140, 24, 0.15);
+    background: rgba(255, 115, 0, 0.15);
     color: var(--adm-primary-hover);
     margin-left: 6px;
     vertical-align: middle;
@@ -1763,7 +1763,7 @@ select.adm-input:focus {
 
 /* Dragging / reorder state */
 .cld-thumb.cld-thumb-dragging { opacity: 0.4; transform: scale(0.95); }
-.cld-thumb.cld-thumb-over     { border-color: var(--adm-primary); box-shadow: 0 0 0 3px rgba(246,140,24,0.3); }
+.cld-thumb.cld-thumb-over     { border-color: var(--adm-primary); box-shadow: 0 0 0 3px rgba(255, 115, 0,0.3); }
 
 /* Loading placeholder */
 .cld-thumb.cld-thumb-loading {
@@ -1828,7 +1828,7 @@ select.adm-input:focus {
 .cld-dropzone:hover,
 .cld-dropzone.cld-dz-active {
     border-color: var(--adm-primary);
-    background: rgba(246,140,24,0.04);
+    background: rgba(255, 115, 0,0.04);
 }
 .cld-dropzone-inner { pointer-events: none; }
 .cld-dz-icon  { font-size: 2rem; color: #94a3b8; margin-bottom: 8px; display: block; }
@@ -1909,7 +1909,7 @@ details.adm-taxo-accordion[open] summary .adm-taxo-chevron { transform: rotate(1
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 3px solid #F68C18;
+    border-bottom: 3px solid #ff7300;
     padding-bottom: 12px;
     margin-bottom: 20px;
 }
@@ -1917,7 +1917,7 @@ details.adm-taxo-accordion[open] summary .adm-taxo-chevron { transform: rotate(1
 #print-sheet .print-header-code { font-size: 0.85rem; color: #666; font-weight: 600; }
 #print-sheet .print-cover { width: 100%; max-height: 320px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
 #print-sheet h1 { font-size: 1.4rem; margin: 0 0 6px; color: #1A1D20; }
-#print-sheet .print-price { font-size: 1.1rem; font-weight: 700; color: #F68C18; margin-bottom: 20px; }
+#print-sheet .print-price { font-size: 1.1rem; font-weight: 700; color: #ff7300; margin-bottom: 20px; }
 #print-sheet .print-facts {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
