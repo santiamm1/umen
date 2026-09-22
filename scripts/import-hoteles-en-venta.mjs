@@ -45,6 +45,24 @@ function stripTags(html) {
     return decodeEntities((html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 }
 
+// Colapsa espacios/tabs pero conserva los saltos de línea entre párrafos
+// (stripTags a secas los pisa todos a un solo espacio).
+function normalizeWhitespace(text) {
+    return text.split('\n').map(l => l.replace(/[ \t]+/g, ' ').trim()).filter(Boolean).join('\n');
+}
+
+function contentToParagraphs(html) {
+    const prepped = (html || '')
+        .replace(/<li[^>]*>/gi, '• ')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<br[^>]*>/gi, '\n');
+    const paragraphs = [...prepped.matchAll(/<(p|div|ul|ol|h[1-6])[^>]*>([\s\S]*?)<\/\1>/gi)]
+        .map(m => decodeEntities(m[2].replace(/<[^>]+>/g, '')))
+        .map(normalizeWhitespace)
+        .filter(Boolean);
+    return paragraphs.length ? paragraphs.join('\n\n') : stripTags(html);
+}
+
 // "1.503" -> 1503 | "290.40" -> 290 (decimal, se descarta la parte fraccionaria de m2)
 function parseSurfaceNumber(text) {
     const m = text.match(/\d[\d.,]*\d|\d/);
@@ -86,13 +104,18 @@ function extractDatosHotel(html) {
     const items = [...block.matchAll(/<p[^>]*>([^<]+)<\/p>/g)].map(x => decodeEntities(x[1]).trim());
 
     // La cantidad de unidades siempre va en <p class="fa hab">, sea "Habitaciones",
-    // "Unidades" o "Cabañas" según el tipo de hotel.
+    // "Unidades" o "Cabañas" según el tipo de hotel. hotelesenventa.com no tiene
+    // un campo de cantidad de baños (solo la amenity "Baño privado", sin número),
+    // así que no hay nada que scrapear ahí. "Plazas" (capacidad de huéspedes) sí
+    // es un dato real y propio de hoteles, cuando la ficha lo declara.
     const unidadesMatch = block.match(/<p class="fa hab">([^<]+)<\/p>/);
+    const plazasMatch = block.match(/<p class="fa plazas">([^<]+)<\/p>/);
     const construida = items.find(t => /construida/i.test(t));
     const terreno = items.find(t => /terreno/i.test(t));
 
     return {
         rooms: parseSurfaceNumber(unidadesMatch ? unidadesMatch[1] : ''),
+        plazas: parseSurfaceNumber(plazasMatch ? plazasMatch[1] : ''),
         surface: parseSurfaceNumber(construida || terreno || '')
     };
 }
@@ -102,7 +125,7 @@ async function scrapeOne(item) {
     const html = await res.text();
 
     const price = extractPrice(html);
-    const { rooms, surface } = extractDatosHotel(html);
+    const { rooms, plazas, surface } = extractDatosHotel(html);
     const image = item.yoast_head_json?.og_image?.[0]?.url || '';
 
     return {
@@ -118,9 +141,10 @@ async function scrapeOne(item) {
         provincia: taxonomyFromClassList(item.class_list, 'provincia-'),
         zone: taxonomyFromClassList(item.class_list, 'ciudad-'),
         neighborhood: '',
-        description: stripTags(item.content.rendered).slice(0, 500),
+        description: contentToParagraphs(item.content.rendered),
         surface: surface || 0,
         bedrooms: rooms || 0,
+        plazas: plazas || 0,
         bathrooms: 0,
         garage: 0,
         images: image ? [image] : [],

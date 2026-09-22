@@ -36,6 +36,25 @@ function stripTags(html) {
     return decodeEntities((html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 }
 
+// Colapsa espacios/tabs pero conserva los saltos de línea entre párrafos.
+function normalizeWhitespace(text) {
+    return text.split('\n').map(l => l.replace(/[ \t]+/g, ' ').trim()).filter(Boolean).join('\n');
+}
+
+// Convierte HTML (párrafos, listas, headings) a texto plano conservando la
+// separación entre bloques y los ítems de listas como "• ...".
+function htmlToParagraphs(html) {
+    const prepped = (html || '')
+        .replace(/<li[^>]*>/gi, '• ')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<br[^>]*>/gi, '\n');
+    const blocks = [...prepped.matchAll(/<(p|div|ul|ol|h[1-6])[^>]*>([\s\S]*?)<\/\1>/gi)]
+        .map(m => decodeEntities(m[2].replace(/<[^>]+>/g, '')))
+        .map(normalizeWhitespace)
+        .filter(Boolean);
+    return blocks.length ? blocks.join('\n\n') : normalizeWhitespace(decodeEntities(prepped.replace(/<[^>]+>/g, ' ')));
+}
+
 function parsePriceText(text) {
     if (!text) return { raw: '', amount: null, currency: null };
     const clean = text.trim();
@@ -69,6 +88,18 @@ function extractPrice(html) {
 function extractCode(html) {
     const m = html.match(/C[oó]digo de la propiedad:\s*([A-Za-z0-9-]+)/);
     return m ? m[1] : null;
+}
+
+// La descripción real vive en un campo Toolset Blocks (bloque "tb-field" bajo
+// el heading "Descripción"), no en item.content.rendered de la REST API: ese
+// campo queda corto/vacío porque Toolset no lo vuelca ahí.
+function extractDescription(html) {
+    const m = html.match(/<h3[^>]*>Descripci[oó]n<\/h3>\s*<div class="tb-field"[^>]*>([\s\S]*?)<\/div>\s*\n*\s*<h3/);
+    if (!m) return null;
+    const block = m[1]
+        .replace(/<script[\s\S]*?<\/script>/g, '')
+        .replace(/<div class="tces-js-font-encoded"[\s\S]*?<\/div>/g, '');
+    return htmlToParagraphs(block);
 }
 
 function extractImages(html) {
@@ -129,7 +160,7 @@ async function scrapeOne(item, taxMaps) {
         _code: extractCode(html),
         title: decodeEntities(item.title.rendered),
         slug: item.slug,
-        description: stripTags(item.content.rendered),
+        description: extractDescription(html) || stripTags(item.content.rendered),
         price: price.amount,
         priceCurrency: price.currency,
         priceRaw: price.raw,

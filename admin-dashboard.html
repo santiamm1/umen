@@ -36,7 +36,7 @@
     <aside class="adm-sidebar" id="adm-sidebar">
         <!-- Brand -->
         <div class="adm-brand">
-            <img src="https://umen.com.ar/wp-content/uploads/2021/02/UMEN-logo.png" alt="UMEN">
+            <img src="/assets/Logo/logo-footer.png" alt="UMEN">
             <button type="button" id="adm-sidebar-collapse-btn" class="adm-sidebar-collapse-btn" title="Colapsar barra lateral">
                 <i data-lucide="chevrons-left"></i>
             </button>
@@ -534,9 +534,13 @@
                         <div class="adm-taxo-group loc-panel" id="loc-provincias" style="display:none;">
                             <h4>Provincias</h4>
                             <div class="adm-taxo-add">
+                                <select id="new-province-country"></select>
                                 <input type="text" id="new-province-input" placeholder="Nueva provincia...">
                                 <button type="button" id="add-province-btn"><i class="fas fa-plus"></i></button>
                             </div>
+                            <button type="button" id="normalize-provinces-btn" class="adm-btn adm-btn-secondary" style="margin-bottom:16px">
+                                <i class="fas fa-broom"></i> Normalizar provincias (unificar duplicados y asignar país)
+                            </button>
                             <div class="adm-taxo-list" id="province-list"></div>
                         </div>
                         <div class="adm-taxo-group loc-panel" id="loc-ciudades" style="display:none;">

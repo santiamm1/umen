@@ -22,7 +22,7 @@
         window.storage = getStorage(app);
     </script>
 </head>
-<body class="page-with-filter-toggle">
+<body>
 
     <div id="header-placeholder"></div>
 
@@ -41,8 +41,8 @@
                     <span>Propiedades</span>
                 </nav>
                 <span class="hero-eyebrow">Buscador de Propiedades · UMEN</span>
-                <h1>Propiedades<br>en Argentina</h1>
-                <p class="hero-subtitle">Encontrá tu próxima inversión entre nuestra<br>selección en venta y alquiler.</p>
+                <h1>Propiedades en Argentina</h1>
+                <p class="hero-subtitle">Encontrá la propiedad ideal entre nuestra selección en venta y alquiler.</p>
             </div>
 
         </div>
@@ -90,11 +90,27 @@
                         <div class="filter-check-group" id="filter-country"></div>
                     </div>
 
+                    <!-- Provincia -->
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Provincia</h4>
+                        <select id="filter-province" class="filter-select">
+                            <option value="">Todas las provincias</option>
+                        </select>
+                    </div>
+
                     <!-- Ciudad -->
                     <div class="filter-group">
                         <h4 class="filter-group-title">Ciudad</h4>
                         <select id="filter-city" class="filter-select">
                             <option value="">Todas las ciudades</option>
+                        </select>
+                    </div>
+
+                    <!-- Localidad -->
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Localidad</h4>
+                        <select id="filter-locality" class="filter-select">
+                            <option value="">Todas las localidades</option>
                         </select>
                     </div>
 
@@ -108,21 +124,53 @@
 
                     <!-- Precio -->
                     <div class="filter-group">
-                        <h4 class="filter-group-title">Precio (USD)</h4>
+                        <h4 class="filter-group-title">Precio</h4>
+                        <select id="price-currency" class="filter-select">
+                            <option value="USD">Dólares (USD)</option>
+                            <option value="ARS">Pesos (ARS)</option>
+                        </select>
                         <div class="price-range-inputs">
                             <input type="number" id="price-min" placeholder="Desde" min="0">
                             <span>—</span>
                             <input type="number" id="price-max" placeholder="Hasta" min="0">
                         </div>
+                        <div class="range-slider" id="price-slider">
+                            <div class="range-slider-track"></div>
+                            <div class="range-slider-fill"></div>
+                            <input type="range" class="range-slider-input range-slider-min">
+                            <input type="range" class="range-slider-input range-slider-max">
+                        </div>
                     </div>
 
-                    <!-- Superficie -->
+                    <!-- Superficie cubierta -->
                     <div class="filter-group">
-                        <h4 class="filter-group-title">Superficie (m²)</h4>
+                        <h4 class="filter-group-title">Superficie cubierta (m²)</h4>
                         <div class="price-range-inputs">
-                            <input type="number" id="surface-min" placeholder="Desde" min="0">
+                            <input type="number" id="surface-covered-min" placeholder="Desde" min="0">
                             <span>—</span>
-                            <input type="number" id="surface-max" placeholder="Hasta" min="0">
+                            <input type="number" id="surface-covered-max" placeholder="Hasta" min="0">
+                        </div>
+                        <div class="range-slider" id="surface-covered-slider">
+                            <div class="range-slider-track"></div>
+                            <div class="range-slider-fill"></div>
+                            <input type="range" class="range-slider-input range-slider-min">
+                            <input type="range" class="range-slider-input range-slider-max">
+                        </div>
+                    </div>
+
+                    <!-- Superficie de terreno -->
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Superficie de terreno (m²)</h4>
+                        <div class="price-range-inputs">
+                            <input type="number" id="surface-land-min" placeholder="Desde" min="0">
+                            <span>—</span>
+                            <input type="number" id="surface-land-max" placeholder="Hasta" min="0">
+                        </div>
+                        <div class="range-slider" id="surface-land-slider">
+                            <div class="range-slider-track"></div>
+                            <div class="range-slider-fill"></div>
+                            <input type="range" class="range-slider-input range-slider-min">
+                            <input type="range" class="range-slider-input range-slider-max">
                         </div>
                     </div>
 

@@ -51,11 +51,14 @@ export async function getProperties(filters = {}) {
         if (filters.category) {
             queryConstraints.push(where('type', '==', filters.category));
         }
+        if (filters.featured) {
+            queryConstraints.push(where('featured', '==', true));
+        }
         // No filtramos 'operation' en la query: Firestore hace match exacto (case-sensitive)
         // y propiedades cargadas antes de normalizar el campo pueden tener "Alquiler"/"Venta"
         // en vez de minúsculas. Se filtra abajo, en memoria, sin distinguir mayúsculas.
         if (filters.province) {
-            queryConstraints.push(where('province', '==', filters.province));
+            queryConstraints.push(where('provincia', '==', filters.province));
         }
         if (filters.minPrice) {
             queryConstraints.push(where('price', '>=', parseInt(filters.minPrice)));
@@ -344,9 +347,10 @@ export async function getNeighborhoods(zoneId) {
 const DEFAULT_TAXONOMY = {
     categories: ['Casa', 'Departamento', 'Lote', 'Local Comercial', 'Oficina', 'Galpón', 'Cochera'],
     countries: ['Argentina'],
+    // Cada provincia pertenece a un país (filtro en cascada País → Provincia).
     provinces: [
         'Ciudad Autónoma de Buenos Aires', 'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'
-    ],
+    ].map(name => ({ name, pais: 'Argentina' })),
     cities: ['Capital Federal', 'GBA Norte', 'GBA Sur', 'GBA Oeste'],
     localities: [
         // CABA no tiene localidades per se, pero GBA sí:
@@ -373,7 +377,7 @@ export async function ensureDefaultTaxonomy() {
             const snapshot = await getDocs(collection(db, collectionName));
             const existingNames = new Set();
             snapshot.forEach(doc => existingNames.add(doc.data().name?.toLowerCase()));
-            
+
             for (const name of names) {
                 if (!existingNames.has(name.toLowerCase())) {
                     await addDoc(collection(db, collectionName), { name });
@@ -381,10 +385,24 @@ export async function ensureDefaultTaxonomy() {
             }
         };
 
+        // Provincias: cada una lleva su país, así que se siembran aparte (no son
+        // strings planos como el resto de las taxonomías).
+        const seedProvincesIfEmpty = async (provinces) => {
+            const snapshot = await getDocs(collection(db, 'provinces'));
+            const existingNames = new Set();
+            snapshot.forEach(doc => existingNames.add(doc.data().name?.toLowerCase()));
+
+            for (const { name, pais } of provinces) {
+                if (!existingNames.has(name.toLowerCase())) {
+                    await addDoc(collection(db, 'provinces'), { name, pais });
+                }
+            }
+        };
+
         await Promise.all([
             seedIfEmpty('categories', DEFAULT_TAXONOMY.categories),
             seedIfEmpty('countries', DEFAULT_TAXONOMY.countries),
-            seedIfEmpty('provinces', DEFAULT_TAXONOMY.provinces),
+            seedProvincesIfEmpty(DEFAULT_TAXONOMY.provinces),
             seedIfEmpty('cities', DEFAULT_TAXONOMY.cities),
             seedIfEmpty('localities', DEFAULT_TAXONOMY.localities),
             seedIfEmpty('neighborhoods', DEFAULT_TAXONOMY.neighborhoods),

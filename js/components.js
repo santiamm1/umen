@@ -46,21 +46,17 @@ export async function loadHeader() {
             }
         });
 
-        // Botón para contraer/expandir la barra de filtros (solo visible vía CSS
-        // en páginas con clase .page-with-filter-toggle en <body>)
-        const filterBarToggleBtn = document.getElementById('filter-bar-toggle');
-        const filterBar = document.querySelector('.header-filter-bar');
-        if (filterBarToggleBtn && filterBar) {
+        // Botón de lupa del header: despliega/oculta el buscador completo.
+        // Arranca siempre colapsado (ver header.html) para no ocupar espacio fijo,
+        // sobre todo en pantallas chicas donde antes duplicábamos un buscador simplificado.
+        const searchToggleBtn = document.getElementById('header-search-toggle');
+        const filterBar = document.getElementById('header-filter-bar');
+        if (searchToggleBtn && filterBar) {
             const setCollapsed = (isCollapsed) => {
                 filterBar.classList.toggle('collapsed', isCollapsed);
-                filterBarToggleBtn.classList.toggle('collapsed', isCollapsed);
-                filterBarToggleBtn.title = isCollapsed ? 'Mostrar filtros' : 'Contraer filtros';
+                searchToggleBtn.classList.toggle('active', !isCollapsed);
             };
-            filterBarToggleBtn.addEventListener('click', () => setCollapsed(!filterBar.classList.contains('collapsed')));
-
-            // En el detalle de propiedad ya se eligió qué ver: arranca colapsada
-            // para ganar espacio vertical en notebooks chicas.
-            if (page === 'property-detail.html') setCollapsed(true);
+            searchToggleBtn.addEventListener('click', () => setCollapsed(!filterBar.classList.contains('collapsed')));
         }
 
         // Menú mobile: toggle hamburguesa/X + botón de cerrar propio del overlay
@@ -78,17 +74,6 @@ export async function loadHeader() {
                 mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
             });
         }
-
-        // Buscador de propiedades dentro del menú mobile
-        const mobileSearchForm = document.getElementById('nav-mobile-search');
-        mobileSearchForm?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const operation = mobileSearchForm.querySelector('input[name="mobile-operation"]:checked')?.value || 'venta';
-            const keyword = document.getElementById('mobile-quicksearch')?.value.trim();
-            const params = new URLSearchParams({ operation });
-            if (keyword) params.set('keyword', keyword);
-            window.location.href = `propiedades.html?${params.toString()}`;
-        });
     } catch (e) {
         console.warn('No se pudo cargar el header compartido:', e);
     }

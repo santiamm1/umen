@@ -1,6 +1,7 @@
 // propiedades.js - Página de listado completo de propiedades UMEN
 
-import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries } from './propertyService.js?v=3';
+import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries, getProvinces, getLocalities } from './propertyService.js?v=3';
+import { cardFeaturesHTML, cardCodeHTML, cardTypeStripHTML } from './cardFeatures.js?v=4';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -8,19 +9,29 @@ let categories = [];
 let cities = [];
 let neighborhoodsList = [];
 let countries = [];
+let provincesList = [];
+let localitiesList = [];
 let allResults = [];
 let currentPage = 1;
+let priceSlider = null;
+let surfaceCoveredSlider = null;
+let surfaceLandSlider = null;
 
 let currentFilters = {
     operation: 'venta',
     category: null,
     countries: [],
+    province: null,
     city: null,
+    locality: null,
     neighborhood: null,
+    priceCurrency: 'USD',
     priceMin: null,
     priceMax: null,
-    surfaceMin: null,
-    surfaceMax: null,
+    surfaceCoveredMin: null,
+    surfaceCoveredMax: null,
+    surfaceLandMin: null,
+    surfaceLandMax: null,
     rooms: null,
     bedrooms: null,
     bathrooms: null,
@@ -37,10 +48,13 @@ const resultsCount    = document.getElementById('results-count');
 const sortOrder       = document.getElementById('sort-order');
 const activeFiltersEl = document.getElementById('active-filters');
 const clearAllBtn     = document.getElementById('clear-all-filters');
+const priceCurrencyEl = document.getElementById('price-currency');
 const priceMinInput   = document.getElementById('price-min');
 const priceMaxInput   = document.getElementById('price-max');
-const surfaceMinInput = document.getElementById('surface-min');
-const surfaceMaxInput = document.getElementById('surface-max');
+const surfaceCoveredMinInput = document.getElementById('surface-covered-min');
+const surfaceCoveredMaxInput = document.getElementById('surface-covered-max');
+const surfaceLandMinInput    = document.getElementById('surface-land-min');
+const surfaceLandMaxInput    = document.getElementById('surface-land-max');
 const paginationEl    = document.getElementById('pagination');
 const filterToggleBtn = document.getElementById('filter-toggle-btn');
 const filtersSidebar  = document.getElementById('filters-sidebar');
@@ -104,8 +118,8 @@ let header, propertyTypeSelect, searchBtn, quicksearch;
         : Promise.resolve(getDemoProperties());
 
     if (window.db) {
-        const [catsRes, citiesRes, nbsRes, countriesRes] = await Promise.allSettled([
-            getCategories(), getCities(), getAllNeighborhoods(), getCountries()
+        const [catsRes, citiesRes, nbsRes, countriesRes, provincesRes, localitiesRes] = await Promise.allSettled([
+            getCategories(), getCities(), getAllNeighborhoods(), getCountries(), getProvinces(), getLocalities()
         ]);
         categories = catsRes.status === 'fulfilled' ? catsRes.value : [];
         if (categories.length === 0) useDefaultCategories();
@@ -115,6 +129,8 @@ let header, propertyTypeSelect, searchBtn, quicksearch;
         if (neighborhoodsList.length === 0) useDefaultNeighborhoods();
         countries = countriesRes.status === 'fulfilled' ? countriesRes.value : [];
         if (countries.length === 0) useDefaultCountries();
+        provincesList = provincesRes.status === 'fulfilled' ? provincesRes.value : [];
+        localitiesList = localitiesRes.status === 'fulfilled' ? localitiesRes.value : [];
     } else {
         useDefaultCategories();
         useDefaultCities();
@@ -128,14 +144,18 @@ let header, propertyTypeSelect, searchBtn, quicksearch;
     applyFiltersFromUrl();
     setupNumberFilterBtns();
     setupRangeFilters();
+    priceSlider = setupDualSlider('price-slider', priceMinInput, priceMaxInput);
+    surfaceCoveredSlider = setupDualSlider('surface-covered-slider', surfaceCoveredMinInput, surfaceCoveredMaxInput);
+    surfaceLandSlider = setupDualSlider('surface-land-slider', surfaceLandMinInput, surfaceLandMaxInput);
+    priceCurrencyEl.addEventListener('change', refreshRangeSliderBounds);
     renderTypePills();
     renderCountryCheckboxes();
     renderCityCheckboxes();
-    renderNeighborhoodCheckboxes();
     syncSidebarSelectsFromFilters();
     setupPillFilters();
-    setupCountryFilter();
     setupCityFilter();
+    setupProvinceFilter();
+    setupLocalityFilter();
     setupNeighborhoodFilter();
     setupAgeFilter();
     setupViewToggle();
@@ -144,6 +164,11 @@ let header, propertyTypeSelect, searchBtn, quicksearch;
     clearAllBtn.addEventListener('click', clearAllFilters);
 
     allResults = await propertiesPromise;
+    // Provincia, localidad y barrio solo muestran opciones con al menos 1 propiedad
+    // cargada (evita categorías vacías en el sidebar); se recalculan cuando cambia
+    // el resultado base (acá y al cambiar operación en fetchAndRender).
+    renderExistenceFilters();
+    refreshRangeSliderBounds();
     applyFiltersAndRender();
 })();
 
@@ -170,33 +195,113 @@ function useDefaultCountries() {
 
 // ── Render: pills de tipo / checkboxes de ciudad y barrio ────────────────────
 
+// Cuenta cuántas propiedades de `allResults` tienen cada valor de `field`,
+// para mostrar "(N)" junto a cada opción de filtro y detectar de un vistazo
+// qué categorías/ubicaciones cargadas todavía no tienen propiedades asignadas.
+function countBy(field) {
+    const counts = {};
+    allResults.forEach(p => {
+        const v = p[field];
+        if (v) counts[v] = (counts[v] || 0) + 1;
+    });
+    return counts;
+}
+
+// Regla compartida por todos los filtros de la sidebar: una opción solo se
+// muestra si hay al menos 1 propiedad cargada con ese valor.
+function withProperties(list, counts) {
+    return list.filter(item => counts[item.name] > 0);
+}
+
 function renderTypePills() {
     const select = document.getElementById('filter-type');
     if (!select) return;
+    const cur = select.value;
+    const counts = countBy('type');
+    const available = withProperties(categories, counts);
     select.innerHTML = `<option value="">Todos los tipos</option>` +
-        categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        available.map(c => `<option value="${c.name}">${c.name} (${counts[c.name]})</option>`).join('');
+    select.value = available.some(c => c.name === cur) ? cur : '';
 }
 
 function renderCountryCheckboxes() {
     const container = document.getElementById('filter-country');
     if (!container) return;
-    container.innerHTML = countries.map(c =>
-        `<label class="filter-check-label"><input type="checkbox" value="${c.name}"> ${c.name}</label>`
-    ).join('');
+    const counts = countBy('pais');
+    const available = withProperties(countries, counts);
+    container.innerHTML = available.map(c => {
+        const checked = currentFilters.countries.includes(c.name) ? 'checked' : '';
+        return `<label class="filter-check-label"><input type="checkbox" value="${c.name}" ${checked}> ${c.name} (${counts[c.name]})</label>`;
+    }).join('');
+    setupCountryFilter();
 }
 
 function renderCityCheckboxes() {
     const select = document.getElementById('filter-city');
     if (!select) return;
+    const cur = select.value;
+    const counts = countBy('zone');
+    const available = withProperties(cities, counts);
     select.innerHTML = `<option value="">Todas las ciudades</option>` +
-        cities.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        available.map(c => `<option value="${c.name}">${c.name} (${counts[c.name]})</option>`).join('');
+    select.value = available.some(c => c.name === cur) ? cur : '';
 }
 
-function renderNeighborhoodCheckboxes() {
-    const select = document.getElementById('filter-neighborhood');
+// Puebla un <select> solo con las opciones que tienen al menos 1 propiedad
+// cargada en `allResults` (evita mostrar localidades/barrios vacíos), con la
+// cantidad de propiedades entre paréntesis. Conserva el valor seleccionado
+// si sigue siendo válido; si no, lo limpia.
+function populateExistenceSelect(selectId, list, field, placeholder, currentValue) {
+    const select = document.getElementById(selectId);
+    if (!select) return currentValue;
+
+    const counts = countBy(field);
+    const available = withProperties(list, counts);
+    select.innerHTML = `<option value="">${placeholder}</option>` +
+        available.map(item => `<option value="${item.name}">${item.name} (${counts[item.name]})</option>`).join('');
+
+    const stillValid = available.some(item => item.name === currentValue);
+    select.value = stillValid ? currentValue : '';
+    return stillValid ? currentValue : null;
+}
+
+// Provincia depende del país: sin al menos un país tildado no hay opciones
+// para elegir (evita mezclar provincias de países distintos). Entre las
+// provincias del/los país(es) elegido(s), solo se listan las que tienen
+// al menos 1 propiedad cargada.
+function renderProvinceSelect() {
+    const select = document.getElementById('filter-province');
     if (!select) return;
-    select.innerHTML = `<option value="">Todos los barrios</option>` +
-        neighborhoodsList.map(n => `<option value="${n.name}">${n.name}</option>`).join('');
+
+    if (currentFilters.countries.length === 0) {
+        select.innerHTML = `<option value="">Elegí un país primero</option>`;
+        select.value = '';
+        select.disabled = true;
+        currentFilters.province = null;
+        return;
+    }
+
+    const counts = countBy('provincia');
+    const available = provincesList.filter(p => currentFilters.countries.includes(p.pais) && counts[p.name] > 0);
+    select.innerHTML = `<option value="">Todas las provincias</option>` +
+        available.map(p => `<option value="${p.name}">${p.name} (${counts[p.name]})</option>`).join('');
+    select.disabled = false;
+
+    const stillValid = available.some(p => p.name === currentFilters.province);
+    select.value = stillValid ? currentFilters.province : '';
+    currentFilters.province = stillValid ? currentFilters.province : null;
+}
+
+// Provincia, Localidad y Barrio: solo se muestra lo que existe entre las
+// propiedades cargadas (para la operación/categoría actual). Tipo/País/Ciudad
+// se recalculan acá también para que sus contadores "(N)" queden al día.
+function renderExistenceFilters() {
+    renderTypePills();
+    renderCountryCheckboxes();
+    renderCityCheckboxes();
+    renderProvinceSelect();
+    currentFilters.locality = populateExistenceSelect('filter-locality', localitiesList, 'localidad', 'Todas las localidades', currentFilters.locality);
+    currentFilters.neighborhood = populateExistenceSelect('filter-neighborhood', neighborhoodsList, 'neighborhood', 'Todos los barrios', currentFilters.neighborhood);
 }
 
 // ── Setup: tipos de propiedad ─────────────────────────────────────────────────
@@ -279,6 +384,8 @@ function applyFiltersFromUrl() {
     const keyword = params.get('keyword');
     const neighborhood = params.get('neighborhood');
     const city = params.get('city');
+    const province = params.get('province');
+    const locality = params.get('locality');
     const bedrooms = params.get('bedrooms');
 
     if (operation) {
@@ -301,6 +408,8 @@ function applyFiltersFromUrl() {
 
     if (neighborhood) currentFilters.neighborhood = neighborhood;
     if (city) currentFilters.city = city;
+    if (province) currentFilters.province = province;
+    if (locality) currentFilters.locality = locality;
 
     if (bedrooms) {
         currentFilters.bedrooms = bedrooms;
@@ -385,6 +494,8 @@ function setupCountryFilter() {
             currentFilters.countries = Array.from(
                 document.querySelectorAll('#filter-country input[type="checkbox"]:checked')
             ).map(c => c.value);
+            // La provincia depende del país: recalcular sus opciones al vuelo.
+            renderProvinceSelect();
             currentPage = 1;
             applyFiltersAndRender();
         });
@@ -396,6 +507,26 @@ function setupCityFilter() {
     if (!select) return;
     select.addEventListener('change', () => {
         currentFilters.city = select.value || null;
+        currentPage = 1;
+        applyFiltersAndRender();
+    });
+}
+
+function setupProvinceFilter() {
+    const select = document.getElementById('filter-province');
+    if (!select) return;
+    select.addEventListener('change', () => {
+        currentFilters.province = select.value || null;
+        currentPage = 1;
+        applyFiltersAndRender();
+    });
+}
+
+function setupLocalityFilter() {
+    const select = document.getElementById('filter-locality');
+    if (!select) return;
+    select.addEventListener('change', () => {
+        currentFilters.locality = select.value || null;
         currentPage = 1;
         applyFiltersAndRender();
     });
@@ -446,16 +577,83 @@ function setupBtnGroup(containerId, filterKey) {
 
 function setupRangeFilters() {
     const apply = () => {
+        currentFilters.priceCurrency = priceCurrencyEl.value || 'USD';
         currentFilters.priceMin   = priceMinInput.value   ? parseInt(priceMinInput.value)   : null;
         currentFilters.priceMax   = priceMaxInput.value   ? parseInt(priceMaxInput.value)   : null;
-        currentFilters.surfaceMin = surfaceMinInput.value ? parseInt(surfaceMinInput.value) : null;
-        currentFilters.surfaceMax = surfaceMaxInput.value ? parseInt(surfaceMaxInput.value) : null;
+        currentFilters.surfaceCoveredMin = surfaceCoveredMinInput.value ? parseInt(surfaceCoveredMinInput.value) : null;
+        currentFilters.surfaceCoveredMax = surfaceCoveredMaxInput.value ? parseInt(surfaceCoveredMaxInput.value) : null;
+        currentFilters.surfaceLandMin    = surfaceLandMinInput.value    ? parseInt(surfaceLandMinInput.value)    : null;
+        currentFilters.surfaceLandMax    = surfaceLandMaxInput.value    ? parseInt(surfaceLandMaxInput.value)    : null;
         currentPage = 1;
         applyFiltersAndRender();
     };
-    [priceMinInput, priceMaxInput, surfaceMinInput, surfaceMaxInput].forEach(input => {
+    [priceCurrencyEl, priceMinInput, priceMaxInput, surfaceCoveredMinInput, surfaceCoveredMaxInput, surfaceLandMinInput, surfaceLandMaxInput].forEach(input => {
         input.addEventListener('change', apply);
     });
+}
+
+// ── Dual-range slider (dos <input type="range"> superpuestos) ─────────────────
+
+function setupDualSlider(sliderId, minInput, maxInput) {
+    const wrap = document.getElementById(sliderId);
+    if (!wrap) return null;
+    const minRange = wrap.querySelector('.range-slider-min');
+    const maxRange = wrap.querySelector('.range-slider-max');
+    const fill = wrap.querySelector('.range-slider-fill');
+    let boundsMin = 0, boundsMax = 100;
+
+    function updateFill() {
+        const span = boundsMax - boundsMin || 1;
+        const pct = v => ((v - boundsMin) / span) * 100;
+        fill.style.left = pct(Number(minRange.value)) + '%';
+        fill.style.right = (100 - pct(Number(maxRange.value))) + '%';
+    }
+
+    function setBounds(lo, hi) {
+        boundsMin = lo;
+        boundsMax = Math.max(hi, lo + 1);
+        const step = Math.max(1, Math.round((boundsMax - boundsMin) / 100));
+        [minRange, maxRange].forEach(r => { r.min = boundsMin; r.max = boundsMax; r.step = step; });
+        minRange.value = minInput.value || boundsMin;
+        maxRange.value = maxInput.value || boundsMax;
+        updateFill();
+    }
+
+    minRange.addEventListener('input', () => {
+        if (Number(minRange.value) > Number(maxRange.value)) minRange.value = maxRange.value;
+        minInput.value = minRange.value;
+        updateFill();
+    });
+    maxRange.addEventListener('input', () => {
+        if (Number(maxRange.value) < Number(minRange.value)) maxRange.value = minRange.value;
+        maxInput.value = maxRange.value;
+        updateFill();
+    });
+    [minRange, maxRange].forEach(r => r.addEventListener('change', () => {
+        minInput.dispatchEvent(new Event('change'));
+    }));
+    [minInput, maxInput].forEach(inp => inp.addEventListener('input', () => {
+        minRange.value = minInput.value || boundsMin;
+        maxRange.value = maxInput.value || boundsMax;
+        updateFill();
+    }));
+
+    return { setBounds };
+}
+
+function boundsFromValues(values) {
+    const nums = values.filter(v => v > 0);
+    if (!nums.length) return [0, 1000];
+    return [Math.min(...nums), Math.max(...nums)];
+}
+
+function refreshRangeSliderBounds() {
+    if (priceSlider) {
+        const cur = currentFilters.priceCurrency;
+        priceSlider.setBounds(...boundsFromValues(allResults.filter(p => (p.currency || 'USD') === cur).map(p => p.price)));
+    }
+    if (surfaceCoveredSlider) surfaceCoveredSlider.setBounds(...boundsFromValues(allResults.map(p => p.supCubierta || 0)));
+    if (surfaceLandSlider) surfaceLandSlider.setBounds(...boundsFromValues(allResults.map(p => p.supTerreno || 0)));
 }
 
 // ── Setup: toggle grilla / lista ──────────────────────────────────────────────
@@ -515,6 +713,8 @@ async function fetchAndRender() {
     }
 
     allResults = results;
+    renderExistenceFilters();
+    refreshRangeSliderBounds();
     applyFiltersAndRender();
 }
 
@@ -547,9 +747,19 @@ function applyFiltersAndRender() {
         filtered = filtered.filter(p => p.pais && currentFilters.countries.includes(p.pais));
     }
 
+    // Provincia
+    if (currentFilters.province) {
+        filtered = filtered.filter(p => p.provincia === currentFilters.province);
+    }
+
     // Ciudad
     if (currentFilters.city) {
         filtered = filtered.filter(p => p.zone === currentFilters.city);
+    }
+
+    // Localidad
+    if (currentFilters.locality) {
+        filtered = filtered.filter(p => p.localidad === currentFilters.locality);
     }
 
     // Barrio
@@ -557,10 +767,15 @@ function applyFiltersAndRender() {
         filtered = filtered.filter(p => p.neighborhood === currentFilters.neighborhood);
     }
 
-    if (currentFilters.priceMin !== null) filtered = filtered.filter(p => p.price >= currentFilters.priceMin);
-    if (currentFilters.priceMax !== null) filtered = filtered.filter(p => p.price <= currentFilters.priceMax);
-    if (currentFilters.surfaceMin !== null) filtered = filtered.filter(p => (p.surface || 0) >= currentFilters.surfaceMin);
-    if (currentFilters.surfaceMax !== null) filtered = filtered.filter(p => (p.surface || 0) <= currentFilters.surfaceMax);
+    if (currentFilters.priceMin !== null || currentFilters.priceMax !== null) {
+        filtered = filtered.filter(p => (p.currency || 'USD') === currentFilters.priceCurrency);
+        if (currentFilters.priceMin !== null) filtered = filtered.filter(p => p.price >= currentFilters.priceMin);
+        if (currentFilters.priceMax !== null) filtered = filtered.filter(p => p.price <= currentFilters.priceMax);
+    }
+    if (currentFilters.surfaceCoveredMin !== null) filtered = filtered.filter(p => (p.supCubierta || 0) >= currentFilters.surfaceCoveredMin);
+    if (currentFilters.surfaceCoveredMax !== null) filtered = filtered.filter(p => (p.supCubierta || 0) <= currentFilters.surfaceCoveredMax);
+    if (currentFilters.surfaceLandMin !== null) filtered = filtered.filter(p => (p.supTerreno || 0) >= currentFilters.surfaceLandMin);
+    if (currentFilters.surfaceLandMax !== null) filtered = filtered.filter(p => (p.supTerreno || 0) <= currentFilters.surfaceLandMax);
 
     if (currentFilters.rooms) {
         const r = currentFilters.rooms;
@@ -673,20 +888,18 @@ function renderPage(filtered) {
             <a class="property-card" ${linkAttrs}>
                 <div class="card-image">
                     <img src="${img}" alt="${p.title}" loading="lazy">
-                    <div class="card-badge">${badgeLabel}</div>
+                    <div class="card-badge${p.operation === 'alquiler' ? ' card-badge-alquiler' : ''}">${badgeLabel}</div>
                 </div>
                 <div class="card-content">
-                    <div class="card-price">${p.currency === 'ARS' ? '$' : (p.currency || 'USD')} ${p.price.toLocaleString()}${p.operation === 'alquiler' ? ' <span class="card-price-period">/mes</span>' : ''}</div>
+                    ${cardTypeStripHTML(p)}
                     ${p.tag ? `<span class="card-tag-label">${p.tag}</span>` : ''}
                     <h3 class="card-title">${p.title}</h3>
+                    ${cardCodeHTML(p)}
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i> ${location}
                     </div>
-                    <div class="card-features">
-                        <div class="feature-item"><i class="fas fa-ruler-combined"></i> ${p.surface || 0} m²</div>
-                        <div class="feature-item"><i class="fas fa-bed"></i> ${p.bedrooms || 0} Amb.</div>
-                        <div class="feature-item"><i class="fas fa-bath"></i> ${p.bathrooms || 1} Baños</div>
-                    </div>
+                    <div class="card-price">${p.currency === 'ARS' ? '$' : (p.currency || 'USD')} ${p.price.toLocaleString()}${p.operation === 'alquiler' ? ' <span class="card-price-period">/mes</span>' : ''}</div>
+                    <div class="card-features">${cardFeaturesHTML(p)}</div>
                 </div>
             </a>
         `;
@@ -757,8 +970,8 @@ function renderActiveFilterTags() {
 
     if (currentFilters.priceMin || currentFilters.priceMax) {
         const parts = [];
-        if (currentFilters.priceMin) parts.push(`Desde USD ${currentFilters.priceMin.toLocaleString()}`);
-        if (currentFilters.priceMax) parts.push(`Hasta USD ${currentFilters.priceMax.toLocaleString()}`);
+        if (currentFilters.priceMin) parts.push(`Desde ${currentFilters.priceCurrency} ${currentFilters.priceMin.toLocaleString()}`);
+        if (currentFilters.priceMax) parts.push(`Hasta ${currentFilters.priceCurrency} ${currentFilters.priceMax.toLocaleString()}`);
         tags.push(`<span class="filter-tag" onclick="removeFilter('price')">${parts.join(' · ')} <i class="fas fa-times"></i></span>`);
     }
 
@@ -770,11 +983,18 @@ function renderActiveFilterTags() {
         tags.push(`<span class="filter-tag" onclick="removeFilter('bedrooms')">${currentFilters.bedrooms} Dorm. <i class="fas fa-times"></i></span>`);
     }
 
-    if (currentFilters.surfaceMin || currentFilters.surfaceMax) {
+    if (currentFilters.surfaceCoveredMin || currentFilters.surfaceCoveredMax) {
         const parts = [];
-        if (currentFilters.surfaceMin) parts.push(`Desde ${currentFilters.surfaceMin} m²`);
-        if (currentFilters.surfaceMax) parts.push(`Hasta ${currentFilters.surfaceMax} m²`);
-        tags.push(`<span class="filter-tag" onclick="removeFilter('surface')">${parts.join(' · ')} <i class="fas fa-times"></i></span>`);
+        if (currentFilters.surfaceCoveredMin) parts.push(`Desde ${currentFilters.surfaceCoveredMin} m²`);
+        if (currentFilters.surfaceCoveredMax) parts.push(`Hasta ${currentFilters.surfaceCoveredMax} m²`);
+        tags.push(`<span class="filter-tag" onclick="removeFilter('surfaceCovered')">Sup. cubierta: ${parts.join(' · ')} <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.surfaceLandMin || currentFilters.surfaceLandMax) {
+        const parts = [];
+        if (currentFilters.surfaceLandMin) parts.push(`Desde ${currentFilters.surfaceLandMin} m²`);
+        if (currentFilters.surfaceLandMax) parts.push(`Hasta ${currentFilters.surfaceLandMax} m²`);
+        tags.push(`<span class="filter-tag" onclick="removeFilter('surfaceLand')">Sup. terreno: ${parts.join(' · ')} <i class="fas fa-times"></i></span>`);
     }
 
     if (currentFilters.keyword) {
@@ -789,8 +1009,16 @@ function renderActiveFilterTags() {
         tags.push(`<span class="filter-tag" onclick="removeFilter('countries')">${currentFilters.countries.join(', ')} <i class="fas fa-times"></i></span>`);
     }
 
+    if (currentFilters.province) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('province')">Provincia: ${currentFilters.province} <i class="fas fa-times"></i></span>`);
+    }
+
     if (currentFilters.city) {
         tags.push(`<span class="filter-tag" onclick="removeFilter('city')">${currentFilters.city} <i class="fas fa-times"></i></span>`);
+    }
+
+    if (currentFilters.locality) {
+        tags.push(`<span class="filter-tag" onclick="removeFilter('locality')">Localidad: ${currentFilters.locality} <i class="fas fa-times"></i></span>`);
     }
 
     if (currentFilters.neighborhood) {
@@ -823,17 +1051,25 @@ window.removeFilter = function(key) {
         currentFilters.priceMax = null;
         priceMinInput.value = '';
         priceMaxInput.value = '';
+        refreshRangeSliderBounds();
     } else if (key === 'rooms') {
         currentFilters.rooms = null;
         document.querySelectorAll('#filter-rooms .filter-number-btn').forEach(b => b.classList.remove('active'));
     } else if (key === 'bedrooms') {
         currentFilters.bedrooms = null;
         document.querySelectorAll('#filter-bedrooms .filter-number-btn').forEach(b => b.classList.remove('active'));
-    } else if (key === 'surface') {
-        currentFilters.surfaceMin = null;
-        currentFilters.surfaceMax = null;
-        surfaceMinInput.value = '';
-        surfaceMaxInput.value = '';
+    } else if (key === 'surfaceCovered') {
+        currentFilters.surfaceCoveredMin = null;
+        currentFilters.surfaceCoveredMax = null;
+        surfaceCoveredMinInput.value = '';
+        surfaceCoveredMaxInput.value = '';
+        refreshRangeSliderBounds();
+    } else if (key === 'surfaceLand') {
+        currentFilters.surfaceLandMin = null;
+        currentFilters.surfaceLandMax = null;
+        surfaceLandMinInput.value = '';
+        surfaceLandMaxInput.value = '';
+        refreshRangeSliderBounds();
     } else if (key === 'keyword') {
         currentFilters.keyword = '';
         if (quicksearch) quicksearch.value = '';
@@ -844,9 +1080,18 @@ window.removeFilter = function(key) {
     } else if (key === 'countries') {
         currentFilters.countries = [];
         document.querySelectorAll('#filter-country input[type="checkbox"]').forEach(cb => cb.checked = false);
+        renderProvinceSelect();
+    } else if (key === 'province') {
+        currentFilters.province = null;
+        const sel = document.getElementById('filter-province');
+        if (sel) sel.value = '';
     } else if (key === 'city') {
         currentFilters.city = null;
         const sel = document.getElementById('filter-city');
+        if (sel) sel.value = '';
+    } else if (key === 'locality') {
+        currentFilters.locality = null;
+        const sel = document.getElementById('filter-locality');
         if (sel) sel.value = '';
     } else if (key === 'neighborhood') {
         currentFilters.neighborhood = null;
@@ -876,12 +1121,17 @@ function clearAllFilters() {
         operation: currentFilters.operation,
         category: null,
         countries: [],
+        province: null,
         city: null,
+        locality: null,
         neighborhood: null,
+        priceCurrency: 'USD',
         priceMin: null,
         priceMax: null,
-        surfaceMin: null,
-        surfaceMax: null,
+        surfaceCoveredMin: null,
+        surfaceCoveredMax: null,
+        surfaceLandMin: null,
+        surfaceLandMax: null,
         rooms: null,
         bedrooms: null,
         bathrooms: null,
@@ -891,7 +1141,9 @@ function clearAllFilters() {
         keyword: ''
     };
 
-    [priceMinInput, priceMaxInput, surfaceMinInput, surfaceMaxInput].forEach(i => i.value = '');
+    if (priceCurrencyEl) priceCurrencyEl.value = 'USD';
+    [priceMinInput, priceMaxInput, surfaceCoveredMinInput, surfaceCoveredMaxInput, surfaceLandMinInput, surfaceLandMaxInput].forEach(i => i.value = '');
+    refreshRangeSliderBounds();
     if (quicksearch) quicksearch.value = '';
     if (propertyTypeSelect) propertyTypeSelect.value = '';
 
@@ -903,10 +1155,11 @@ function clearAllFilters() {
     document.querySelectorAll('.filter-number-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('#filter-country input[type="checkbox"]').forEach(cb => cb.checked = false);
 
-    ['filter-age', 'filter-type', 'filter-city', 'filter-neighborhood', 'filter-estado'].forEach(id => {
+    ['filter-age', 'filter-type', 'filter-city', 'filter-locality', 'filter-neighborhood', 'filter-estado'].forEach(id => {
         const sel = document.getElementById(id);
         if (sel) sel.value = '';
     });
+    renderProvinceSelect();
 
     currentPage = 1;
     applyFiltersAndRender();

@@ -127,10 +127,22 @@ function render(property) {
     const codeLabel = property.code ? ` (Cód. ${property.code})` : '';
     const waMsg     = encodeURIComponent(`Hola UMEN, vi la propiedad "${property.title}"${codeLabel} y me gustaría recibir más información.`);
     const waUrl     = `https://wa.me/5491131444207?text=${waMsg}`;
-    const pricePerM2 = property.surface > 0 ? Math.round(property.price / property.surface) : null;
+    const pricePerM2 = property.type === 'Hotel' && property.surface > 0 ? Math.round(property.price / property.surface) : null;
+    // Se repite al inicio de cada hoja impresa (aparte de la 1ª, que ya tiene
+    // el membrete grande) para identificarla si se separan las hojas.
+    const printPageTag = `<div class="print-page-tag">${property.code ? property.code + ' — ' : ''}${property.title}</div>`;
 
     container.innerHTML = `
         <div class="detail-container">
+
+            <!-- ── Membrete: solo visible al imprimir ────────────── -->
+            <div class="print-letterhead">
+                <img src="/assets/Logo/logo.png" alt="UMEN">
+                <div class="print-letterhead-info">
+                    <strong>UMEN Buenos Negocios Inmobiliarios</strong>
+                    <span>umen.com.ar · info@umen.com.ar · +54 911 3144.4207</span>
+                </div>
+            </div>
 
             <!-- ── Breadcrumb ─────────────────────────────────── -->
             <div class="detail-breadcrumb">
@@ -141,34 +153,37 @@ function render(property) {
                 <span>${property.title}</span>
             </div>
 
-            <!-- ── Encabezado: título + precio + compartir ─────── -->
+            <!-- ── Encabezado: título + precio + compartir ───────
+                 Grid de 2 columnas x 3 filas: cada fila real (badge/label,
+                 título/precio, ubicación/íconos) queda compartida entre
+                 ambas columnas, así se alinean solas sin ajustes a mano. -->
             <div class="detail-header-row">
-                <div class="detail-header-info">
+                <div class="detail-header-badges">
                     <span class="detail-badge">${opLabel}</span>
                     ${property.tag ? `<span class="detail-badge detail-badge-tag">${property.tag}</span>` : ''}
-                    <h1 class="detail-title">${property.title}</h1>
-                    <p class="detail-location">
-                        <i class="fas fa-map-marker-alt"></i> ${location}
-                        ${property.code ? `<span class="detail-code">Cód. ${property.code}</span>` : ''}
-                    </p>
                 </div>
-                <div class="detail-header-right">
-                    <div class="detail-price-box">
-                        <span class="price-label">Valor de ${opLabel}</span>
-                        <span class="price-value">${currencyLabel(property.currency)} ${property.price.toLocaleString()}${property.operation === 'alquiler' ? ' <span class="price-period">/mes</span>' : ''}</span>
-                        ${pricePerM2 ? `<span class="price-sqm">${pricePerM2.toLocaleString()} ${currencyLabel(property.currency)}/m²</span>` : ''}
-                    </div>
-                    <div class="detail-share">
-                        <a href="${waUrl}" target="_blank" class="share-btn share-wa" title="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                        <button class="share-btn share-link" title="Copiar enlace" onclick="copyPropertyLink()">
-                            <i class="fas fa-link"></i>
-                        </button>
-                        <button class="share-btn share-print" title="Imprimir" onclick="window.print()">
-                            <i class="fas fa-print"></i>
-                        </button>
-                    </div>
+                <span class="price-label">Valor de ${opLabel}</span>
+
+                <h1 class="detail-title">${property.title}</h1>
+                <div class="detail-price-value-wrap">
+                    <span class="price-value">${currencyLabel(property.currency)} ${property.price.toLocaleString()}${property.operation === 'alquiler' ? ' <span class="price-period">/mes</span>' : ''}</span>
+                    ${pricePerM2 ? `<span class="price-sqm">${pricePerM2.toLocaleString()} ${currencyLabel(property.currency)}/m²</span>` : ''}
+                </div>
+
+                <p class="detail-location">
+                    <i class="fas fa-map-marker-alt"></i> ${location}
+                    ${property.code ? `<span class="detail-code">Cód. ${property.code}</span>` : ''}
+                </p>
+                <div class="detail-share">
+                    <a href="${waUrl}" target="_blank" class="share-btn share-wa" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <button class="share-btn share-link" title="Copiar enlace" onclick="copyPropertyLink()">
+                        <i class="fas fa-link"></i>
+                    </button>
+                    <button class="share-btn share-print" title="Imprimir" onclick="window.print()">
+                        <i class="fas fa-print"></i>
+                    </button>
                 </div>
             </div>
 
@@ -230,6 +245,7 @@ function render(property) {
 
                     <!-- Ficha técnica en tabla -->
                     <section class="detail-section">
+                        ${printPageTag}
                         <h2>Ficha Técnica</h2>
                         <div class="detail-data-table">
                             ${dataRow('Tipo de propiedad', typeLabel)}
@@ -256,7 +272,8 @@ function render(property) {
 
                     <!-- Descripción -->
                     ${property.description ? `
-                    <section class="detail-section">
+                    <section class="detail-section detail-section-description">
+                        ${printPageTag}
                         <h2>Descripción</h2>
                         <p class="description-text">${property.description}</p>
                     </section>` : ''}
@@ -272,6 +289,7 @@ function render(property) {
 
                     <!-- Mapa -->
                     <section class="detail-section detail-section-map">
+                        ${printPageTag}
                         <h2>Ubicación</h2>
                         <div class="detail-map">
                             <iframe
@@ -313,15 +331,13 @@ function render(property) {
                                  style="border-radius:4px; height:36px; width:auto; object-fit:contain; background:#fff; padding:4px">
                             <div>
                                 <strong>UMEN Buenos Negocios</strong>
-                                <span>División Residencial</span>
-                                <span>Av. Cabildo 4769 9° Piso, Nuñez</span>
+                                <span>Av. Cabildo 4769 9° A, Nuñez</span>
                             </div>
                         </div>
 
                         <div class="contact-trust">
                             <div class="contact-trust-item"><i class="fas fa-shield-alt"></i> Asesoramiento profesional matriculado</div>
                             <div class="contact-trust-item"><i class="fas fa-clock"></i> Respuesta en menos de 24 horas</div>
-                            <div class="contact-trust-item"><i class="fas fa-handshake"></i> Sin compromiso de contratación</div>
                         </div>
                     </div>
                 </aside>

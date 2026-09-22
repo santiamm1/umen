@@ -277,6 +277,10 @@ function setupEventListeners() {
     document.getElementById('filter-type')?.addEventListener('change', rerenderProperties);
     document.getElementById('filter-status')?.addEventListener('change', rerenderProperties);
 
+    // Provincia depende del país elegido en el formulario de propiedad.
+    document.getElementById('pais')?.addEventListener('change', e => populateProvinceSelect(e.target.value));
+    document.getElementById('normalize-provinces-btn')?.addEventListener('click', normalizeProvinces);
+
     // KPIs del dashboard: llevan a Propiedades con el filtro correspondiente ya aplicado
     document.getElementById('kpi-total')?.addEventListener('click', () => goToPropertiesFiltered({}));
     document.getElementById('kpi-publicadas')?.addEventListener('click', () => goToPropertiesFiltered({ status: 'publicado' }));
@@ -316,6 +320,126 @@ async function handleLogout() {
     catch (e) { console.error(e); }
 }
 
+// Mapea la ciudad (zone) ya cargada a su provincia, para completar automáticamente
+// las propiedades/hoteles que se cargaron antes de que existiera el campo provincia.
+const ZONE_TO_PROVINCE = {
+    'capital federal': 'Ciudad Autónoma de Buenos Aires',
+    'gba norte': 'Buenos Aires',
+    'gba sur': 'Buenos Aires',
+    'gba oeste': 'Buenos Aires'
+};
+
+async function backfillProvincias() {
+    const pending = properties.filter(p => !p.provincia && p.zone && ZONE_TO_PROVINCE[p.zone.toLowerCase()]);
+    if (pending.length === 0) return;
+    await Promise.all(pending.map(p => {
+        const provincia = ZONE_TO_PROVINCE[p.zone.toLowerCase()];
+        p.provincia = provincia;
+        return updateProperty(p.id, { provincia }).catch(err => console.error('Backfill de provincia falló para', p.id, err));
+    }));
+}
+
+// Provincias que en realidad son de otro país (detectadas a mano revisando los
+// datos reales: "Valparaiso" es de Chile, "Maldonado"/"Rivera" de Uruguay,
+// "Rio De Janeiro"/"San Pablo"/"Parana" de Brasil). Cualquier otra provincia
+// sin país se asume Argentina, que es el caso de la enorme mayoría.
+const PROVINCE_COUNTRY_OVERRIDES = {
+    'valparaiso': 'Chile',
+    'maldonado': 'Uruguay',
+    'rivera': 'Uruguay',
+    'rio de janeiro': 'Brasil',
+    'san pablo': 'Brasil',
+    'parana': 'Brasil'
+};
+
+// Las provincias cargadas antes de que existiera el filtro en cascada País →
+// Provincia no tienen campo `pais`. Se completan con el país correcto (ver
+// overrides arriba) y Argentina como default para el resto.
+async function backfillProvinceCountries() {
+    const pending = provinces.filter(p => !p.pais);
+    if (pending.length === 0) return;
+    await Promise.all(pending.map(p => {
+        const pais = PROVINCE_COUNTRY_OVERRIDES[p.name.toLowerCase()] || 'Argentina';
+        p.pais = pais;
+        return updateProvince(p.id, { pais }).catch(err => console.error('Backfill de país en provincia falló para', p.id, err));
+    }));
+}
+
+// ── Normalización manual de provincias (botón en Ubicación → Provincias) ──────
+// Un relevamiento de los datos reales (18-sep-2026) encontró: (a) la misma
+// provincia cargada con y sin tilde como si fueran categorías distintas, y
+// (b) "provincias" que en realidad son zonas propias (Buenos Aires Zona
+// Norte/Oeste/Interior, Costa Atlántica) o una región que abarca varias
+// provincias (Patagonia). Este mapeo es específico de ese relevamiento, no
+// un algoritmo general — por eso es una acción manual con confirmación, no
+// algo que corre solo como el resto de los backfills.
+const PROVINCE_ACCENT_FIXES = {
+    'Cordoba': 'Córdoba',
+    'Entre Rios': 'Entre Ríos',
+    'Neuquen': 'Neuquén',
+    'Rio Negro': 'Río Negro',
+    'Tucuman': 'Tucumán',
+    'Santiago Del Estero': 'Santiago del Estero'
+};
+const PROVINCE_ZONE_FIXES = {
+    'Buenos Aires Zona Norte': 'Buenos Aires',
+    'Buenos Aires Zona Oeste': 'Buenos Aires',
+    'Buenos Aires Interior': 'Buenos Aires',
+    'Cost Atlantica': 'Buenos Aires'
+};
+// "Patagonia" no es una provincia: se resuelve según la ciudad de cada propiedad.
+const PATAGONIA_CITY_TO_PROVINCE = {
+    'las grutas': 'Río Negro',
+    'el bolson': 'Río Negro',
+    'general roca': 'Río Negro',
+    'tolhuin': 'Tierra del Fuego',
+    'ushuaia': 'Tierra del Fuego',
+    'el calafate': 'Santa Cruz'
+};
+
+async function normalizeProvinces() {
+    const changedProps = [];
+    for (const p of properties) {
+        if (!p.provincia) continue;
+        let next = null;
+        if (PROVINCE_ACCENT_FIXES[p.provincia]) next = PROVINCE_ACCENT_FIXES[p.provincia];
+        else if (PROVINCE_ZONE_FIXES[p.provincia]) next = PROVINCE_ZONE_FIXES[p.provincia];
+        else if (p.provincia === 'Patagonia') next = PATAGONIA_CITY_TO_PROVINCE[(p.zone || '').toLowerCase()] || null;
+        if (next && next !== p.provincia) changedProps.push({ p, next });
+    }
+
+    if (changedProps.length === 0 && provinces.every(pr => pr.pais)) {
+        showToast('No hay nada para normalizar: ya está todo al día.', 'success');
+        return;
+    }
+
+    const summary = changedProps.length
+        ? `Se van a actualizar ${changedProps.length} propiedades y a borrar las provincias duplicadas/obsoletas que queden sin usar. ¿Confirmás?`
+        : 'No hay propiedades para actualizar, pero sí países pendientes de asignar en la taxonomía. ¿Confirmás?';
+    if (!confirm(summary)) return;
+
+    await Promise.all(changedProps.map(({ p, next }) => {
+        p.provincia = next;
+        return updateProperty(p.id, { provincia: next }).catch(err => console.error('Normalización falló para', p.id, err));
+    }));
+
+    // Asignar país a las que falten (incluye las provincias legítimas ya existentes).
+    await backfillProvinceCountries();
+
+    // Borrar de la taxonomía las que quedaron sin ninguna propiedad y son
+    // claramente duplicados/zonas propias (nunca una provincia real distinta).
+    const stillUsed = new Set(properties.map(p => p.provincia).filter(Boolean));
+    const toDeleteNames = new Set([...Object.keys(PROVINCE_ACCENT_FIXES), ...Object.keys(PROVINCE_ZONE_FIXES), 'Patagonia']);
+    const toDelete = provinces.filter(pr => toDeleteNames.has(pr.name) && !stillUsed.has(pr.name));
+    await Promise.all(toDelete.map(pr => deleteProvince(pr.id).catch(err => console.error('No se pudo borrar provincia', pr.id, err))));
+
+    provinces = await getProvinces();
+    renderTaxoList('province');
+    populateFormSelects();
+
+    showToast(`Listo: ${changedProps.length} propiedades actualizadas, ${toDelete.length} provincias obsoletas eliminadas.`, 'success');
+}
+
 // ── Carga de datos ────────────────────────────────────────────────────────────
 async function loadAdminData() {
     const timeout = setTimeout(() => {
@@ -336,9 +460,23 @@ async function loadAdminData() {
         // Cargamos todas las propiedades y las listas de taxonomía EN PARALELO
         const propertiesPromise = getProperties({ limit: 5000 });
         await loadAllTaxonomies();
-        
+
+        // Completar país en provincias viejas (sin ese campo) y provincia en
+        // propiedades/hoteles viejos (a partir de su ciudad). Solo 1 vez por navegador.
+        if (!localStorage.getItem('umen_provincia_backfill_v1')) {
+            await backfillProvinceCountries();
+            renderTaxoList('province');
+            populateFormSelects();
+        }
+
         properties = await propertiesPromise;
         clearTimeout(timeout);
+
+        if (!localStorage.getItem('umen_provincia_backfill_v1')) {
+            await backfillProvincias();
+            localStorage.setItem('umen_provincia_backfill_v1', 'true');
+        }
+
         // Recalculan los conteos "(N)" de cada opción ahora que properties ya cargó
         populateFilterTypeSelect();
         populateFilterOperationSelect();
@@ -512,22 +650,32 @@ function renderTaxoList(taxoType) {
     const list = cfg.getList();
     if (!list.length) {
         container.innerHTML = '<span class="adm-taxo-empty">Sin opciones todavía.</span>';
-        return;
+    } else {
+        container.innerHTML = list.map(item => `
+            <span class="adm-taxo-chip" data-id="${item.id}">
+                <span class="adm-taxo-chip-label" title="${item.name}">${item.name}${taxoType === 'province' && item.pais ? ` <span class="adm-taxo-chip-sub">· ${item.pais}</span>` : ''}</span>
+                <div class="adm-taxo-actions">
+                    <button type="button" class="adm-taxo-edit" title="Renombrar"><i class="fas fa-pen"></i></button>
+                    <button type="button" class="adm-taxo-del" title="Eliminar"><i class="fas fa-times"></i></button>
+                </div>
+            </span>
+        `).join('');
+        container.querySelectorAll('.adm-taxo-chip').forEach(chip => {
+            const id = chip.dataset.id;
+            chip.querySelector('.adm-taxo-edit').addEventListener('click', () => handleTaxoEdit(taxoType, id, chip));
+            chip.querySelector('.adm-taxo-del').addEventListener('click', () => handleTaxoDelete(taxoType, id));
+        });
     }
-    container.innerHTML = list.map(item => `
-        <span class="adm-taxo-chip" data-id="${item.id}">
-            <span class="adm-taxo-chip-label" title="${item.name}">${item.name}</span>
-            <div class="adm-taxo-actions">
-                <button type="button" class="adm-taxo-edit" title="Renombrar"><i class="fas fa-pen"></i></button>
-                <button type="button" class="adm-taxo-del" title="Eliminar"><i class="fas fa-times"></i></button>
-            </div>
-        </span>
-    `).join('');
-    container.querySelectorAll('.adm-taxo-chip').forEach(chip => {
-        const id = chip.dataset.id;
-        chip.querySelector('.adm-taxo-edit').addEventListener('click', () => handleTaxoEdit(taxoType, id, chip));
-        chip.querySelector('.adm-taxo-del').addEventListener('click', () => handleTaxoDelete(taxoType, id));
-    });
+
+    // El select de país del alta rápida de provincias depende de la lista de países.
+    if (taxoType === 'country') {
+        const sel = document.getElementById('new-province-country');
+        if (sel) {
+            const cur = sel.value;
+            sel.innerHTML = countries.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            if (countries.some(c => c.name === cur)) sel.value = cur;
+        }
+    }
 }
 
 async function handleTaxoAdd(taxoType) {
@@ -535,9 +683,19 @@ async function handleTaxoAdd(taxoType) {
     const input = document.getElementById(cfg.inputEl);
     const name  = input.value.trim();
     if (!name) return;
-    if (cfg.getList().some(i => i.name.toLowerCase() === name.toLowerCase())) { showToast('Esa opción ya existe.', 'error'); return; }
+
+    // Provincia: requiere país, y se guarda asociada a él.
+    let pais = null;
+    if (taxoType === 'province') {
+        pais = document.getElementById('new-province-country')?.value;
+        if (!pais) { showToast('Elegí el país de la provincia.', 'error'); return; }
+    }
+
+    if (cfg.getList().some(i => i.name.toLowerCase() === name.toLowerCase() && (taxoType !== 'province' || i.pais === pais))) {
+        showToast('Esa opción ya existe.', 'error'); return;
+    }
     try {
-        await cfg.create({ name });
+        await cfg.create(taxoType === 'province' ? { name, pais } : { name });
         input.value = '';
         cfg.setList(await cfg.fetch());
         renderTaxoList(taxoType);
@@ -597,10 +755,18 @@ async function handleQuickAdd(taxoType) {
         province: 'provincia',
         locality: 'localidad'
     }[taxoType];
+    // La provincia pertenece al país ya elegido en el formulario: no se pide
+    // de nuevo, se toma directo del select.
+    let paisDeLaProvincia = null;
+    if (taxoType === 'province') {
+        paisDeLaProvincia = document.getElementById('pais')?.value;
+        if (!paisDeLaProvincia) { showToast('Elegí un país antes de agregar una provincia.', 'error'); return; }
+    }
+
     const name  = prompt(`Nuevo ${label}:`);
     if (!name?.trim()) return;
     try {
-        await cfg.create({ name: name.trim() });
+        await cfg.create(taxoType === 'province' ? { name: name.trim(), pais: paisDeLaProvincia } : { name: name.trim() });
         cfg.setList(await cfg.fetch());
         renderTaxoList(taxoType);
         populateFormSelects();
@@ -628,8 +794,17 @@ function populateFormSelects() {
     fillSelect(document.getElementById('status'), statuses);
     fillSelect(document.getElementById('currency'), currencies);
     fillSelect(document.getElementById('pais'), countries, 'Seleccionar país');
-    fillSelect(document.getElementById('provincia'), provinces, 'Seleccionar provincia');
+    populateProvinceSelect(document.getElementById('pais')?.value);
     fillSelect(document.getElementById('localidad'), localities, 'Seleccionar localidad');
+}
+
+// La provincia depende del país elegido: sin país no hay opciones para mostrar.
+function populateProvinceSelect(paisValue) {
+    const select = document.getElementById('provincia');
+    if (!select) return;
+    const options = paisValue ? provinces.filter(p => p.pais === paisValue) : [];
+    fillSelect(select, options, paisValue ? 'Seleccionar provincia' : 'Elegí un país primero');
+    select.disabled = !paisValue;
 }
 function fillSelect(select, items, placeholder) {
     if (!select) return;
@@ -772,6 +947,7 @@ function renderAdminTable() {
             <td>${formatDate(p.createdAt)}</td>
             <td>
                 <div class="action-btns">
+                    <button class="btn-favorite ${p.featured ? 'active' : ''}" onclick="toggleFeatured('${p.id}')" title="${p.featured ? 'Quitar de favoritas' : 'Marcar como favorita'}"><i class="${p.featured ? 'fas' : 'far'} fa-star"></i></button>
                     <button class="btn-edit" onclick="editProperty('${p.id}')" title="Editar"><i class="fas fa-edit"></i></button>
                     <button class="btn-duplicate" onclick="handleDuplicateProperty('${p.id}')" title="Duplicar"><i class="fas fa-copy"></i></button>
                     <button class="btn-print" onclick="printPropertySheet('${p.id}')" title="Imprimir ficha / PDF"><i class="fas fa-print"></i></button>
@@ -1278,17 +1454,21 @@ function fillForm(p) {
     ensureOptionExists(citySelect, p.zone);
     ensureOptionExists(neighborhoodSelect, p.neighborhood);
     ensureOptionExists(document.getElementById('localidad'), p.localidad);
-    ensureOptionExists(document.getElementById('provincia'), p.provincia);
     ensureOptionExists(document.getElementById('pais'), p.pais);
     ensureOptionExists(document.getElementById('operation'), p.operation);
     ensureOptionExists(document.getElementById('status'), p.status);
     ensureOptionExists(document.getElementById('currency'), p.currency);
-    
+
     setVal('type', p.type); setVal('operation', p.operation);
     setVal('status', p.status); setVal('currency', p.currency || 'USD');
     setVal('neighborhood', p.neighborhood); setVal('zone', p.zone);
     setVal('localidad', p.localidad);
-    setVal('provincia', p.provincia); setVal('pais', p.pais || 'Argentina');
+    setVal('pais', p.pais || 'Argentina');
+    // La provincia depende del país recién seteado: recalcular sus opciones
+    // antes de asignar el valor guardado.
+    populateProvinceSelect(document.getElementById('pais')?.value);
+    ensureOptionExists(document.getElementById('provincia'), p.provincia);
+    setVal('provincia', p.provincia);
     setVal('branch', p.branch);
     setVal('tag', p.tag);
     setVal('description', p.description); setVal('observaciones', p.observaciones);
@@ -1389,6 +1569,7 @@ function openNewPropertyModal() {
     mountPropertyGallery();
     setGalleryUrls([]); // limpiar galería
     setVal('pais', 'Argentina');
+    populateProvinceSelect('Argentina');
     document.getElementById('display-prop-code').textContent = '—';
     switchTab('tab-principal');
     propertyModal.style.display = 'flex';
@@ -1408,6 +1589,20 @@ window.editProperty = async id => {
     fillForm(p);
     switchTab('tab-principal');
     propertyModal.style.display = 'flex';
+};
+
+// Marca/desmarca la propiedad como favorita (destacada en el home). Solo
+// persiste el campo tocado, sin pisar el resto del formulario en memoria.
+window.toggleFeatured = async id => {
+    const p = properties.find(x => x.id === id);
+    if (!p) return;
+    const next = !p.featured;
+    try {
+        await updateProperty(id, { featured: next });
+        p.featured = next;
+        if (kanbanView) renderKanban(); else renderAdminTable();
+        showToast(next ? 'Marcada como favorita.' : 'Quitada de favoritas.', 'success');
+    } catch (e) { showToast('Error al actualizar favorita: ' + e.message, 'error'); }
 };
 
 window.handleDuplicateProperty = async id => {

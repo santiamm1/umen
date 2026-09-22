@@ -1,6 +1,7 @@
 // main.js - Lógica principal premium para la página de inicio (Estilo Toribio Achával)
 
 import { getProperties, getCategories, getProvinces, getBlogPosts } from './propertyService.js?v=3';
+import { cardFeaturesHTML, cardCodeHTML, cardTypeStripHTML } from './cardFeatures.js?v=4';
 
 // Elementos DOM — se asignan luego de que el header partial se inyecte
 let header;
@@ -339,10 +340,18 @@ async function executeSearch(shouldScroll = false) {
             apiFilters.province = currentFilters.province;
         }
 
-        // Obtener propiedades
+        // Obtener propiedades: primero las favoritas (estrella en el admin) con una
+        // consulta propia — así aparecen siempre, sin depender de que caigan dentro
+        // del lote acotado que trae la consulta general — y se completa con las
+        // más recientes si hay menos de 6 marcadas.
         let results = [];
         if (checkFirebaseConfig() && window.db._databaseId && window.db._databaseId.projectId !== "TU_PROJECT_ID_AQUI") {
-            results = await getProperties(apiFilters);
+            const [featured, recent] = await Promise.all([
+                getProperties({ ...apiFilters, featured: true, limit: 6 }),
+                getProperties(apiFilters)
+            ]);
+            const featuredIds = new Set(featured.map(p => p.id));
+            results = [...featured, ...recent.filter(p => !featuredIds.has(p.id))];
         } else {
             results = getDemoProperties();
         }
@@ -374,7 +383,13 @@ async function executeSearch(shouldScroll = false) {
             results = results.filter(p => p.zone && p.zone.toLowerCase().includes(z));
         }
 
-        // Home: solo las 6 más recientes
+        // Los hoteles tienen su propia sección; no duplicar acá salvo que se
+        // haya elegido explícitamente esa categoría en el buscador.
+        if (currentFilters.category !== 'Hotel') {
+            results = results.filter(p => p.type !== 'Hotel');
+        }
+
+        // Home: las favoritas ya vienen primero (ver fetch más arriba).
         properties = results.slice(0, 6);
 
         // Renderizar y ordenar
@@ -501,34 +516,31 @@ function renderProperties() {
     }
 
     propertyListContainer.innerHTML = properties.map(property => {
-        const coverImg = property.images && property.images[0] 
-            ? property.images[0] 
+        const coverImg = property.images && property.images[0]
+            ? property.images[0]
             : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1073&q=80';
-        
+        // Los hoteles viven en Hoteles en Venta: la card redirige a la ficha original allá.
+        const isExternalHotel = property.type === 'Hotel' && property.externalUrl;
+        const linkAttrs = isExternalHotel
+            ? `href="${property.externalUrl}" target="_blank" rel="noopener noreferrer"`
+            : `href="property-detail.html?v=3&id=${property.id}"`;
+
         return `
-            <a class="property-card" href="property-detail.html?v=3&id=${property.id}">
+            <a class="property-card" ${linkAttrs}>
                 <div class="card-image">
                     <img src="${coverImg}" alt="${property.title}">
-                    <div class="card-badge">${property.operation}</div>
+                    <div class="card-badge${property.operation === 'alquiler' ? ' card-badge-alquiler' : ''}">${property.operation}</div>
                 </div>
                 <div class="card-content">
+                    ${cardTypeStripHTML(property)}
                     <div class="card-price">USD ${property.price.toLocaleString()}</div>
                     ${property.tag ? `<span class="card-tag-label">${property.tag}</span>` : ''}
                     <h3 class="card-title">${property.title}</h3>
+                    ${cardCodeHTML(property)}
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i> ${property.neighborhood ? property.neighborhood : 'Sin barrio'}, ${property.zone ? property.zone : 'Capital Federal'}
                     </div>
-                    <div class="card-features">
-                        <div class="feature-item">
-                            <i class="fas fa-ruler-combined"></i> ${property.surface || 0}m²
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-bed"></i> ${property.bedrooms || 0} Amb.
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-bath"></i> ${property.bathrooms || 1} Baños
-                        </div>
-                    </div>
+                    <div class="card-features">${cardFeaturesHTML(property)}</div>
                 </div>
             </a>
         `;
@@ -540,14 +552,20 @@ window.viewProperty = function(id) {
     window.location.href = `property-detail.html?id=${id}`;
 };
 
-// Renderizar los últimos 6 hoteles cargados (propiedades de categoría Hotel)
+// Renderizar los 6 hoteles favoritos (estrella en el admin); si hay menos
+// de 6 marcados, se completa con los más recientes.
 async function renderFeaturedRentals() {
     const container = document.getElementById('rental-list');
     if (!container) return;
 
     let hotels = [];
     try {
-        hotels = await getProperties({ category: 'Hotel', limit: 6 });
+        const [featured, recent] = await Promise.all([
+            getProperties({ category: 'Hotel', featured: true, limit: 6 }),
+            getProperties({ category: 'Hotel', limit: 100 })
+        ]);
+        const featuredIds = new Set(featured.map(h => h.id));
+        hotels = [...featured, ...recent.filter(h => !featuredIds.has(h.id))].slice(0, 6);
     } catch {
         hotels = [];
     }
@@ -558,27 +576,30 @@ async function renderFeaturedRentals() {
     }
 
     const FALLBACK_IMG = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-    container.innerHTML = hotels.slice(0, 6).map(property => {
+    container.innerHTML = hotels.map(property => {
         const coverImg = property.images && property.images[0]
             ? property.images[0]
             : FALLBACK_IMG;
+        // Los hoteles viven en Hoteles en Venta: la card redirige a la ficha original allá.
+        const linkAttrs = property.externalUrl
+            ? `href="${property.externalUrl}" target="_blank" rel="noopener noreferrer"`
+            : `href="property-detail.html?v=3&id=${property.id}"`;
         return `
-            <a class="property-card" href="property-detail.html?v=3&id=${property.id}">
+            <a class="property-card" ${linkAttrs}>
                 <div class="card-image">
                     <img src="${coverImg}" alt="${property.title}">
-                    <div class="card-badge">${property.operation}</div>
+                    <div class="card-badge${property.operation === 'alquiler' ? ' card-badge-alquiler' : ''}">${property.operation}</div>
                 </div>
                 <div class="card-content">
+                    ${cardTypeStripHTML(property)}
                     <div class="card-price">USD ${property.price.toLocaleString()}</div>
                     ${property.tag ? `<span class="card-tag-label">${property.tag}</span>` : ''}
                     <h3 class="card-title">${property.title}</h3>
+                    ${cardCodeHTML(property)}
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i> ${property.neighborhood || 'Sin barrio'}, ${property.zone || 'Capital Federal'}
                     </div>
-                    <div class="card-features">
-                        <div class="feature-item"><i class="fas fa-ruler-combined"></i> ${property.surface || 0}m²</div>
-                        <div class="feature-item"><i class="fas fa-bed"></i> ${property.bedrooms || 0} Amb.</div>
-                        <div class="feature-item"><i class="fas fa-bath"></i> ${property.bathrooms || 1} Baños</div>
+                    <div class="card-features">${cardFeaturesHTML(property)}
                     </div>
                 </div>
             </a>

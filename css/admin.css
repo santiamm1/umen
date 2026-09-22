@@ -874,7 +874,7 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 
 .action-btns { display: flex; gap: 8px; }
 
-.btn-edit, .btn-duplicate, .btn-print, .btn-delete {
+.btn-favorite, .btn-edit, .btn-duplicate, .btn-print, .btn-delete {
     border: none;
     background: var(--adm-bg);
     width: 36px;
@@ -888,6 +888,8 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     align-items: center;
     justify-content: center;
 }
+.btn-favorite:hover { background: #fef9c3; color: #ca8a04; }
+.btn-favorite.active { color: #ca8a04; }
 .btn-edit:hover { background: #e0f2fe; color: #0284c7; }
 .btn-duplicate:hover { background: #f1f5f9; color: #475569; }
 .btn-print:hover { background: #f0fdf4; color: #16a34a; }
@@ -960,6 +962,18 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     outline: none;
     font-family: inherit;
 }
+.adm-taxo-add select {
+    flex: 0 0 auto;
+    max-width: 140px;
+    border: none;
+    border-right: 1.5px solid var(--adm-border);
+    background: transparent;
+    padding: 12px 10px;
+    font-size: 0.82rem;
+    outline: none;
+    font-family: inherit;
+    color: var(--adm-dark);
+}
 .adm-taxo-add button {
     border: none;
     background: transparent;
@@ -1003,6 +1017,10 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.adm-taxo-chip-sub {
+    color: #94a3b8;
+    font-size: 0.8em;
 }
 
 .adm-taxo-chip input.adm-taxo-rename {
