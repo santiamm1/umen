@@ -7,6 +7,7 @@ const urlParams  = new URLSearchParams(window.location.search);
 const propertyId = urlParams.get('id');
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+const GENERIC_COVER_IMG = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';
 
 let galleryImages   = [];
 let currentGalleryIdx = 0;
@@ -144,48 +145,59 @@ function render(property) {
                 </div>
             </div>
 
-            <!-- ── Breadcrumb ─────────────────────────────────── -->
-            <div class="detail-breadcrumb">
-                <a href="/">Inicio</a>
-                <i class="fas fa-chevron-right"></i>
-                <a href="propiedades.html?v=3">Propiedades</a>
-                <i class="fas fa-chevron-right"></i>
-                <span>${property.title}</span>
-            </div>
+            <!-- ── Cover genérico + info dinámica encima: la imagen es
+                 la misma para todas las propiedades (no usa fotos propias,
+                 baja resolución); breadcrumb/título/precio/ubicación sí
+                 cambian por propiedad ──────────────────────────────── -->
+            <section class="detail-hero">
+                <img class="detail-hero-bg" src="${GENERIC_COVER_IMG}" alt="">
+                <div class="detail-hero-overlay"></div>
 
-            <!-- ── Encabezado: título + precio + compartir ───────
-                 Grid de 2 columnas x 3 filas: cada fila real (badge/label,
-                 título/precio, ubicación/íconos) queda compartida entre
-                 ambas columnas, así se alinean solas sin ajustes a mano. -->
-            <div class="detail-header-row">
-                <div class="detail-header-badges">
-                    <span class="detail-badge">${opLabel}</span>
-                    ${property.tag ? `<span class="detail-badge detail-badge-tag">${property.tag}</span>` : ''}
-                </div>
-                <span class="price-label">Valor de ${opLabel}</span>
+                <div class="detail-hero-content">
+                    <!-- ── Breadcrumb ─────────────────────────── -->
+                    <div class="detail-breadcrumb">
+                        <a href="/">Inicio</a>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="propiedades.html?v=3">Propiedades</a>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>${property.title}</span>
+                    </div>
 
-                <h1 class="detail-title">${property.title}</h1>
-                <div class="detail-price-value-wrap">
-                    <span class="price-value">${currencyLabel(property.currency)} ${property.price.toLocaleString()}${property.operation === 'alquiler' ? ' <span class="price-period">/mes</span>' : ''}</span>
-                    ${pricePerM2 ? `<span class="price-sqm">${pricePerM2.toLocaleString()} ${currencyLabel(property.currency)}/m²</span>` : ''}
-                </div>
+                    <!-- ── Encabezado: título + precio + compartir ───
+                         Grid de 2 columnas x 3 filas: cada fila real (badge/label,
+                         título/precio, ubicación/íconos) queda compartida entre
+                         ambas columnas, así se alinean solas sin ajustes a mano. -->
+                    <div class="detail-header-row">
+                        <div class="detail-header-badges">
+                            <span class="detail-badge">${opLabel}</span>
+                            ${property.tag ? `<span class="detail-badge detail-badge-tag">${property.tag}</span>` : ''}
+                        </div>
+                        <span class="price-label">Valor de ${opLabel}</span>
 
-                <p class="detail-location">
-                    <i class="fas fa-map-marker-alt"></i> ${location}
-                    ${property.code ? `<span class="detail-code">Cód. ${property.code}</span>` : ''}
-                </p>
-                <div class="detail-share">
-                    <a href="${waUrl}" target="_blank" class="share-btn share-wa" title="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    <button class="share-btn share-link" title="Copiar enlace" onclick="copyPropertyLink()">
-                        <i class="fas fa-link"></i>
-                    </button>
-                    <button class="share-btn share-print" title="Imprimir" onclick="window.print()">
-                        <i class="fas fa-print"></i>
-                    </button>
+                        <h1 class="detail-title">${property.title}</h1>
+                        <div class="detail-price-value-wrap">
+                            <span class="price-value">${currencyLabel(property.currency)} ${property.price.toLocaleString()}${property.operation === 'alquiler' ? ' <span class="price-period">/mes</span>' : ''}</span>
+                            ${pricePerM2 ? `<span class="price-sqm">${pricePerM2.toLocaleString()} ${currencyLabel(property.currency)}/m²</span>` : ''}
+                        </div>
+
+                        <p class="detail-location">
+                            <i class="fas fa-map-marker-alt"></i> ${location}
+                            ${property.code ? `<span class="detail-code">Cód. ${property.code}</span>` : ''}
+                        </p>
+                        <div class="detail-share">
+                            <a href="${waUrl}" target="_blank" class="share-btn share-wa" title="WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <button class="share-btn share-link" title="Copiar enlace" onclick="copyPropertyLink()">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button class="share-btn share-print" title="Imprimir" onclick="window.print()">
+                                <i class="fas fa-print"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             <!-- ── Galería: principal + secundarias ──────────── -->
             <div class="detail-gallery${galleryImages.length <= 1 ? ' gallery-single' : ''}">
