@@ -37,9 +37,9 @@
             <div class="tas-info">
 
                 <div class="tas-intro">
-                    <span class="tas-eyebrow">Tasación gratuita</span>
+                    <span class="tas-eyebrow">Tasación</span>
                     <h2>¿Querés vender o alquilar<br>tu propiedad?</h2>
-                    <p>Contactanos y te ayudamos a conocer el valor real de tu inmueble. Nuestro equipo analiza las características de tu propiedad y las condiciones actuales del mercado para darte una valuación precisa y sin compromiso.</p>
+                    <p>Contactanos y te ayudamos a conocer el valor real de tu inmueble. Nuestro equipo analiza las características de tu propiedad y las condiciones actuales del mercado para darte una valuación precisa.</p>
                 </div>
 
                 <!-- Diferenciadores -->
@@ -65,13 +65,6 @@
                             <span>Documento con valor, comparables del mercado y recomendaciones de publicación.</span>
                         </div>
                     </div>
-                    <div class="tas-feature">
-                        <div class="tas-feature-icon"><i class="fas fa-handshake"></i></div>
-                        <div class="tas-feature-text">
-                            <strong>Sin compromiso de venta</strong>
-                            <span>La tasación es gratuita y no implica ninguna obligación de publicar con UMEN.</span>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Contacto directo -->
@@ -89,7 +82,7 @@
                 <form class="tas-form" id="tas-form" novalidate>
                     <div class="tas-form-header">
                         <h3>Solicitá tu tasación</h3>
-                        <p>Gratis y sin compromiso. Te respondemos en 24 hs.</p>
+                        <p>Te respondemos en 24 hs.</p>
                     </div>
 
                     <!-- Tipo de operación -->
@@ -119,18 +112,6 @@
                         <input type="tel" id="tas-tel" placeholder="+54 11 ????-????" required>
                     </div>
 
-                    <div class="form-field">
-                        <label for="tas-tipo">Tipo de propiedad *</label>
-                        <select id="tas-tipo" required>
-                            <option value="">Seleccioná</option>
-                            <option value="departamento">Departamento</option>
-                            <option value="casa">Casa</option>
-                            <option value="oficina">Oficina / Local</option>
-                            <option value="lote">Lote / Terreno</option>
-                            <option value="hotel">Hotel</option>
-                            <option value="otro">Otro</option>
-                        </select>
-                    </div>
 
                     <div class="form-field">
                         <label for="tas-ubicacion">Ubicación *</label>
@@ -160,7 +141,7 @@
                     </div>
 
                     <button type="submit" class="tas-submit-btn" id="tas-submit">
-                        <span>Solicitar tasación gratuita</span> <i class="fas fa-arrow-right"></i>
+                        <span>Solicitar tasación</span> <i class="fas fa-arrow-right"></i>
                     </button>
 
                     <div id="tas-feedback" class="cf-feedback" style="display:none"></div>
@@ -231,7 +212,6 @@
             const apellido   = document.getElementById('tas-apellido').value.trim();
             const email      = document.getElementById('tas-email').value.trim();
             const tel        = document.getElementById('tas-tel').value.trim();
-            const tipo       = document.getElementById('tas-tipo').value;
             const ubicacion  = document.getElementById('tas-ubicacion').value.trim();
             const superficie = document.getElementById('tas-superficie').value.trim();
             const dormitorios= document.getElementById('tas-dormitorios').value;
@@ -260,7 +240,6 @@
                         mensaje: info,
                         extra: {
                             Operación: operacion,
-                            'Tipo de propiedad': tipo,
                             Ubicación: ubicacion,
                             Superficie: superficie ? `${superficie} m²` : '',
                             Dormitorios: dormitorios
@@ -281,7 +260,7 @@
                 feedback.textContent = err.message || 'No se pudo enviar la solicitud. Intentá de nuevo.';
                 feedback.style.display = 'flex';
                 btn.disabled = false;
-                btn.innerHTML = '<span>Solicitar tasación gratuita</span> <i class="fas fa-arrow-right"></i>';
+                btn.innerHTML = '<span>Solicitar tasación</span> <i class="fas fa-arrow-right"></i>';
             }
         });
     </script>
