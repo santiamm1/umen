@@ -343,7 +343,7 @@ function render(property) {
                                  style="border-radius:4px; height:36px; width:auto; object-fit:contain; background:#fff; padding:4px">
                             <div>
                                 <strong>UMEN Buenos Negocios</strong>
-                                <span>Av. Cabildo 4769 9° A, Nuñez</span>
+                                <span>Av. Cabildo 4769, 9° "A", Nuñez, Ciudad de Buenos Aires</span>
                             </div>
                         </div>
 
