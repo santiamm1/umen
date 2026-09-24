@@ -279,6 +279,11 @@ function setupEventListeners() {
 
     // Provincia depende del país elegido en el formulario de propiedad.
     document.getElementById('pais')?.addEventListener('change', e => populateProvinceSelect(e.target.value));
+    // Ciudad y localidad dependen de la provincia elegida.
+    document.getElementById('provincia')?.addEventListener('change', e => {
+        populateCitySelect(e.target.value);
+        populateLocalitySelect(e.target.value);
+    });
     document.getElementById('normalize-provinces-btn')?.addEventListener('click', normalizeProvinces);
 
     // KPIs del dashboard: llevan a Propiedades con el filtro correspondiente ya aplicado
@@ -330,10 +335,15 @@ const ZONE_TO_PROVINCE = {
 };
 
 async function backfillProvincias() {
-    const pending = properties.filter(p => !p.provincia && p.zone && ZONE_TO_PROVINCE[p.zone.toLowerCase()]);
+    // La colección "cities" ya tiene la provincia de cada ciudad cargada (ver
+    // scripts/backfill-city-province.mjs); se usa esa como fuente principal y el
+    // mapeo viejo, más limitado, solo como respaldo para lo que no matchee.
+    const provinceByCity = new Map(cities.filter(c => c.provincia).map(c => [c.name.toLowerCase(), c.provincia]));
+    const pending = properties.filter(p => !p.provincia && p.zone &&
+        (provinceByCity.get(p.zone.toLowerCase()) || ZONE_TO_PROVINCE[p.zone.toLowerCase()]));
     if (pending.length === 0) return;
     await Promise.all(pending.map(p => {
-        const provincia = ZONE_TO_PROVINCE[p.zone.toLowerCase()];
+        const provincia = provinceByCity.get(p.zone.toLowerCase()) || ZONE_TO_PROVINCE[p.zone.toLowerCase()];
         p.provincia = provincia;
         return updateProperty(p.id, { provincia }).catch(err => console.error('Backfill de provincia falló para', p.id, err));
     }));
@@ -463,7 +473,7 @@ async function loadAdminData() {
 
         // Completar país en provincias viejas (sin ese campo) y provincia en
         // propiedades/hoteles viejos (a partir de su ciudad). Solo 1 vez por navegador.
-        if (!localStorage.getItem('umen_provincia_backfill_v1')) {
+        if (!localStorage.getItem('umen_provincia_backfill_v2')) {
             await backfillProvinceCountries();
             renderTaxoList('province');
             populateFormSelects();
@@ -472,9 +482,9 @@ async function loadAdminData() {
         properties = await propertiesPromise;
         clearTimeout(timeout);
 
-        if (!localStorage.getItem('umen_provincia_backfill_v1')) {
+        if (!localStorage.getItem('umen_provincia_backfill_v2')) {
             await backfillProvincias();
-            localStorage.setItem('umen_provincia_backfill_v1', 'true');
+            localStorage.setItem('umen_provincia_backfill_v2', 'true');
         }
 
         // Recalculan los conteos "(N)" de cada opción ahora que properties ya cargó
@@ -788,14 +798,14 @@ async function handleQuickAdd(taxoType) {
 
 function populateFormSelects() {
     fillSelect(typeSelect, categories);
-    fillSelect(citySelect, cities, 'Seleccionar ciudad');
     fillSelect(neighborhoodSelect, neighborhoods, 'Seleccionar barrio');
     fillSelect(document.getElementById('operation'), operations);
     fillSelect(document.getElementById('status'), statuses);
     fillSelect(document.getElementById('currency'), currencies);
     fillSelect(document.getElementById('pais'), countries, 'Seleccionar país');
     populateProvinceSelect(document.getElementById('pais')?.value);
-    fillSelect(document.getElementById('localidad'), localities, 'Seleccionar localidad');
+    populateCitySelect(document.getElementById('provincia')?.value);
+    populateLocalitySelect(document.getElementById('provincia')?.value);
 }
 
 // La provincia depende del país elegido: sin país no hay opciones para mostrar.
@@ -805,6 +815,20 @@ function populateProvinceSelect(paisValue) {
     const options = paisValue ? provinces.filter(p => p.pais === paisValue) : [];
     fillSelect(select, options, paisValue ? 'Seleccionar provincia' : 'Elegí un país primero');
     select.disabled = !paisValue;
+}
+// La ciudad y la localidad dependen de la provincia elegida (mismo patrón que país → provincia).
+function populateCitySelect(provinciaValue) {
+    if (!citySelect) return;
+    const options = provinciaValue ? cities.filter(c => c.provincia === provinciaValue) : [];
+    fillSelect(citySelect, options, provinciaValue ? 'Seleccionar ciudad' : 'Elegí una provincia primero');
+    citySelect.disabled = !provinciaValue;
+}
+function populateLocalitySelect(provinciaValue) {
+    const select = document.getElementById('localidad');
+    if (!select) return;
+    const options = provinciaValue ? localities.filter(l => l.provincia === provinciaValue) : [];
+    fillSelect(select, options, provinciaValue ? 'Seleccionar localidad' : 'Elegí una provincia primero');
+    select.disabled = !provinciaValue;
 }
 function fillSelect(select, items, placeholder) {
     if (!select) return;
@@ -1451,9 +1475,7 @@ function fillForm(p) {
         document.getElementById('consultar-precio').checked = !!p.consultarPrecio;
     populateFormSelects();
     ensureOptionExists(typeSelect, p.type);
-    ensureOptionExists(citySelect, p.zone);
     ensureOptionExists(neighborhoodSelect, p.neighborhood);
-    ensureOptionExists(document.getElementById('localidad'), p.localidad);
     ensureOptionExists(document.getElementById('pais'), p.pais);
     ensureOptionExists(document.getElementById('operation'), p.operation);
     ensureOptionExists(document.getElementById('status'), p.status);
@@ -1461,14 +1483,20 @@ function fillForm(p) {
 
     setVal('type', p.type); setVal('operation', p.operation);
     setVal('status', p.status); setVal('currency', p.currency || 'USD');
-    setVal('neighborhood', p.neighborhood); setVal('zone', p.zone);
-    setVal('localidad', p.localidad);
+    setVal('neighborhood', p.neighborhood);
     setVal('pais', p.pais || 'Argentina');
     // La provincia depende del país recién seteado: recalcular sus opciones
     // antes de asignar el valor guardado.
     populateProvinceSelect(document.getElementById('pais')?.value);
     ensureOptionExists(document.getElementById('provincia'), p.provincia);
     setVal('provincia', p.provincia);
+    // Ciudad y localidad dependen de la provincia recién seteada.
+    populateCitySelect(document.getElementById('provincia')?.value);
+    populateLocalitySelect(document.getElementById('provincia')?.value);
+    ensureOptionExists(citySelect, p.zone);
+    ensureOptionExists(document.getElementById('localidad'), p.localidad);
+    setVal('zone', p.zone);
+    setVal('localidad', p.localidad);
     setVal('branch', p.branch);
     setVal('tag', p.tag);
     setVal('description', p.description); setVal('observaciones', p.observaciones);
