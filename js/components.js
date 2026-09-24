@@ -86,6 +86,11 @@ export async function loadFooter() {
     try {
         const html = await fetchPartial('partials/footer.html');
         placeholder.outerHTML = html;
+
+        // Mismo motivo que el logo del header: rutas absolutas "/assets/..." se rompen en subpaths.
+        document.querySelectorAll('#footer img[src^="/assets/"]').forEach(img => {
+            img.src = new URL(img.getAttribute('src').slice(1), siteRoot).href;
+        });
     } catch (e) {
         console.warn('No se pudo cargar el footer compartido:', e);
     }
