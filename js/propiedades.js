@@ -1,6 +1,6 @@
 // propiedades.js - Página de listado completo de propiedades UMEN
 
-import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries, getProvinces, getLocalities } from './propertyService.js?v=3';
+import { getProperties, getCategories, getCities, getAllNeighborhoods, getCountries, getProvinces, getLocalities } from './propertyService.js?v=4';
 import { cardFeaturesHTML, cardCodeHTML, cardTypeStripHTML } from './cardFeatures.js?v=4';
 
 const ITEMS_PER_PAGE = 12;

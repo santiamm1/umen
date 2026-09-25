@@ -13,10 +13,14 @@ import {
     getProvinces, createProvince, updateProvince, deleteProvince,
     getLocalities, createLocality, updateLocality, deleteLocality,
     getAdminProfile, saveAdminProfile,
-    getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost
-} from './propertyService.js?v=3';
+    getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost,
+    setLiveData
+} from './propertyService.js?v=4';
 import { initImageGallery, setGalleryUrls, getGalleryUrls, uploadFile } from './cloudinaryUpload.js?v=2';
 import { APP_VERSION } from './version.js';
+
+// El admin lee Firestore directo (no la caché pública de php/firestore.php) para ver sus cambios al instante.
+setLiveData();
 
 const sidebarVersionEl = document.getElementById('adm-sidebar-version');
 if (sidebarVersionEl) sidebarVersionEl.textContent = APP_VERSION;

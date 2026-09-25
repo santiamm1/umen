@@ -5825,13 +5825,13 @@ header.scrolled .mobile-menu-btn {
 }
 
 .nos-signature-avatar {
-    width: 44px;
-    height: 44px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid var(--white);
     box-shadow: 0 0 0 2px var(--primary-color);
-    margin-left: -12px;
+    margin-left: -16px;
 }
 
 .nos-signature-avatar:first-child {

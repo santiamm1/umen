@@ -41,51 +41,52 @@ async function getDb() {
     });
 }
 
+// Lecturas públicas: por defecto van a php/firestore.php (caché en el servidor, ~10 min),
+// así las visitas no gastan la cuota diaria de Firestore. Si el PHP no responde (ej. en local
+// con un server sin PHP) se cae a Firestore directo. El admin llama setLiveData() para leer
+// siempre de Firestore y ver sus cambios al instante.
+let liveData = false;
+export function setLiveData() { liveData = true; }
+
+async function readCollection(name) {
+    if (!liveData) {
+        try {
+            const res = await fetch(`/php/firestore.php?c=${name}`);
+            if (res.ok) return await res.json();
+        } catch { /* sin PHP: seguimos con Firestore */ }
+    }
+    const db = await getDb();
+    const snap = await getDocs(collection(db, name));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
 // Properties
+// El catálogo completo se descarga UNA vez por carga de página y todas las consultas filtran
+// en memoria. Antes cada sección/filtro disparaba su propia query (el home hacía 5, y
+// propiedades.html re-descargaba todo el catálogo en cada cambio de filtro).
+// ponytail: con ~180 propiedades (~500 KB) conviene; si el catálogo pasa de ~2000, volver a queries paginadas.
+let catalogPromise = null;
+
+function getCatalog() {
+    catalogPromise ??= readCollection('properties')
+        .catch(err => { catalogPromise = null; throw err; });
+    return catalogPromise;
+}
+
 export async function getProperties(filters = {}) {
     try {
-        const db = await getDb();
-        const colRef = collection(db, 'properties');
-        let queryConstraints = [];
+        let properties = [...await getCatalog()];
 
-        if (filters.category) {
-            queryConstraints.push(where('type', '==', filters.category));
-        }
-        if (filters.featured) {
-            queryConstraints.push(where('featured', '==', true));
-        }
-        // No filtramos 'operation' en la query: Firestore hace match exacto (case-sensitive)
-        // y propiedades cargadas antes de normalizar el campo pueden tener "Alquiler"/"Venta"
-        // en vez de minúsculas. Se filtra abajo, en memoria, sin distinguir mayúsculas.
-        if (filters.province) {
-            queryConstraints.push(where('provincia', '==', filters.province));
-        }
-        if (filters.minPrice) {
-            queryConstraints.push(where('price', '>=', parseInt(filters.minPrice)));
-        }
-        if (filters.maxPrice) {
-            queryConstraints.push(where('price', '<=', parseInt(filters.maxPrice)));
-        }
-
-        // No agregamos orderBy aquí para evitar errores de índice si el usuario no los tiene configurados.
-        // Si vamos a filtrar por operation en memoria, pedimos de más para no truncar antes de filtrar.
-        const requestedLimit = filters.limit || 100;
-        const FIRESTORE_MAX_LIMIT = 10000;
-        queryConstraints.push(limit(filters.operation ? Math.min(Math.max(requestedLimit * 4, 100), FIRESTORE_MAX_LIMIT) : requestedLimit));
-
-        const q = query(colRef, ...queryConstraints);
-
-        const querySnapshot = await getDocs(q);
-
-        let properties = [];
-        querySnapshot.forEach((doc) => {
-            properties.push({ id: doc.id, ...doc.data() });
-        });
-
+        if (filters.category) properties = properties.filter(p => p.type === filters.category);
+        if (filters.featured) properties = properties.filter(p => p.featured === true);
+        // 'operation' sin distinguir mayúsculas: hay propiedades viejas con "Alquiler"/"Venta".
         if (filters.operation) {
             const wanted = filters.operation.toLowerCase();
             properties = properties.filter(p => (p.operation || '').toLowerCase() === wanted);
         }
+        if (filters.province) properties = properties.filter(p => p.provincia === filters.province);
+        if (filters.minPrice) properties = properties.filter(p => p.price >= parseInt(filters.minPrice));
+        if (filters.maxPrice) properties = properties.filter(p => p.price <= parseInt(filters.maxPrice));
 
         // Ordenar en memoria por fecha de creación (descendente)
         properties.sort((a, b) => {
@@ -94,9 +95,7 @@ export async function getProperties(filters = {}) {
             return dateB - dateA;
         });
 
-        if (filters.operation) properties = properties.slice(0, requestedLimit);
-
-        return properties;
+        return properties.slice(0, filters.limit || 100);
     } catch (error) {
         console.error('Error getting properties:', error);
         return [];
@@ -127,6 +126,7 @@ export async function createProperty(propertyData) {
             createdAt: new Date(),
             updatedAt: new Date()
         });
+        catalogPromise = null; // que la próxima lectura traiga el cambio
         return docRef.id;
     } catch (error) {
         console.error('Error creating property:', error);
@@ -142,6 +142,7 @@ export async function updateProperty(id, propertyData) {
             ...propertyData,
             updatedAt: new Date()
         });
+        catalogPromise = null; // que la próxima lectura traiga el cambio
     } catch (error) {
         console.error('Error updating property:', error);
         throw error;
@@ -152,6 +153,7 @@ export async function deleteProperty(id) {
     try {
         const db = await getDb();
         await deleteDoc(doc(db, 'properties', id));
+        catalogPromise = null; // que la próxima lectura traiga el cambio
     } catch (error) {
         console.error('Error deleting property:', error);
         throw error;
@@ -161,13 +163,7 @@ export async function deleteProperty(id) {
 // Categories
 export async function getCategories() {
     try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'categories'));
-        const categories = [];
-        querySnapshot.forEach((doc) => {
-            categories.push({ id: doc.id, ...doc.data() });
-        });
-        return categories;
+        return await readCollection('categories');
     } catch (error) {
         console.error('Error getting categories:', error);
         return [];
@@ -252,10 +248,7 @@ export async function deleteFeature(id) {
 // Cities (ciudades) — lista plana, editable desde el panel de admin
 export async function getCities() {
     try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'cities'));
-        const cities = [];
-        querySnapshot.forEach((doc) => cities.push({ id: doc.id, ...doc.data() }));
+        const cities = await readCollection('cities');
         cities.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         return cities;
     } catch (error) {
@@ -283,10 +276,7 @@ export async function deleteCity(id) {
 // Neighborhoods (barrios) — lista plana, editable desde el panel de admin
 export async function getAllNeighborhoods() {
     try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'neighborhoods'));
-        const neighborhoods = [];
-        querySnapshot.forEach((doc) => neighborhoods.push({ id: doc.id, ...doc.data() }));
+        const neighborhoods = await readCollection('neighborhoods');
         neighborhoods.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         return neighborhoods;
     } catch (error) {
@@ -441,11 +431,7 @@ export async function deleteImage(url) {
 // ── Notas de Hoteles (contenido tipo blog, se linkea al catálogo externo de Hoteles en Venta) ──
 export async function getHotelNotes() {
     try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'hotelNotes'));
-        const notes = [];
-        querySnapshot.forEach((doc) => notes.push({ id: doc.id, ...doc.data() }));
-        return notes;
+        return await readCollection('hotelNotes');
     } catch (error) {
         console.error('Error getting hotel notes:', error);
         return [];
@@ -519,12 +505,8 @@ function sortByCreatedAtDesc(items) {
 
 export async function getBlogPosts(limitCount) {
     try {
-        const db = await getDb();
-        const colRef = collection(db, 'blogPosts');
-        const querySnapshot = await getDocs(limitCount ? query(colRef, limit(limitCount)) : colRef);
-        const posts = [];
-        querySnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
-        return sortByCreatedAtDesc(posts);
+        const posts = sortByCreatedAtDesc(await readCollection('blogPosts'));
+        return limitCount ? posts.slice(0, limitCount) : posts;
     } catch (error) {
         console.error('Error getting blog posts:', error);
         return [];
@@ -680,11 +662,7 @@ export async function deleteCurrency(id) {
 // ── Países ──
 export async function getCountries() {
     try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'countries'));
-        const arr = [];
-        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
-        return arr;
+        return await readCollection('countries');
     } catch (error) { console.error(error); return []; }
 }
 export async function createCountry(data) {
@@ -710,11 +688,7 @@ export async function deleteCountry(id) {
 // ── Provincias ──
 export async function getProvinces() {
     try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'provinces'));
-        const arr = [];
-        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
-        return arr;
+        return await readCollection('provinces');
     } catch (error) { console.error(error); return []; }
 }
 export async function createProvince(data) {
@@ -740,11 +714,7 @@ export async function deleteProvince(id) {
 // ── Localidades ──
 export async function getLocalities() {
     try {
-        const db = await getDb();
-        const querySnapshot = await getDocs(collection(db, 'localities'));
-        const arr = [];
-        querySnapshot.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
-        return arr;
+        return await readCollection('localities');
     } catch (error) { console.error(error); return []; }
 }
 export async function createLocality(data) {

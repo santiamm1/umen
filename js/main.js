@@ -1,6 +1,6 @@
 // main.js - Lógica principal premium para la página de inicio (Estilo Toribio Achával)
 
-import { getProperties, getCategories, getProvinces, getBlogPosts } from './propertyService.js?v=3';
+import { getProperties, getCategories, getProvinces, getBlogPosts } from './propertyService.js?v=4';
 import { cardFeaturesHTML, cardCodeHTML, cardTypeStripHTML } from './cardFeatures.js?v=4';
 
 // Elementos DOM — se asignan luego de que el header partial se inyecte
