@@ -8,13 +8,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=9.47">
+    <link rel="stylesheet" href="css/admin.css?v=9.53">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <!-- defer: solo los usa adminDashboard.js (módulo, corre después). lucide queda sincrónico
+         porque el script inline del final lo llama; con versión fija se cachea (@latest redirige cada vez). -->
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/lucide@1.48.0/dist/umd/lucide.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script type="module">
         import { firebaseConfig } from './js/config.js';
         import { initializeApp }  from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
@@ -36,7 +38,7 @@
     <aside class="adm-sidebar" id="adm-sidebar">
         <!-- Brand -->
         <div class="adm-brand">
-            <img src="assets/Logo/logo-footer.png" alt="UMEN">
+            <img src="assets/Logo/Logo.png" alt="UMEN — buenos negocios inmobiliarios">
             <button type="button" id="adm-sidebar-collapse-btn" class="adm-sidebar-collapse-btn" title="Colapsar barra lateral">
                 <i data-lucide="chevrons-left"></i>
             </button>
@@ -123,8 +125,23 @@
                 <div style="display:flex; align-items:center;">
                     <button class="adm-sidebar-toggle"><i class="fas fa-bars"></i></button>
                     <h2 id="global-topbar-title">Dashboard</h2>
+                    <!-- Saludo: solo en el Dashboard, al lado del título -->
+                    <span class="adm-topbar-greeting" id="adm-topbar-greeting"><span id="adm-greeting-name">Hola, Usuario</span></span>
                 </div>
                 <div style="display:flex;gap:12px;align-items:center;">
+                    <select id="dashboard-date-filter" title="Período de las estadísticas">
+                        <option value="all">Histórico (Todo)</option>
+                        <option value="week">Últimos 7 días</option>
+                        <option value="month">Este mes</option>
+                        <option value="year">Este año</option>
+                    </select>
+                    <div class="adm-weather-widget" id="weather-widget">
+                        <i class="fas fa-cloud-sun"></i>
+                        <div class="adm-weather-info">
+                            <span id="weather-temp">--°C</span>
+                            <span id="weather-desc">Buenos Aires</span>
+                        </div>
+                    </div>
                     <button id="new-property-btn" class="adm-btn adm-btn-primary">
                         <i class="fas fa-plus"></i> Nueva propiedad
                     </button>
@@ -132,7 +149,7 @@
             </div>
 
             <!-- Filtros globales (siempre visibles por pedido del usuario) -->
-            <div class="adm-filters">
+            <div class="adm-filters" style="display:none">
                 <div class="adm-search">
                     <i class="fas fa-search"></i>
                     <input type="text" id="admin-search" placeholder="Buscar título, barrio, zona...">
@@ -153,6 +170,18 @@
                     <option value="pausa">Pausa</option>
                     <option value="vendido">Vendido</option>
                 </select>
+                <select id="filter-date">
+                    <option value="">Fecha de carga</option>
+                    <option value="7">Últimos 7 días</option>
+                    <option value="30">Últimos 30 días</option>
+                    <option value="90">Últimos 3 meses</option>
+                    <option value="365">Último año</option>
+                    <option value="custom">Personalizado…</option>
+                </select>
+                <div class="adm-date-range" id="filter-date-range" hidden>
+                    <label>Desde <input type="date" id="filter-date-from"></label>
+                    <label>Hasta <input type="date" id="filter-date-to"></label>
+                </div>
             </div>
         </header>
 <!-- ======================= SECTION: DASHBOARD ======================= -->
@@ -160,32 +189,8 @@
             
             
 
-            <!-- Bienvenida y Clima -->
-            <div class="adm-welcome-banner">
-                <div class="adm-welcome-text">
-                    <h2 id="adm-greeting-name">Hola, Usuario</h2>
-                    <p>Bienvenido al panel de administración de UMEN.</p>
-                </div>
-                <div class="adm-weather-widget" id="weather-widget">
-                    <i class="fas fa-cloud-sun"></i>
-                    <div class="adm-weather-info">
-                        <span id="weather-temp">--°C</span>
-                        <span id="weather-desc">Buenos Aires</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Dashboard Top (KPIs y Gráficos) -->
             <div class="adm-dashboard-top">
-                <div class="adm-dashboard-toolbar">
-                    <h3>Estadísticas Generales</h3>
-                    <select id="dashboard-date-filter" class="adm-input" style="width: auto; font-weight: 600; padding: 8px 16px;">
-                        <option value="all">Histórico (Todo)</option>
-                        <option value="week">Esta semana (Últimos 7 días)</option>
-                        <option value="month">Este mes</option>
-                        <option value="year">Este año</option>
-                    </select>
-                </div>
                 <!-- Stats -->
                 <div class="adm-stats">
                     <div class="adm-stat adm-stat-total adm-stat-clickable" id="kpi-total" title="Ver todas las propiedades">
@@ -219,7 +224,7 @@
                 </div>
 
                 <!-- Gráficos -->
-                <div class="adm-charts" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div class="adm-charts">
                     <div class="adm-chart-card">
                         <h4>Distribución por Estado</h4>
                         <div class="adm-chart-container">
@@ -241,7 +246,7 @@
                 </div>
 
                 <!-- Mapa -->
-                <div class="adm-chart-card" style="margin-top:20px">
+                <div class="adm-chart-card">
                     <h4 style="display:flex;align-items:center;justify-content:space-between">
                         Mapa de Propiedades
                         <span id="map-coverage" style="font-size:13px;font-weight:normal;color:#64748b"></span>
@@ -270,12 +275,12 @@
                     <thead>
                         <tr>
                             <th>Código</th>
-                            <th>Propiedad</th>
+                            <th><button type="button" class="adm-th-sort" data-sort="title">Propiedad <i class="fas fa-sort"></i></button></th>
                             <th>Operación</th>
                             <th>Estado</th>
                             <th>Precio</th>
                             <th>Ubicación</th>
-                            <th>Fecha carga</th>
+                            <th><button type="button" class="adm-th-sort" data-sort="date">Fecha carga <i class="fas fa-sort"></i></button></th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -1347,16 +1352,20 @@
             if (linkEl) linkEl.classList.add('active');
 
             const topbarTitle = document.getElementById('global-topbar-title');
+            const isDashboard = target === 'dashboard';
+            document.getElementById('adm-topbar-greeting').style.display = isDashboard ? '' : 'none';
+            document.getElementById('dashboard-date-filter').style.display = isDashboard ? '' : 'none';
+            document.getElementById('weather-widget').style.display = isDashboard ? '' : 'none';
             if (topbarTitle && sectionTitleMap[target]) {
                 topbarTitle.textContent = sectionTitleMap[target];
             }
 
-            // El botón "Nueva propiedad" y los filtros de propiedades solo tienen sentido
-            // en Dashboard y Propiedades — en el resto de las secciones (taxonomías, etc.) sobran.
+            // "Nueva propiedad" tiene sentido en Dashboard y Propiedades; los filtros solo
+            // en Propiedades (en el Dashboard no afectan nada: ahí manda el filtro de período).
             const showPropertyTools = target === 'dashboard' || target === 'propiedades';
             document.getElementById('new-property-btn')?.style.setProperty('display', showPropertyTools ? '' : 'none');
             const filtersBar = document.querySelector('.adm-filters');
-            if (filtersBar) filtersBar.style.display = showPropertyTools ? '' : 'none';
+            if (filtersBar) filtersBar.style.display = target === 'propiedades' ? '' : 'none';
 
             document.querySelectorAll('.adm-section').forEach(sec => sec.style.display = 'none');
             const sec = document.getElementById('section-' + target);

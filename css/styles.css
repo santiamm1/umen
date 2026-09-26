@@ -3664,9 +3664,15 @@ header.scrolled .mobile-menu-btn {
 }
 
 .login-form-card .logo {
-    height: 50px;
-    margin-bottom: 30px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    /* El logo tiene texto oscuro: va sobre una placa blanca */
+    width: 190px;
+    height: auto;
+    display: block;
+    margin: 0 auto 30px;
+    padding: 12px 18px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
 }
 
 .login-form-card h2 {

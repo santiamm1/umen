@@ -3,9 +3,9 @@
     --adm-primary: #ff7300; /* Signature UMEN Orange */
     --adm-primary-hover: #e96100;
     --adm-dark: #121212; 
-    --adm-dark-sidebar: #0B0F19; /* Obsidian Black for sidebar */
-    --adm-sidebar-text: #8C98A4;
-    --adm-sidebar-hover: #19202E;
+    --adm-dark-sidebar: #FFFFFF; /* Sidebar clara: el logo nuevo tiene texto oscuro */
+    --adm-sidebar-text: #8A929B;
+    --adm-sidebar-hover: #F4F5F7;
     --adm-text: #1A1D20; /* Graphite text */
     --adm-muted: #6C757D;
     --adm-border: rgba(0, 0, 0, 0.06);
@@ -74,21 +74,22 @@ input, button, select, textarea, optgroup, option {
     overflow-y: auto;
     overflow-x: hidden;
     color: var(--adm-sidebar-text);
-    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    border-right: 1px solid var(--adm-border);
     transition: width 0.25s ease;
 }
 
 /* Sidebar Brand */
 .adm-sidebar .adm-brand {
-    padding: 22px 16px 22px 24px;
+    padding: 20px 16px 16px 20px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 8px;
+    border-bottom: 1px solid var(--adm-border);
 }
 .adm-sidebar .adm-brand img {
-    height: 38px;
+    width: 150px;
+    height: auto;
     display: block;
 }
 
@@ -100,14 +101,14 @@ input, button, select, textarea, optgroup, option {
     align-items: center;
     justify-content: center;
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(0,0,0,0.08);
     border-radius: 8px;
     color: var(--adm-sidebar-text);
     cursor: pointer;
     font-size: 0.75rem;
     transition: all 0.2s ease;
 }
-.adm-sidebar-collapse-btn:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+.adm-sidebar-collapse-btn:hover { color: var(--adm-primary); border-color: rgba(255,115,0,0.35); }
 .adm-sidebar-collapse-btn i, .adm-sidebar-collapse-btn svg { width: 14px; height: 14px; transition: transform 0.25s ease; }
 
 /* ── Sidebar colapsada (solo íconos) ─────────────────────────── */
@@ -134,33 +135,33 @@ input, button, select, textarea, optgroup, option {
     width: 100%;
     padding: 12px;
     margin-bottom: 8px;
-    background: rgba(255, 255, 255, 0.04);
+    background: #F7F8FA;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--adm-border);
     font-family: inherit;
     text-align: left;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease;
 }
 .adm-user-profile:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: #F1F2F5;
+    border-color: rgba(0, 0, 0, 0.1);
 }
 .adm-avatar {
     position: relative;
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
 }
 .adm-user-avatar {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
 .adm-avatar-fallback {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -192,8 +193,8 @@ input, button, select, textarea, optgroup, option {
     flex-direction: column;
 }
 .adm-user-name {
-    color: #fff;
-    font-weight: 400;
+    color: var(--adm-text);
+    font-weight: 500;
     font-size: 0.95rem;
 }
 .adm-user-role {
@@ -206,7 +207,7 @@ input, button, select, textarea, optgroup, option {
     padding: 16px 12px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 22px;
 }
 
 .adm-sidebar-section {
@@ -216,26 +217,27 @@ input, button, select, textarea, optgroup, option {
 }
 
 .adm-sidebar-section-label {
-    font-size: 0.72rem;
-    font-weight: 400;
+    font-size: 0.68rem;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #ffffff;
+    letter-spacing: 0.09em;
+    color: #A3AAB2;
     padding: 0 12px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .adm-sidebar-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
-    border-radius: 12px;
+    position: relative;
+    padding: 10px 12px;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 400;
-    color: #ffffff;
-    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: #3D434A;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .adm-sidebar-link i, .adm-sidebar-link svg {
@@ -244,29 +246,37 @@ input, button, select, textarea, optgroup, option {
     flex-shrink: 0;
     text-align: center;
     font-size: 1.05rem;
-    color: #ffffff;
+    color: #8A929B;
     stroke-width: 1.75;
     transition: color 0.25s ease;
 }
 
 .adm-sidebar-link:hover {
     background: var(--adm-sidebar-hover);
-    color: var(--adm-white);
-    transform: translateX(4px);
+    color: var(--adm-text);
 }
 .adm-sidebar-link:hover i, .adm-sidebar-link:hover svg { color: var(--adm-primary); }
 
 .adm-sidebar-link.active {
-    background: linear-gradient(90deg, rgba(255, 115, 0, 0.15), transparent);
-    color: var(--adm-white);
-    font-weight: 400;
-    border-left: 3px solid var(--adm-primary);
+    background: rgba(255, 115, 0, 0.09);
+    color: #B84F00;
+    font-weight: 500;
+}
+.adm-sidebar-link.active::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--adm-primary);
 }
 .adm-sidebar-link.active i, .adm-sidebar-link.active svg { color: var(--adm-primary); }
 
 .adm-sidebar-footer {
     padding: 12px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    border-top: 1px solid var(--adm-border);
 }
 
 .adm-sidebar-logout {
@@ -286,8 +296,8 @@ input, button, select, textarea, optgroup, option {
     transition: all 0.2s ease;
 }
 .adm-sidebar-logout:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background: rgba(220, 38, 38, 0.07);
+    color: #dc2626;
 }
 .adm-sidebar-logout i, .adm-sidebar-logout svg { width: 16px; height: 16px; flex-shrink: 0; font-size: 0.9rem; }
 
@@ -297,7 +307,7 @@ input, button, select, textarea, optgroup, option {
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.4px;
-    color: rgba(255,255,255,0.3);
+    color: #B8BEC5;
 }
 
 .adm-main {
@@ -339,47 +349,30 @@ input, button, select, textarea, optgroup, option {
 }
 
 /* ── Dashboard Top (KPIs y Gráficos) ─────────────────────────── */
-.adm-welcome-banner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, rgba(255, 115, 0, 0.05) 0%, transparent 100%);
-    border: 1px solid rgba(255, 115, 0, 0.1);
-    border-radius: var(--adm-radius);
-    padding: 24px 32px;
-    margin-bottom: 24px;
-}
-
-.adm-welcome-text h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--adm-dark);
-    margin-bottom: 4px;
-}
-
-.adm-welcome-text p {
+/* "Hola, Santiago" al lado del título, separado por una línea vertical */
+.adm-topbar-greeting {
+    margin-left: 14px;
+    padding-left: 14px;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+    font-size: 0.95rem;
     color: var(--adm-muted);
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin: 0;
 }
 
+/* Clima: chip compacto en la topbar, junto a "Nueva propiedad" */
 .adm-weather-widget {
     display: flex;
     align-items: center;
-    gap: 16px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 12px 24px;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    gap: 10px;
+    height: 44px;
+    padding: 0 16px 0 12px;
+    border-radius: 12px;
+    background: #FAFAFB;
+    border: 1px solid var(--adm-border);
 }
 
 .adm-weather-widget i {
-    font-size: 2rem;
-    color: #ff7300;
+    font-size: 1.3rem;
+    color: var(--adm-primary);
 }
 
 .adm-weather-info {
@@ -388,25 +381,24 @@ input, button, select, textarea, optgroup, option {
 }
 
 #weather-temp {
-    font-size: 1.4rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--adm-dark);
-    line-height: 1;
+    line-height: 1.1;
 }
 
 #weather-desc {
-    font-size: 0.75rem;
+    font-size: 0.66rem;
     text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 0.05em;
     color: var(--adm-muted);
-    margin-top: 2px;
 }
 
 .adm-dashboard-top {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     margin-bottom: 32px;
 }
 
@@ -414,25 +406,41 @@ input, button, select, textarea, optgroup, option {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
 }
+
+#dashboard-date-filter {
+    height: 44px;
+    padding: 0 36px 0 14px;
+    border: 1px solid var(--adm-border);
+    border-radius: 12px;
+    background: var(--adm-white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236C757D' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--adm-text);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s ease;
+}
+#dashboard-date-filter:hover { border-color: #cbd5e1; }
+#dashboard-date-filter:focus { outline: none; border-color: var(--adm-primary); box-shadow: 0 0 0 4px rgba(255, 115, 0, 0.12); }
 
 /* ── Stats ───────────────────────────────────────────────────── */
 .adm-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 20px;
+    gap: 16px;
 }
 
 .adm-stat {
     background: var(--adm-white);
     border: 1px solid var(--adm-border);
     border-radius: var(--adm-radius);
-    padding: 24px;
+    padding: 20px 22px;
     display: flex;
     align-items: center;
     text-align: left;
-    gap: 18px;
+    gap: 16px;
     box-shadow: var(--adm-shadow);
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
     position: relative;
@@ -512,8 +520,8 @@ input, button, select, textarea, optgroup, option {
 /* ── Gráficos ────────────────────────────────────────────────── */
 .adm-charts {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: 1fr 1fr 1.4fr;
+    gap: 16px;
 }
 
 .adm-chart-card {
@@ -533,13 +541,13 @@ input, button, select, textarea, optgroup, option {
 }
 
 .adm-chart-card h4 {
-    padding-bottom: 14px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--adm-border);
 }
 
 .adm-chart-container {
     position: relative;
-    height: 320px;
+    height: 250px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -745,8 +753,9 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 }
 
 .adm-filters select {
+    flex: 0 0 170px;
     height: 44px;
-    min-width: 140px;
+    min-width: 0;
     border: 1px solid var(--adm-border);
     background: var(--adm-white);
     border-radius: 12px;
@@ -783,6 +792,33 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     font-weight: 700;
 }
 
+/* Rango de fechas personalizado (se muestra con "Personalizado…") */
+.adm-date-range { display: flex; gap: 12px; margin-left: auto; }
+.adm-date-range[hidden] { display: none; }
+.adm-date-range label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--adm-muted);
+}
+.adm-date-range input {
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--adm-border);
+    border-radius: 12px;
+    background: var(--adm-white);
+    font-size: 0.9rem;
+    color: var(--adm-text);
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.adm-date-range input:focus {
+    outline: none;
+    border-color: var(--adm-primary);
+    box-shadow: 0 0 0 4px rgba(255, 115, 0, 0.12);
+}
+
 /* ── Tabla ───────────────────────────────────────────────────── */
 .adm-table-wrap { 
     overflow-x: auto; 
@@ -815,6 +851,21 @@ h4 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; colo
     background: #f8fafc;
     border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
+.adm-th-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.adm-th-sort i { font-size: 0.75rem; color: #B8BEC5; transition: color 0.2s ease; }
+.adm-th-sort:hover, .adm-th-sort.active, .adm-th-sort.active i { color: var(--adm-primary); }
+.adm-th-sort:focus-visible { outline: 2px solid var(--adm-primary); outline-offset: 3px; border-radius: 4px; }
 .adm-table th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
 .adm-table th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
@@ -1369,7 +1420,9 @@ select.adm-input:focus {
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 1100px) {
-    .adm-stats { grid-template-columns: repeat(3, 1fr); }
+    .adm-stats { grid-template-columns: repeat(2, 1fr); }
+    .adm-charts { grid-template-columns: 1fr 1fr; }
+    .adm-charts > :last-child { grid-column: 1 / -1; }
     .adm-taxo-grid { grid-template-columns: 1fr; }
     .adm-sidebar { width: 200px; }
 }
@@ -1382,13 +1435,16 @@ select.adm-input:focus {
         height: 100vh;
         width: 260px;
     }
-    .adm-sidebar.adm-sidebar-open { display: flex; }
+    .adm-sidebar.adm-sidebar-open { display: flex; box-shadow: 12px 0 40px rgba(0,0,0,0.15); }
     .adm-sidebar-toggle { display: block !important; }
     .adm-sidebar-collapse-btn { display: none; }
     .adm-wrapper.adm-sidebar-collapsed .adm-sidebar { width: 260px; }
     .adm-wrapper { display: block; }
     .adm-main { padding: 0 0 50px; }
     .adm-stats { grid-template-columns: repeat(2, 1fr); }
+    .adm-charts { grid-template-columns: 1fr; }
+    .adm-filters select { flex: 1 1 140px; }
+    .adm-weather-widget, .adm-topbar-greeting { display: none !important; }
     .adm-form-grid { grid-template-columns: 1fr; }
     .adm-topbar { padding: 16px; }
     .adm-topbar-header { flex-wrap: wrap; gap: 10px; }

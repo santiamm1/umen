@@ -280,6 +280,21 @@ function setupEventListeners() {
     document.getElementById('filter-operation')?.addEventListener('change', rerenderProperties);
     document.getElementById('filter-type')?.addEventListener('change', rerenderProperties);
     document.getElementById('filter-status')?.addEventListener('change', rerenderProperties);
+    document.getElementById('filter-date')?.addEventListener('change', e => {
+        document.getElementById('filter-date-range').hidden = e.target.value !== 'custom';
+        rerenderProperties();
+    });
+    document.getElementById('filter-date-from')?.addEventListener('change', rerenderProperties);
+    document.getElementById('filter-date-to')?.addEventListener('change', rerenderProperties);
+    document.querySelectorAll('.adm-th-sort').forEach(btn => btn.addEventListener('click', () => {
+        // Primer clic: A→Z / más reciente primero; siguiente clic invierte.
+        const key = btn.dataset.sort;
+        tableSort = tableSort.key === key
+            ? { key, dir: tableSort.dir === 'asc' ? 'desc' : 'asc' }
+            : { key, dir: key === 'date' ? 'desc' : 'asc' };
+        currentPage = 1;
+        renderAdminTable();
+    }));
 
     // Provincia depende del país elegido en el formulario de propiedad.
     document.getElementById('pais')?.addEventListener('change', e => populateProvinceSelect(e.target.value));
@@ -462,13 +477,11 @@ async function loadAdminData() {
         }
     }, 6000);
     try {
-        // Sembrar valores por defecto solo 1 vez por navegador para que cargue ultra rápido
+        // Sembrar valores por defecto solo 1 vez por navegador. Antes corría también "de fondo"
+        // en cada carga: re-leía las 9 taxonomías enteras (el doble de lecturas a Firestore).
         if (!localStorage.getItem('umen_taxo_seeded_v3')) {
             await ensureDefaultTaxonomy();
             localStorage.setItem('umen_taxo_seeded_v3', 'true');
-        } else {
-            // Se ejecuta de fondo sin frenar la UI
-            ensureDefaultTaxonomy().catch(console.error);
         }
 
         // Cargamos todas las propiedades y las listas de taxonomía EN PARALELO
@@ -910,6 +923,9 @@ function goToPropertiesFiltered({ operation = '', status = '' }) {
     if (typeSelect) typeSelect.value = '';
     if (statusSelect) statusSelect.value = status;
     if (searchInput) searchInput.value = '';
+    const dateSelect = document.getElementById('filter-date');
+    if (dateSelect) dateSelect.value = '';
+    document.getElementById('filter-date-range').hidden = true;
     currentPage = 1;
     if (kanbanView) renderKanban(); else renderAdminTable();
 
@@ -923,9 +939,21 @@ function getSearchFilteredProperties() {
     const operationFilter = document.getElementById('filter-operation')?.value || '';
     const typeFilter = document.getElementById('filter-type')?.value || '';
     const statusFilter = document.getElementById('filter-status')?.value || '';
+    const dateFilter = document.getElementById('filter-date')?.value || '';
 
     let list = properties;
 
+    if (dateFilter === 'custom') {
+        // Fechas del input en hora local; "hasta" incluye el día completo.
+        const from = document.getElementById('filter-date-from')?.value;
+        const to = document.getElementById('filter-date-to')?.value;
+        const since = from ? new Date(from + 'T00:00:00').getTime() : -Infinity;
+        const until = to ? new Date(to + 'T23:59:59.999').getTime() : Infinity;
+        list = list.filter(p => { const t = toTime(p.createdAt); return t >= since && t <= until; });
+    } else if (dateFilter) {
+        const since = Date.now() - Number(dateFilter) * 86400000;
+        list = list.filter(p => toTime(p.createdAt) >= since);
+    }
     if (operationFilter) {
         list = list.filter(p => (p.operation || '').toLowerCase() === operationFilter);
     }
@@ -946,10 +974,37 @@ function getSearchFilteredProperties() {
     return list;
 }
 
+function toTime(v) {
+    if (!v) return 0;
+    const t = (v.toDate ? v.toDate() : new Date(v)).getTime();
+    return isNaN(t) ? 0 : t;
+}
+
 // ── Tabla de propiedades ──────────────────────────────────────────────────────
+let tableSort = { key: null, dir: 'asc' };
+
+function sortProperties(list) {
+    if (!tableSort.key) return list;
+    const sign = tableSort.dir === 'asc' ? 1 : -1;
+    const cmp = tableSort.key === 'title'
+        ? (a, b) => (a.title || '').localeCompare(b.title || '', 'es', { sensitivity: 'base', numeric: true })
+        : (a, b) => toTime(a.createdAt) - toTime(b.createdAt);
+    return [...list].sort((a, b) => sign * cmp(a, b));
+}
+
+function updateSortIndicators() {
+    document.querySelectorAll('.adm-th-sort').forEach(btn => {
+        const active = btn.dataset.sort === tableSort.key;
+        btn.classList.toggle('active', active);
+        btn.querySelector('i').className = 'fas ' + (!active ? 'fa-sort' : tableSort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+        btn.title = btn.dataset.sort === 'title' ? 'Ordenar A→Z / Z→A' : 'Ordenar por fecha';
+    });
+}
+
 function renderAdminTable() {
     const container = document.getElementById('pagination-container');
-    const listToRender = getSearchFilteredProperties();
+    const listToRender = sortProperties(getSearchFilteredProperties());
+    updateSortIndicators();
 
     if (!listToRender.length) {
         propertiesTbody.innerHTML = '<tr><td colspan="8" class="adm-table-empty">No se encontraron propiedades.</td></tr>';

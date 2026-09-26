@@ -15,13 +15,6 @@ import {
     limit
 } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-import {
-    ref,
-    uploadBytes,
-    getDownloadURL,
-    deleteObject
-} from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
-
 // Helper to wait for Firebase initialization
 async function getDb() {
     return new Promise((resolve, reject) => {
@@ -402,29 +395,6 @@ export async function ensureDefaultTaxonomy() {
         ]);
     } catch (error) {
         console.error('Error seeding default taxonomy:', error);
-    }
-}
-
-// Image upload
-export async function uploadImage(file, path) {
-    try {
-        const storageRef = ref(window.storage, path);
-        const snapshot = await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        return downloadURL;
-    } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
-    }
-}
-
-export async function deleteImage(url) {
-    try {
-        const storageRef = ref(window.storage, url);
-        await deleteObject(storageRef);
-    } catch (error) {
-        console.error('Error deleting image:', error);
-        throw error;
     }
 }
 
