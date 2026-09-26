@@ -1,5 +1,17 @@
 RewriteEngine On
 
+# --- MANTENIMIENTO: borrar este bloque para volver a abrir el sitio ---
+# Visitantes ven mantenimiento.html (503, así Google no lo indexa).
+# El admin sigue andando. Para ver el sitio real: entrar con ?preview (queda 1 día por cookie).
+ErrorDocument 503 /mantenimiento.html
+RewriteCond %{QUERY_STRING} (^|&)preview
+RewriteRule ^ - [CO=umen_preview:1:%{HTTP_HOST}:1440:/]
+RewriteCond %{QUERY_STRING} !(^|&)preview
+RewriteCond %{HTTP_COOKIE} !umen_preview=1
+RewriteCond %{REQUEST_URI} !^/(mantenimiento\.html|admin-|assets/|css/|js/|php/|partials/|wp-content/)
+RewriteRule ^ - [R=503,L]
+# --- FIN MANTENIMIENTO ---
+
 # URLs lindas para las notas de hoteles: /hoteles/<slug> → hotel-nota.html?slug=<slug>
 RewriteRule ^hoteles/([a-z0-9-]+)/?$ hotel-nota.html?slug=$1 [L,QSA]
 
